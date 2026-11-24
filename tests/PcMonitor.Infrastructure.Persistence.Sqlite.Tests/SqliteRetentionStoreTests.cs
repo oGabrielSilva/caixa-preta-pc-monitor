@@ -82,6 +82,27 @@ public sealed class SqliteRetentionStoreTests : IDisposable
     }
 
     [Fact]
+    public void Retention_keeps_the_120_seconds_before_an_incident()
+    {
+        for (var second = 0; second < 300; second += 30)
+        {
+            Frame(_minute.AddSeconds(second), second, second);
+        }
+
+        var failure = _minute.AddSeconds(240);
+        new Incidents.SqliteIncidentStore(_temp.Database).SaveIncident(new PcMonitor.Domain.Incidents.Incident(
+            SqliteIncidentStoreTests.Crash(1, failure.AddMinutes(3)), failure, PcMonitor.Domain.Incidents.FailureTimeSource.LastFrame,
+            null, _segment, []));
+
+        _retention.DeleteFramesBefore(_minute.AddHours(1));
+
+        using var connection = _temp.Database.OpenReader();
+        connection.Query<long>("SELECT ts_ms FROM frame ORDER BY ts_ms")
+            .Select(ms => (ms - _minute.ToUnixTimeMilliseconds()) / 1000)
+            .ShouldBe([120L, 150L, 180L, 210L, 240L]);
+    }
+
+    [Fact]
     public void DeleteFramesBefore_removes_only_older_frames()
     {
         Frame(_minute, 1f, 1f);

@@ -5,7 +5,7 @@ namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests;
 
 public sealed class SchemaMigratorTests
 {
-    private const int LatestVersion = 2;
+    private const int LatestVersion = 3;
 
     [Fact]
     public void Migrate_creates_the_schema_and_sets_user_version()
@@ -17,7 +17,7 @@ public sealed class SchemaMigratorTests
         using var connection = temp.Database.OpenWriter();
         connection.ExecuteScalar<long>("PRAGMA user_version").ShouldBe(LatestVersion);
         connection.Query<string>("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name")
-            .ShouldBe(["aggregate_1m", "frame", "segment", "segment_sensor", "sensor", "session"]);
+            .ShouldBe(["aggregate_1m", "frame", "incident", "incident_event", "segment", "segment_sensor", "sensor", "session"]);
     }
 
     [Fact]

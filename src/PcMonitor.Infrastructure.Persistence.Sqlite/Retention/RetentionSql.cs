@@ -28,7 +28,17 @@ internal static class RetentionSql
         VALUES (@SegmentId, @MinuteMs, @SensorId, @Min, @Avg, @Max);
         """;
 
+    /// <summary>Frames this long before an incident's estimated failure are never deleted.</summary>
+    public const long IncidentWindowMs = 120_000;
+
     public const string DeleteFramesBatch = """
-        DELETE FROM frame WHERE id IN (SELECT id FROM frame WHERE ts_ms < @CutoffMs LIMIT @BatchSize);
+        DELETE FROM frame WHERE id IN (
+            SELECT f.id FROM frame f
+            WHERE f.ts_ms < @CutoffMs
+              AND NOT EXISTS (
+                  SELECT 1 FROM incident i
+                  WHERE i.segment_id = f.segment_id
+                    AND f.ts_ms BETWEEN i.estimated_failure_ms - @IncidentWindowMs AND i.estimated_failure_ms)
+            LIMIT @BatchSize);
         """;
 }

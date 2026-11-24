@@ -49,7 +49,8 @@ public sealed class SqliteRetentionStore(SqliteDatabase database) : IRetentionSt
         do
         {
             deleted = connection.Execute(
-                RetentionSql.DeleteFramesBatch, new { CutoffMs = cutoff.ToUnixTimeMilliseconds(), BatchSize = DeleteBatchSize });
+                RetentionSql.DeleteFramesBatch,
+                new { CutoffMs = cutoff.ToUnixTimeMilliseconds(), RetentionSql.IncidentWindowMs, BatchSize = DeleteBatchSize });
             total += deleted;
         }
         while (deleted == DeleteBatchSize);
