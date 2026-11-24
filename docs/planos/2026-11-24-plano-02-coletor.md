@@ -375,3 +375,7 @@ Não produz código; prova que o coletor funciona de verdade.
 - Papéis com valores coerentes em repouso: +12V 12,192 V · +5V 5,000 V · +3.3V 3,296 V · Vcore 1,06 V · CPU 33–35 °C, 11–15 W, 3–5 % de carga.
 - `Restart-Service`: a sessão #1 terminou com `ServiceStopped` (16:18:36) e a #2 começou em 16:18:38 com o mesmo catálogo.
 - Banco após ~90 s: 56 KB + WAL 1,5 MB (o WAL é reaproveitado após checkpoint; o crescimento real deve ser medido após um dia).
+
+### Após as correções da revisão final (24/11/2026, 16:36)
+
+- Reinstalado com `Install-Collector.ps1`: a sessão #2 terminou com `ServiceStopped`, a #3 começou `Ok` com 35 sensores e a retenção agregou 19 minutos sobre o banco já migrado para a versão 2 (rótulos por segmento).
