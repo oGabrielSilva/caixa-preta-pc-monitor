@@ -11,6 +11,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/PcMonitor.Application.Tests/PcMonitor.Application.Tests.csproj" />
     <Project Path="tests/PcMonitor.Architecture.Tests/PcMonitor.Architecture.Tests.csproj" />
+    <Project Path="tests/PcMonitor.Dashboard.Tests/PcMonitor.Dashboard.Tests.csproj" />
     <Project Path="tests/PcMonitor.Domain.Tests/PcMonitor.Domain.Tests.csproj" />
     <Project Path="tests/PcMonitor.Infrastructure.Persistence.Sqlite.Tests/PcMonitor.Infrastructure.Persistence.Sqlite.Tests.csproj" />
   </Folder>

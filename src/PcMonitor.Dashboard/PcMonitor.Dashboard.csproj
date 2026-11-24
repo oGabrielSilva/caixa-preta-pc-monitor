@@ -3,4 +3,7 @@
     <ProjectReference Include="..\PcMonitor.Application\PcMonitor.Application.csproj" />
     <ProjectReference Include="..\PcMonitor.Infrastructure.Persistence.Sqlite\PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+  </ItemGroup>
 </Project>
