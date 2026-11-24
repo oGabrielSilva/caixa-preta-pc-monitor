@@ -213,3 +213,7 @@ CREATE TABLE incident_event (
 - `Install-Collector.ps1` como administrador: a sessão #3 terminou com `ServiceStopped`; a detecção registrou **16 incidentes novos, 0 com telemetria, 0 sessões anormais** (EventId 1200); a sessão #4 começou `Ok` com 35 sensores.
 - Teste local anterior (banco temporário, sem administrador) confirmou o conteúdo: versão 3, 16 incidentes `LastAliveEventLog`, 2 com `SleepInProgress`, 3–19 eventos relacionados cada.
 - Observado: execuções locais do coletor também escrevem no Log de Eventos com a fonte `PcMonitor.Collector` (os avisos 200 apareceram em dobro). A ajustar: em desenvolvimento, logar só no console.
+
+### Após as correções da revisão final (24/11/2026, 17:10)
+
+- Reinstalações às 17:08 (correções da revisão) e 17:10 (chave de incidente em milissegundos). Na segunda: **0 incidentes novos**, 0 sessões anormais, sessão #5 encerrada com `ServiceStopped`, sessão #6 `Ok` com 35 sensores. Os 16 incidentes importados às 16:50 continuam únicos no banco.
