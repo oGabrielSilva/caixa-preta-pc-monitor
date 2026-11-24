@@ -102,6 +102,16 @@ public sealed class DiagnosisScenarioTests
     }
 
     [Fact]
+    public void A_fatal_machine_check_reported_three_ways_scores_cpu_or_memory_once()
+    {
+        var builder = new EvidenceBuilder { BugcheckCode = 0x124, Source = FailureTimeSource.Unknown }
+            .Event("Microsoft-Windows-WHEA-Logger", 18, EvidenceBuilder.End);
+        builder.Data["WHEABootErrorCount"] = "2";
+
+        Score(Diagnose(builder), Hypothesis.CpuOrMemory).ShouldBe(3);
+    }
+
+    [Fact]
     public void Quick_return_after_a_crash_is_an_observation_not_evidence_against_the_supply()
     {
         var diagnosis = Diagnose(new EvidenceBuilder { LoggedAt = EvidenceBuilder.End.AddSeconds(90) }.WithTelemetry());

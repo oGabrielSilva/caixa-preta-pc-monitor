@@ -14,11 +14,13 @@ public sealed class BugcheckRule : IDiagnosticRule
         var code = evidence.Incident.Shutdown.BugcheckCode;
         var parameters = FindingParameters.Of(("code", $"0x{code:X8}"));
 
-        yield return code switch
+        if (code == WheaBugcheck)
         {
-            0 => Finding.Against("bugcheck.none", Hypothesis.Software, EvidenceStrength.Weak),
-            WheaBugcheck => Finding.For("bugcheck.whea", Hypothesis.CpuOrMemory, EvidenceStrength.Strong, parameters),
-            _ => Finding.For("bugcheck", Hypothesis.Software, EvidenceStrength.Strong, parameters),
-        };
+            yield break; // A hardware error, not software: weighed by WheaRule together with its other traces.
+        }
+
+        yield return code == 0
+            ? Finding.Against("bugcheck.none", Hypothesis.Software, EvidenceStrength.Weak)
+            : Finding.For("bugcheck", Hypothesis.Software, EvidenceStrength.Strong, parameters);
     }
 }

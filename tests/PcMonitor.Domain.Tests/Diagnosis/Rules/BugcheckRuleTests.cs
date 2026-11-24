@@ -22,6 +22,5 @@ public sealed class BugcheckRuleTests
     }
 
     [Fact]
-    public void A_WHEA_bugcheck_is_strong_evidence_for_cpu_or_memory() =>
-        Evaluate(0x124).Summary().ShouldBe([RuleAssertions.For("bugcheck.whea", Hypothesis.CpuOrMemory, EvidenceStrength.Strong)]);
+    public void A_WHEA_bugcheck_is_left_to_the_WHEA_rule() => Evaluate(0x124).ShouldBeEmpty();
 }
