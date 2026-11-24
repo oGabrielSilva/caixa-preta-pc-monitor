@@ -56,8 +56,11 @@ internal static class CollectorServiceCollectionExtensions
             sp.GetRequiredService<IProcessTerminator>(),
             sp.GetRequiredService<ILogger<StallWatchdog>>()));
         services.AddSingleton<SamplerThread>();
-        services.AddHostedService<SamplingWorker>();
+
+        // The host stops hosted services in reverse order: sampling, registered last, stops first and records the
+        // session's end reason before a possibly long retention run is waited for.
         services.AddHostedService<RetentionWorker>();
+        services.AddHostedService<SamplingWorker>();
 
         return services;
     }

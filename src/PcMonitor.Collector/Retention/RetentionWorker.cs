@@ -13,6 +13,8 @@ internal sealed partial class RetentionWorker(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // Leave the host's start-up path before the first (synchronous, possibly long) run.
+        await Task.Yield();
         using var timer = new PeriodicTimer(options.Value.RetentionInterval, time);
         try
         {

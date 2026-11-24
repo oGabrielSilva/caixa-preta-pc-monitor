@@ -26,9 +26,11 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$serviceName = 'PcMonitor.Collector'
-$installPath = Join-Path $env:ProgramFiles 'PcMonitor\Collector'
-$dataPath = Join-Path $env:ProgramData 'PcMonitor'
+Import-Module (Join-Path $PSScriptRoot 'CollectorService.psm1') -Force
+
+$serviceName = Get-CollectorServiceName
+$installPath = Get-CollectorInstallPath
+$dataPath = Get-CollectorDataPath
 $executable = Join-Path $installPath 'PcMonitor.Collector.exe'
 $systemSid = '*S-1-5-18'          # LocalSystem (language-independent)
 $administratorsSid = '*S-1-5-32-544' # BUILTIN\Administrators (language-independent)
@@ -44,7 +46,7 @@ if (Get-Service -Name 'PawnIO' -ErrorAction SilentlyContinue) {
     Write-Host '    PawnIO is installed.'
 }
 elseif (Get-Command winget -ErrorAction SilentlyContinue) {
-    winget install --id namazso.PawnIO -e --accept-source-agreements --accept-package-agreements
+    winget install --id namazso.PawnIO -e --accept-source-agreements
     if ($LASTEXITCODE -ne 0) { Write-Warning "winget could not install PawnIO (exit $LASTEXITCODE). The collector will record 'DriverMissing'." }
 }
 else {
@@ -53,10 +55,7 @@ else {
 
 Write-Step "Stopping $serviceName (if installed)"
 $existing = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
-if ($existing -and $existing.Status -ne 'Stopped') {
-    Stop-Service -Name $serviceName
-    $existing.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(30))
-}
+Stop-CollectorService
 
 Write-Step "Copying binaries to $installPath"
 New-Item -ItemType Directory -Path $installPath -Force | Out-Null
@@ -77,8 +76,9 @@ if (-not $existing) {
     New-Service -Name $serviceName -BinaryPathName "`"$executable`"" -DisplayName 'PC Monitor Collector' `
         -Description 'Records hardware sensors every second and detects unexpected shutdowns.' -StartupType Automatic | Out-Null
 }
-sc.exe failure $serviceName reset= 86400 actions= restart/5000/restart/5000/restart/30000 | Out-Null
-sc.exe failureflag $serviceName 1 | Out-Null
+# Restart on failure: the stall watchdog relies on these actions to bring the collector back.
+Invoke-Sc @('failure', $serviceName, 'reset=', '86400', 'actions=', 'restart/5000/restart/5000/restart/30000')
+Invoke-Sc @('failureflag', $serviceName, '1')
 
 Write-Step "Starting $serviceName"
 Start-Service -Name $serviceName

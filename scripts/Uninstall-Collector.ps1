@@ -16,21 +16,20 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$serviceName = 'PcMonitor.Collector'
-$installPath = Join-Path $env:ProgramFiles 'PcMonitor\Collector'
-$dataPath = Join-Path $env:ProgramData 'PcMonitor'
+Import-Module (Join-Path $PSScriptRoot 'CollectorService.psm1') -Force
+
+$serviceName = Get-CollectorServiceName
+$installPath = Get-CollectorInstallPath
+$dataPath = Get-CollectorDataPath
 
 $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
-if ($service) {
-    if ($service.Status -ne 'Stopped') {
-        Stop-Service -Name $serviceName
-        $service.WaitForStatus('Stopped', [TimeSpan]::FromSeconds(30))
-    }
-    sc.exe delete $serviceName | Out-Null
+if ($service -and $PSCmdlet.ShouldProcess($serviceName, 'Stop and delete the service')) {
+    Stop-CollectorService
+    Invoke-Sc @('delete', $serviceName)
     Write-Host "Service $serviceName removed."
 }
 
-if (Test-Path $installPath) {
+if ((Test-Path $installPath) -and $PSCmdlet.ShouldProcess($installPath, 'Delete the collector binaries')) {
     Remove-Item -Path $installPath -Recurse -Force
     Write-Host "Binaries removed from $installPath."
 }
