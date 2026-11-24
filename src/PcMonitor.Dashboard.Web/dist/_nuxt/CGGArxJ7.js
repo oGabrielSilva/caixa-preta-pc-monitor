@@ -1,1 +1,0 @@
-import{t as e}from"./Apxndq_N.js";import{k as t,nt as n}from"./DIjMFxoZ.js";import{t as r}from"#entry";var i={};function a(r,i){let a=e;return n(),t(a,{"title-key":`nav.history`,"description-key":`pages.history.description`,icon:`i-lucide-chart-line`})}var o=r(i,[[`render`,a]]);export{o as default};

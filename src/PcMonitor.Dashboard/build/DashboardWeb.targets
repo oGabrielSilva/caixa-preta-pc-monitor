@@ -1,0 +1,35 @@
+<Project>
+  <!--
+    Builds the Nuxt SPA (src/PcMonitor.Dashboard.Web) and ships it in wwwroot on `dotnet publish`.
+    Plain `dotnet build` and `dotnet test` never need Node or pnpm.
+
+    -p:SkipDashboardWeb=true    publish the API without the UI
+    -p:PnpmCommand="corepack pnpm"    use another pnpm launcher
+  -->
+  <PropertyGroup>
+    <PnpmCommand Condition="'$(PnpmCommand)' == ''">pnpm</PnpmCommand>
+    <DashboardWebDir>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)/../PcMonitor.Dashboard.Web'))</DashboardWebDir>
+    <DashboardWebOutputDir>$(DashboardWebDir)/.output/public</DashboardWebOutputDir>
+  </PropertyGroup>
+
+  <Target Name="BuildDashboardWeb"
+          BeforeTargets="ComputeResolvedFilesToPublishList"
+          Condition="'$(SkipDashboardWeb)' != 'true'">
+    <Exec Command="$(PnpmCommand) --version" IgnoreExitCode="true" StandardOutputImportance="low"
+          StandardErrorImportance="low" IgnoreStandardErrorWarningFormat="true">
+      <Output TaskParameter="ExitCode" PropertyName="_PnpmExitCode" />
+    </Exec>
+    <Error Condition="'$(_PnpmExitCode)' != '0'"
+           Text="pnpm is required to publish PcMonitor.Dashboard. Install Node 26 LTS and pnpm (npm install -g pnpm). Use -p:SkipDashboardWeb=true to publish without the UI." />
+
+    <Exec Command="$(PnpmCommand) install --frozen-lockfile" WorkingDirectory="$(DashboardWebDir)" />
+    <Exec Command="$(PnpmCommand) generate" WorkingDirectory="$(DashboardWebDir)" />
+
+    <ItemGroup>
+      <_DashboardWebFiles Include="$(DashboardWebOutputDir)/**/*" />
+      <ResolvedFileToPublish Include="@(_DashboardWebFiles)"
+                             RelativePath="wwwroot/%(RecursiveDir)%(Filename)%(Extension)"
+                             CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+</Project>
