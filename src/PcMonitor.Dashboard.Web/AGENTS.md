@@ -21,7 +21,7 @@ User-facing text always comes from `i18n/locales/*.json`; both files must have t
 pnpm install
 pnpm dev          # needs the dashboard API on 127.0.0.1:5280
 pnpm lint
-pnpm typecheck
+pnpm typecheck    # app (nuxt typecheck) + tests and nuxt.config (test/tsconfig.json)
 pnpm test
 pnpm generate     # static build into .output/public
 pnpm gen:api      # regenerate app/api/schema.d.ts from the OpenAPI document

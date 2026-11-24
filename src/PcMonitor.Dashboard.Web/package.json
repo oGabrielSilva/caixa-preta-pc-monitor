@@ -11,7 +11,7 @@
     "generate": "nuxt generate",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",
-    "typecheck": "nuxt typecheck",
+    "typecheck": "nuxt typecheck && vue-tsc --noEmit -p test/tsconfig.json",
     "test": "vitest run",
     "gen:api": "openapi-typescript ../PcMonitor.Dashboard/openapi/PcMonitor.Dashboard.json -o app/api/schema.d.ts"
   },
