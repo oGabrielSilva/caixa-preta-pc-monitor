@@ -43,16 +43,16 @@ public sealed class RailToleranceRule : IDiagnosticRule
 
         if (worst.Rail is null)
         {
-            yield return Finding.Observation("rail.in_tolerance", FindingParameters.Of(("rails", string.Join(',', measured.Select(m => m.Rail.Name)))));
-            yield return Finding.Limitation("rail.precision");
+            yield return Finding.Observation(FindingCodes.RailInTolerance, FindingParameters.Of(("rails", string.Join(',', measured.Select(m => m.Rail.Name)))));
+            yield return Finding.Limitation(FindingCodes.RailPrecision);
             yield break;
         }
 
         var parameters = FindingParameters.Of(
             ("rail", worst.Rail.Name), ("min", FindingParameters.Volts(worst.Rail.Min)), ("max", FindingParameters.Volts(worst.Rail.Max)),
             ("observed", FindingParameters.Volts(worst.Out.MaxBy(worst.Rail.Excess))), ("samples", worst.Out.Count));
-        yield return Finding.For("rail.out_of_tolerance", Hypothesis.PowerSupply, EvidenceStrength.Moderate, parameters);
-        yield return Finding.For("rail.out_of_tolerance", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate, parameters);
-        yield return Finding.Limitation("rail.measured_on_board");
+        yield return Finding.For(FindingCodes.RailOutOfTolerance, Hypothesis.PowerSupply, EvidenceStrength.Moderate, parameters);
+        yield return Finding.For(FindingCodes.RailOutOfTolerance, Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate, parameters);
+        yield return Finding.Limitation(FindingCodes.RailMeasuredOnBoard);
     }
 }

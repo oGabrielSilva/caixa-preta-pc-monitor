@@ -27,11 +27,11 @@ public sealed class RestartGapRule : IDiagnosticRule
 
         if (gap <= QuickReturn)
         {
-            yield return Finding.Observation("restart.quick", FindingParameters.Of(("seconds", (long)gap.TotalSeconds)));
+            yield return Finding.Observation(FindingCodes.RestartQuick, FindingParameters.Of(("seconds", (long)gap.TotalSeconds)));
         }
         else if (gap >= StayedOff)
         {
-            yield return Finding.Observation("restart.stayed_off", FindingParameters.Of(("minutes", (long)gap.TotalMinutes)));
+            yield return Finding.Observation(FindingCodes.RestartStayedOff, FindingParameters.Of(("minutes", (long)gap.TotalMinutes)));
         }
     }
 }

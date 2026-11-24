@@ -34,17 +34,17 @@ public sealed class ThermalRule : IDiagnosticRule
         var average = end.Average(p => p.Value);
         if (max >= CpuCriticalCelsius)
         {
-            yield return Finding.For("thermal.critical", Hypothesis.Thermal, EvidenceStrength.Strong,
+            yield return Finding.For(FindingCodes.ThermalCritical, Hypothesis.Thermal, EvidenceStrength.Strong,
                 FindingParameters.Of(("max", FindingParameters.Decimal(max))));
         }
         else if (average >= CpuAtLimitCelsius)
         {
-            yield return Finding.For("thermal.at_limit", Hypothesis.Thermal, EvidenceStrength.Moderate,
+            yield return Finding.For(FindingCodes.ThermalAtLimit, Hypothesis.Thermal, EvidenceStrength.Moderate,
                 FindingParameters.Of(("avg", FindingParameters.Decimal(average))));
         }
         else if (max < CpuNormalBelowCelsius)
         {
-            yield return Finding.Against("thermal.normal", Hypothesis.Thermal, EvidenceStrength.Moderate,
+            yield return Finding.Against(FindingCodes.ThermalNormal, Hypothesis.Thermal, EvidenceStrength.Moderate,
                 FindingParameters.Of(("max", FindingParameters.Decimal(max))));
         }
     }

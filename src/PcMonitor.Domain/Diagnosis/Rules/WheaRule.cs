@@ -54,14 +54,14 @@ public sealed class WheaRule : IDiagnosticRule
 
         if (sources.Count > 0)
         {
-            yield return Finding.For("whea.hardware_error", Hypothesis.CpuOrMemory, sources.Max(s => s.Strength),
+            yield return Finding.For(FindingCodes.WheaHardwareError, Hypothesis.CpuOrMemory, sources.Max(s => s.Strength),
                 FindingParameters.Of(("sources", string.Join(',', sources.Select(s => s.Source)))));
-            yield return Finding.Limitation("whea.may_be_power");
+            yield return Finding.Limitation(FindingCodes.WheaMayBePower);
         }
 
         if (events.Any(e => e.EventId == PcieEvent))
         {
-            yield return Finding.Observation("whea.pcie");
+            yield return Finding.Observation(FindingCodes.WheaPcie);
         }
     }
 }

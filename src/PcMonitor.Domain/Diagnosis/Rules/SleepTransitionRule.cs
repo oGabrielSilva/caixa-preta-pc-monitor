@@ -16,7 +16,7 @@ public sealed class SleepTransitionRule : IDiagnosticRule
         }
 
         var parameters = FindingParameters.Of(("state", state));
-        yield return Finding.For("power.transition", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate, parameters);
-        yield return Finding.For("power.transition", Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
+        yield return Finding.For(FindingCodes.PowerTransition, Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate, parameters);
+        yield return Finding.For(FindingCodes.PowerTransition, Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
     }
 }

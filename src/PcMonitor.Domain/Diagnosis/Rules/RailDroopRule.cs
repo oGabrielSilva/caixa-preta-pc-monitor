@@ -33,8 +33,8 @@ public sealed class RailDroopRule : IDiagnosticRule
             {
                 var parameters = FindingParameters.Of(
                     ("rail", rail.Name), ("median", FindingParameters.Volts(median)), ("lowest", FindingParameters.Volts(lowest)));
-                yield return Finding.For("rail.droop", Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
-                yield return Finding.For("rail.droop", Hypothesis.BoardPowerDelivery, EvidenceStrength.Weak, parameters);
+                yield return Finding.For(FindingCodes.RailDroop, Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
+                yield return Finding.For(FindingCodes.RailDroop, Hypothesis.BoardPowerDelivery, EvidenceStrength.Weak, parameters);
             }
         }
     }

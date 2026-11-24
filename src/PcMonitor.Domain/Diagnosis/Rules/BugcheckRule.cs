@@ -20,7 +20,7 @@ public sealed class BugcheckRule : IDiagnosticRule
         }
 
         yield return code == 0
-            ? Finding.Against("bugcheck.none", Hypothesis.Software, EvidenceStrength.Weak)
-            : Finding.For("bugcheck", Hypothesis.Software, EvidenceStrength.Strong, parameters);
+            ? Finding.Against(FindingCodes.BugcheckNone, Hypothesis.Software, EvidenceStrength.Weak)
+            : Finding.For(FindingCodes.Bugcheck, Hypothesis.Software, EvidenceStrength.Strong, parameters);
     }
 }

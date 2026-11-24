@@ -34,12 +34,12 @@ public sealed class LoadAtFailureRule : IDiagnosticRule
         var parameters = FindingParameters.Of(("avg", FindingParameters.Decimal(average)));
         if (average >= HighLoadPercent)
         {
-            yield return Finding.For("load.high", Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
-            yield return Finding.For("load.high", Hypothesis.Thermal, EvidenceStrength.Weak, parameters);
+            yield return Finding.For(FindingCodes.LoadHigh, Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
+            yield return Finding.For(FindingCodes.LoadHigh, Hypothesis.Thermal, EvidenceStrength.Weak, parameters);
         }
         else if (average <= IdleLoadPercent)
         {
-            yield return Finding.For("load.idle", Hypothesis.BoardPowerDelivery, EvidenceStrength.Weak, parameters);
+            yield return Finding.For(FindingCodes.LoadIdle, Hypothesis.BoardPowerDelivery, EvidenceStrength.Weak, parameters);
         }
     }
 }

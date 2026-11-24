@@ -44,16 +44,16 @@ public sealed class DiagnosisEngine(IEnumerable<IDiagnosticRule> rules)
     {
         if (evidence.Telemetry is null)
         {
-            yield return Finding.Limitation("telemetry.missing");
+            yield return Finding.Limitation(FindingCodes.TelemetryMissing);
         }
         else if (evidence.AtFailure is null)
         {
-            yield return Finding.Limitation("telemetry.not_at_failure");
+            yield return Finding.Limitation(FindingCodes.TelemetryNotAtFailure);
         }
 
         if (evidence.Incident.FailureTimeSource is FailureTimeSource.LastAliveEventLog or FailureTimeSource.LastFrameBeforeSleep)
         {
-            yield return Finding.Limitation("estimate.lower_bound");
+            yield return Finding.Limitation(FindingCodes.EstimateLowerBound);
         }
     }
 

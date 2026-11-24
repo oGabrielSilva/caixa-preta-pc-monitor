@@ -12,11 +12,11 @@ public sealed class PowerButtonRule : IDiagnosticRule
         var shutdown = evidence.Incident.Shutdown;
         if (shutdown.LongPowerButtonPress)
         {
-            yield return Finding.For("power_button.long_press", Hypothesis.ForcedPowerOff, EvidenceStrength.Strong);
+            yield return Finding.For(FindingCodes.PowerButtonLongPress, Hypothesis.ForcedPowerOff, EvidenceStrength.Strong);
         }
         else if (shutdown.PowerButtonPressedAt is not null)
         {
-            yield return Finding.For("power_button.pressed", Hypothesis.ForcedPowerOff, EvidenceStrength.Weak);
+            yield return Finding.For(FindingCodes.PowerButtonPressed, Hypothesis.ForcedPowerOff, EvidenceStrength.Weak);
         }
     }
 }
