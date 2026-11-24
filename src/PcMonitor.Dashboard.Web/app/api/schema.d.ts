@@ -52,6 +52,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetLive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/live/stream": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Server-sent events (`frames`, `segment`, `state`) after the frame `after` (Unix ms) of segment `segmentId`. */
+        get: operations["StreamLive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -123,6 +156,12 @@ export interface components {
             parameters: {
                 [key: string]: string;
             };
+        };
+        /** @description One frame: `t` in Unix milliseconds and one value per sensor, in the order of the sensor list (`null` = no reading). */
+        FramePoint: {
+            /** Format: int64 */
+            t: number | string;
+            values: (null | number | string)[];
         };
         /** @description Liveness of the dashboard, the version that is running and whether the database can be read. */
         HealthResponse: {
@@ -196,6 +235,36 @@ export interface components {
             /** @description Codes of the neutral observations (for example `boot.early_failure`). */
             observations: ("thermal.critical" | "thermal.at_limit" | "thermal.normal" | "rail.out_of_tolerance" | "rail.droop" | "rail.in_tolerance" | "load.high" | "load.idle" | "restart.quick" | "restart.stayed_off" | "power.transition" | "bugcheck" | "bugcheck.none" | "whea.hardware_error" | "whea.pcie" | "power_button.long_press" | "power_button.pressed" | "boot.early_failure" | "telemetry.missing" | "telemetry.not_at_failure" | "telemetry.too_short" | "estimate.lower_bound" | "sensor.unavailable" | "rail.precision" | "rail.measured_on_board" | "whea.may_be_power")[];
         };
+        /** @description One server-sent event of `/api/live/stream`; only the fields of its kind are set. */
+        LiveEvent: {
+            kind: components["schemas"]["LiveEventKind"];
+            /** Format: int64 */
+            segmentId: null | number | string;
+            frames: null | components["schemas"]["FramePoint"][];
+            state: null | components["schemas"]["LiveState"];
+        };
+        /**
+         * @description Kind of a live stream event; also its SSE `event` name, in lower case.
+         * @enum {unknown}
+         */
+        LiveEventKind: "Frames" | "Segment" | "State";
+        /** @description What is being recorded now: the latest segment's sensors and its last ten minutes. */
+        LiveResponse: {
+            /** @description Whether frames are arriving. */
+            state: components["schemas"]["LiveState"];
+            session: null | components["schemas"]["SessionResponse"];
+            /**
+             * Format: int64
+             * @description Segment to follow on the stream.
+             */
+            segmentId: null | number | string;
+            /** @description The sensors, in the order of each frame's values. */
+            sensors: components["schemas"]["SensorResponse"][];
+            /** @description Oldest first. */
+            frames: components["schemas"]["FramePoint"][];
+        };
+        /** @enum {unknown} */
+        LiveState: "NoData" | "Recording" | "Stale" | "Stopped";
         /** @description One reading: `t` in Unix milliseconds. */
         PointResponse: {
             /** Format: int64 */
@@ -230,11 +299,57 @@ export interface components {
             points: components["schemas"]["PointResponse"][];
         };
         /**
+         * @description Physical quantity a sensor measures.
+         * @enum {unknown}
+         */
+        SensorKind: "Temperature" | "Voltage" | "Power" | "Load" | "Fan";
+        /** @description A recorded sensor and how to judge its readings. */
+        SensorResponse: {
+            /** @description Stable key of the sensor. */
+            key: string;
+            /** @description Name as recorded. */
+            name: string;
+            /** @description What it measures. */
+            kind: components["schemas"]["SensorKind"];
+            /** @description Unit of the readings. */
+            unit: string;
+            /** @description Meaning on this board (`None` for sensors without one). */
+            role: components["schemas"]["SensorRole"];
+            range: null | components["schemas"]["RangeResponse"];
+            /**
+             * Format: float
+             * @description Reading at which to pay attention (CPU at its design limit).
+             */
+            limit: null | number | string;
+            /**
+             * Format: float
+             * @description Reading that is out of range (CPU shutdown zone).
+             */
+            critical: null | number | string;
+        };
+        /**
          * @description Meaning of a sensor for diagnosis, independent of how a board names it.
          *     At most one sensor per catalog holds each role other than SensorRole.None.
          * @enum {unknown}
          */
         SensorRole: "None" | "CpuTemperature" | "CpuPackagePower" | "CpuLoad" | "Vcore" | "Rail12V" | "Rail5V" | "Rail3V3";
+        /**
+         * @description Whether hardware sensors can be trusted for a session.
+         * @enum {unknown}
+         */
+        SensorSourceStatus: "Ok" | "DriverMissing" | "BoardNotDetected";
+        /** @description The collector session being shown. */
+        SessionResponse: {
+            /**
+             * Format: date-time
+             * @description When the collector started recording.
+             */
+            startedAt: string;
+            /** @description Whether the sensors could be read (`Ok`, or why not). */
+            sourceStatus: components["schemas"]["SensorSourceStatus"];
+            /** @description Motherboard model, when known. */
+            boardProduct: null | string;
+        };
         /**
          * @description Whether the database can be read by this build.
          * @enum {unknown}
@@ -336,6 +451,67 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetLive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    StreamLive: {
+        parameters: {
+            query?: {
+                segmentId?: number | string;
+                after?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": components["schemas"]["LiveEvent"];
+                };
             };
             /** @description Service Unavailable */
             503: {

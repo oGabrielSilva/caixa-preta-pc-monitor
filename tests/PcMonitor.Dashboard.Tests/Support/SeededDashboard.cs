@@ -13,12 +13,18 @@ public sealed class SeededDashboard : IDisposable
     private readonly TempDatabase _database = TempDatabase.Migrated();
     private readonly Lazy<DashboardFactory> _factory;
 
-    public SeededDashboard(Action<IServiceCollection>? services = null)
+    /// <param name="realTime">Keep the system clock (streams wait on it); otherwise the clock is frozen at <see cref="Now"/>.</param>
+    /// <param name="services">Further registrations to replace.</param>
+    public SeededDashboard(bool realTime = false, Action<IServiceCollection>? services = null)
     {
         Seed = new DatabaseSeed(_database.Database);
         _factory = new(() => DashboardFactory.WithDatabase(_database, collection =>
         {
-            collection.AddSingleton<TimeProvider>(Time);
+            if (!realTime)
+            {
+                collection.AddSingleton<TimeProvider>(Time);
+            }
+
             services?.Invoke(collection);
         }));
     }

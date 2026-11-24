@@ -102,6 +102,93 @@
           }
         }
       }
+    },
+    "/api/live": {
+      "get": {
+        "tags": [
+          "Live"
+        ],
+        "operationId": "GetLive",
+        "responses": {
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/live/stream": {
+      "get": {
+        "tags": [
+          "Live"
+        ],
+        "description": "Server-sent events (`frames`, `segment`, `state`) after the frame `after` (Unix ms) of segment `segmentId`.",
+        "operationId": "StreamLive",
+        "parameters": [
+          {
+            "name": "segmentId",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveEvent"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -302,6 +389,36 @@
           }
         },
         "description": "One result of a diagnosis rule. The dashboard translates the code and its parameters."
+      },
+      "FramePoint": {
+        "required": [
+          "t",
+          "values"
+        ],
+        "type": "object",
+        "properties": {
+          "t": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+              "type": [
+                "null",
+                "number",
+                "string"
+              ],
+              "format": "float"
+            }
+          }
+        },
+        "description": "One frame: `t` in Unix milliseconds and one value per sensor, in the order of the sensor list (`null` = no reading)."
       },
       "HealthResponse": {
         "required": [
@@ -544,6 +661,117 @@
         },
         "description": "One unexpected shutdown in the list."
       },
+      "LiveEvent": {
+        "required": [
+          "kind",
+          "segmentId",
+          "frames",
+          "state"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/LiveEventKind"
+          },
+          "segmentId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "frames": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/FramePoint"
+            }
+          },
+          "state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LiveState"
+              }
+            ]
+          }
+        },
+        "description": "One server-sent event of `/api/live/stream`; only the fields of its kind are set."
+      },
+      "LiveEventKind": {
+        "enum": [
+          "Frames",
+          "Segment",
+          "State"
+        ],
+        "description": "Kind of a live stream event; also its SSE `event` name, in lower case."
+      },
+      "LiveResponse": {
+        "required": [
+          "state",
+          "session",
+          "segmentId",
+          "sensors",
+          "frames"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "description": "Whether frames are arriving.",
+            "$ref": "#/components/schemas/LiveState"
+          },
+          "session": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "`null` when nothing was ever recorded.",
+                "$ref": "#/components/schemas/SessionResponse"
+              }
+            ]
+          },
+          "segmentId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "description": "Segment to follow on the stream.",
+            "format": "int64"
+          },
+          "sensors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SensorResponse"
+            },
+            "description": "The sensors, in the order of each frame's values."
+          },
+          "frames": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FramePoint"
+            },
+            "description": "Oldest first."
+          }
+        },
+        "description": "What is being recorded now: the latest segment's sensors and its last ten minutes."
+      },
+      "LiveState": {
+        "enum": [
+          "NoData",
+          "Recording",
+          "Stale",
+          "Stopped"
+        ]
+      },
       "PointResponse": {
         "required": [
           "t",
@@ -688,6 +916,83 @@
         },
         "description": "Readings of one sensor role, with how to judge them."
       },
+      "SensorKind": {
+        "enum": [
+          "Temperature",
+          "Voltage",
+          "Power",
+          "Load",
+          "Fan"
+        ],
+        "description": "Physical quantity a sensor measures."
+      },
+      "SensorResponse": {
+        "required": [
+          "key",
+          "name",
+          "kind",
+          "unit",
+          "role",
+          "range",
+          "limit",
+          "critical"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Stable key of the sensor."
+          },
+          "name": {
+            "type": "string",
+            "description": "Name as recorded."
+          },
+          "kind": {
+            "description": "What it measures.",
+            "$ref": "#/components/schemas/SensorKind"
+          },
+          "unit": {
+            "type": "string",
+            "description": "Unit of the readings."
+          },
+          "role": {
+            "description": "Meaning on this board (`None` for sensors without one).",
+            "$ref": "#/components/schemas/SensorRole"
+          },
+          "range": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Safe range, for supply rails.",
+                "$ref": "#/components/schemas/RangeResponse"
+              }
+            ]
+          },
+          "limit": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "Reading at which to pay attention (CPU at its design limit).",
+            "format": "float"
+          },
+          "critical": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "description": "Reading that is out of range (CPU shutdown zone).",
+            "format": "float"
+          }
+        },
+        "description": "A recorded sensor and how to judge its readings."
+      },
       "SensorRole": {
         "enum": [
           "None",
@@ -700,6 +1005,41 @@
           "Rail3V3"
         ],
         "description": "Meaning of a sensor for diagnosis, independent of how a board names it.\r\nAt most one sensor per catalog holds each role other than SensorRole.None."
+      },
+      "SensorSourceStatus": {
+        "enum": [
+          "Ok",
+          "DriverMissing",
+          "BoardNotDetected"
+        ],
+        "description": "Whether hardware sensors can be trusted for a session."
+      },
+      "SessionResponse": {
+        "required": [
+          "startedAt",
+          "sourceStatus",
+          "boardProduct"
+        ],
+        "type": "object",
+        "properties": {
+          "startedAt": {
+            "type": "string",
+            "description": "When the collector started recording.",
+            "format": "date-time"
+          },
+          "sourceStatus": {
+            "description": "Whether the sensors could be read (`Ok`, or why not).",
+            "$ref": "#/components/schemas/SensorSourceStatus"
+          },
+          "boardProduct": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Motherboard model, when known."
+          }
+        },
+        "description": "The collector session being shown."
       },
       "StorageState": {
         "enum": [
@@ -746,6 +1086,9 @@
     },
     {
       "name": "Incidents"
+    },
+    {
+      "name": "Live"
     }
   ]
 }
