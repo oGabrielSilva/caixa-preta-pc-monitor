@@ -13,3 +13,4 @@ Cada ADR registra uma decisão com **Contexto · Decisão · Alternativas · Con
 | [0007](0007-nuxt-spa-static-with-nuxt-ui.md) | Nuxt SPA estática com Nuxt UI | Aceito |
 | [0008](0008-openapi-generated-typescript-contract.md) | Contrato TypeScript gerado do OpenAPI | Aceito |
 | [0009](0009-agents-md-single-source.md) | AGENTS.md como fonte única para agentes | Aceito |
+| [0010](0010-pawnio-via-winget.md) | PawnIO instalado via winget e verificado pelo coletor | Aceito |

@@ -177,3 +177,22 @@ Execução como administrador com o driver **PawnIO 2.2.0** instalado e rodando.
 **Resultado: SEGUE.** Todas as regras do diagnóstico são viáveis. As regras de +5 V e +12 V dependem de calibrar e confirmar o mapeamento acima, o que entra no Plano 02 como configuração de `SensorRole` (entrada + multiplicador), sem código específico de placa.
 
 **Consequência para o produto:** o PawnIO precisa ser instalado ou verificado pelo instalador do PC Monitor, e o coletor precisa reportar "driver ausente" quando não conseguir ler a placa, em vez de gravar zeros como se fossem leituras.
+
+## Pesquisa: +5 V e +12 V nesta placa
+
+A LibreHardwareMonitor 0.9.6 (e a `master` em 24/11/2026) não tem mapa para a TUF GAMING A620M-PLUS WIFI. Por isso mostra as entradas cruas.
+
+**Evidências:**
+
+1. **Código da própria biblioteca** (`SuperIOHardware.cs`, v0.9.6): as placas ASUS AM5 com **o mesmo chip NCT6799D** que têm mapa (PRIME B650-PLUS e ROG STRIX X670E-A/E/F) usam exatamente:
+   - entrada 1 → `+5V` com Ri = 4, Rf = 1 → **× 5**
+   - entrada 4 → `+12V` com Ri = 11, Rf = 1 → **× 12**
+   - fórmula da biblioteca: `V = bruto + bruto × Ri / Rf`
+2. **Convenção Nuvoton nas placas ASUS/ASRock:** o +12 V fica na entrada 4 em vários mapas publicados do `lm-sensors`. Há exceções em gerações anteriores (a TUF X570-PLUS tem +5 V na entrada 6), por isso não é regra universal.
+3. **Valores lidos nesta máquina batem com a hipótese:** entrada 1 = 1,000 V bruto → **5,00 V**; entrada 4 = 1,016 V bruto → **12,19 V**. Ambos dentro da faixa ATX. Com outro multiplicador, os valores sairiam absurdos (ex.: ×12 na entrada 1 daria 12 V num rail que deveria ser 5 V).
+
+**Conclusão:** mapeamento **muito provável**, não confirmado pelo fabricante. O Plano 02 usa-o como padrão para esta placa, por configuração (`SensorRole` = entrada + multiplicador). Uma confirmação opcional é comparar com a tela de monitoramento da BIOS.
+
+**Precisão (importante para o diagnóstico):** o ADC do NCT679x tem passo de 8 mV na entrada bruta. Depois do multiplicador, o menor degrau visível é **~96 mV no +12 V** e **~40 mV no +5 V**. Quedas menores que isso, ou mais rápidas que 1 leitura por segundo, não aparecem. A regra de queda de tensão precisa usar limiares acima desse passo.
+
+Fontes: [SuperIOHardware.cs v0.9.6](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/blob/v0.9.6/LibreHardwareMonitorLib/Hardware/Motherboard/SuperIOHardware.cs) · [patch do kernel listando placas ASUS AM5 com NCT6799D](https://lore.kernel.org/linux-hwmon/a6906293-634f-a7b0-8fde-92816192130f@roeck-us.net/) · [lm-sensors TUF-GAMING-X570-PLUS.conf](https://github.com/lm-sensors/lm-sensors/blob/master/configs/Asus/TUF-GAMING-X570-PLUS.conf)
