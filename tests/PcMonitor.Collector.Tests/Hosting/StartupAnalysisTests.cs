@@ -36,19 +36,20 @@ public sealed class StartupAnalysisTests
     {
         public List<long> Saved { get; } = [];
 
-        public IReadOnlyList<IncidentEvidence> IncidentsNeedingDiagnosis(int engineVersion) =>
-        [
-            new(1, new Incident(
-                new UnexpectedShutdown(1, DateTimeOffset.UnixEpoch, 0, 0, null, false, null, new Dictionary<string, string>()),
-                null, FailureTimeSource.Unknown, null, null, null, []), null),
-        ];
+        public IReadOnlyList<long> IncidentsNeedingDiagnosis(int engineVersion) => [1];
+
+        public IncidentEvidence Load(long incidentId) => new(incidentId, new Incident(
+            new UnexpectedShutdown(1, DateTimeOffset.UnixEpoch, 0, 0, null, false, null, new Dictionary<string, string>()),
+            null, FailureTimeSource.Unknown, null, null, null, []), null);
 
         public void Save(long incidentId, IncidentDiagnosis diagnosis) => Saved.Add(incidentId);
     }
 
     private sealed class BrokenDiagnosisInput : IDiagnosisInputReader
     {
-        public IReadOnlyList<IncidentEvidence> IncidentsNeedingDiagnosis(int engineVersion) => throw new IOException("database busy");
+        public IReadOnlyList<long> IncidentsNeedingDiagnosis(int engineVersion) => throw new IOException("database busy");
+
+        public IncidentEvidence Load(long incidentId) => throw new IOException("database busy");
     }
 
     private static StartupAnalysis Analysis(ISystemEventLog eventLog, IDiagnosisInputReader inputs, IDiagnosisWriter writer)

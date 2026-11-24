@@ -13,11 +13,16 @@ public sealed class DiagnoseIncidentsTests
     {
         public List<int> RequestedVersions { get; } = [];
 
-        public IReadOnlyList<IncidentEvidence> IncidentsNeedingDiagnosis(int engineVersion)
+        public long? FailToLoad { get; set; }
+
+        public IReadOnlyList<long> IncidentsNeedingDiagnosis(int engineVersion)
         {
             RequestedVersions.Add(engineVersion);
-            return inputs;
+            return [.. inputs.Select(i => i.IncidentId)];
         }
+
+        public IncidentEvidence Load(long incidentId) =>
+            incidentId == FailToLoad ? throw new FormatException("bad row") : inputs.Single(i => i.IncidentId == incidentId);
     }
 
     private sealed class RecordingWriter : IDiagnosisWriter
@@ -82,6 +87,16 @@ public sealed class DiagnoseIncidentsTests
         Run(new FakeInputs(Input(1)), writer);
 
         writer.Saved[1].Limitations.Select(l => l.Code).ShouldContain("telemetry.missing");
+    }
+
+    [Fact]
+    public void An_incident_that_fails_to_load_does_not_stop_the_others()
+    {
+        var writer = new RecordingWriter();
+
+        Run(new FakeInputs(Input(1), Input(2)) { FailToLoad = 1 }, writer).ShouldBe(1);
+
+        writer.Saved.Keys.ShouldBe([2L]);
     }
 
     [Fact]

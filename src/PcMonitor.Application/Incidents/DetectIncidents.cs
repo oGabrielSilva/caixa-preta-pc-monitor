@@ -14,7 +14,6 @@ public sealed partial class DetectIncidents(
     ISystemEventLog eventLog, IIncidentReader reader, IIncidentWriter writer, ILogger<DetectIncidents> logger)
 {
     private static readonly TimeSpan _relatedBefore = TimeSpan.FromMinutes(10);
-    private static readonly TimeSpan _relatedAfter = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan _searchWithoutEstimate = TimeSpan.FromMinutes(30);
 
     /// <summary>A session's boot time is measured from uptime; its 41 is logged a few seconds after that boot.</summary>
@@ -41,11 +40,10 @@ public sealed partial class DetectIncidents(
             }
 
             var previous = i > 0 ? shutdowns[i - 1] : null;
-            var next = i + 1 < shutdowns.Count ? shutdowns[i + 1] : null;
             try
             {
                 var session = SessionThatWentDown(unmatched, shutdown, previous);
-                var incident = BuildIncident(shutdown, session, previous, next);
+                var incident = BuildIncident(shutdown, session, previous);
                 var closure = session is null ? null : new SessionClosure(session, session.LastFrameAt ?? session.StartedAt, EndReason.UnexpectedShutdown);
 
                 if (!writer.SaveIncident(incident, closure))
@@ -94,21 +92,11 @@ public sealed partial class DetectIncidents(
         open.LastOrDefault(s => s.BootedAt < shutdown.LoggedAt
             && (previous is null || s.BootedAt > previous.LoggedAt - _bootTolerance));
 
-    private Incident BuildIncident(UnexpectedShutdown shutdown, OpenSession? session, UnexpectedShutdown? previous, UnexpectedShutdown? next)
+    private Incident BuildIncident(UnexpectedShutdown shutdown, OpenSession? session, UnexpectedShutdown? previous)
     {
         var (estimate, source) = EstimateFailure(shutdown, session?.LastFrameAt);
-
-        var since = (estimate ?? shutdown.LoggedAt - _searchWithoutEstimate) - _relatedBefore;
-        var until = shutdown.LoggedAt + _relatedAfter;
-        if (previous is not null && since <= previous.LoggedAt)
-        {
-            since = previous.LoggedAt + TimeSpan.FromTicks(1);
-        }
-
-        if (next is not null && until >= next.LoggedAt)
-        {
-            until = next.LoggedAt - TimeSpan.FromTicks(1);
-        }
+        var (since, until) = RelatedEventScope.Clip(
+            (estimate ?? shutdown.LoggedAt - _searchWithoutEstimate) - _relatedBefore, shutdown.LoggedAt, previous?.LoggedAt);
 
         return new Incident(shutdown, estimate, source, session?.SessionId, session?.LastSegmentId, session?.LastFrameAt,
             eventLog.ReadRelated(since, until));

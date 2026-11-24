@@ -217,7 +217,7 @@ public sealed class DetectIncidentsTests
     }
 
     [Fact]
-    public void Related_event_windows_stop_at_the_neighbouring_crashes()
+    public void Related_event_windows_start_after_the_previous_crash_boot_settled()
     {
         _eventLog.Shutdowns.Add(Crash(10, At(13, 0)));
         _eventLog.Shutdowns.Add(Crash(11, At(13, 5)));
@@ -225,8 +225,8 @@ public sealed class DetectIncidentsTests
 
         Detect();
 
-        var tick = TimeSpan.FromTicks(1);
-        _eventLog.RelatedQueries[1].ShouldBe((At(13, 0) + tick, At(13, 6) - tick));
+        _eventLog.RelatedQueries[1].ShouldBe((At(13, 2) + TimeSpan.FromTicks(1), At(13, 7)));
+        _eventLog.RelatedQueries[2].Since.ShouldBe(At(13, 7) + TimeSpan.FromTicks(1));
     }
 
     [Fact]

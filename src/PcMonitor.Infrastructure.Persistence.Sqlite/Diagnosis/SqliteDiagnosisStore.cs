@@ -14,17 +14,17 @@ namespace PcMonitor.Infrastructure.Persistence.Sqlite.Diagnosis;
 /// </summary>
 public sealed class SqliteDiagnosisStore(SqliteDatabase database, TimeProvider time) : IDiagnosisInputReader, IDiagnosisWriter
 {
-    public IReadOnlyList<IncidentEvidence> IncidentsNeedingDiagnosis(int engineVersion)
+    public IReadOnlyList<long> IncidentsNeedingDiagnosis(int engineVersion)
     {
         using var connection = database.OpenWriter();
-        var rows = connection.Query<IncidentRow>(DiagnosisSql.IncidentsNeedingDiagnosis, new { EngineVersion = engineVersion }).ToList();
-        if (rows.Count == 0)
-        {
-            return [];
-        }
+        return [.. connection.Query<long>(DiagnosisSql.IncidentsNeedingDiagnosis, new { EngineVersion = engineVersion })];
+    }
 
-        var timeline = connection.Query<(long Id, long LoggedAtMs)>(DiagnosisSql.IncidentTimeline).ToList();
-        return [.. rows.Select(row => Assemble(connection, row, timeline))];
+    public IncidentEvidence Load(long incidentId)
+    {
+        using var connection = database.OpenWriter();
+        var row = connection.QuerySingle<IncidentRow>(DiagnosisSql.Incident, new { IncidentId = incidentId });
+        return Assemble(connection, row);
     }
 
     public void Save(long incidentId, IncidentDiagnosis diagnosis)
@@ -44,18 +44,18 @@ public sealed class SqliteDiagnosisStore(SqliteDatabase database, TimeProvider t
         });
     }
 
-    private static IncidentEvidence Assemble(SqliteConnection connection, IncidentRow row, List<(long Id, long LoggedAtMs)> timeline)
+    private static IncidentEvidence Assemble(SqliteConnection connection, IncidentRow row)
     {
-        var position = timeline.FindIndex(t => t.Id == row.Id);
-        var afterMs = position > 0 ? timeline[position - 1].LoggedAtMs : long.MinValue;
-        var beforeMs = position >= 0 && position + 1 < timeline.Count ? timeline[position + 1].LoggedAtMs : long.MaxValue;
-
+        // Older incidents were stored with wide event windows; keep only the events this incident owns.
+        var loggedAt = Time(row.LoggedAtMs);
+        var previous = TimeOrNull(connection.ExecuteScalar<long?>(DiagnosisSql.PreviousLoggedAt, new { row.LoggedAtMs }));
         IReadOnlyList<SystemEvent> related = [.. connection
-            .Query<EventRow>(DiagnosisSql.RelatedEvents, new { IncidentId = row.Id, AfterMs = afterMs, BeforeMs = beforeMs })
+            .Query<EventRow>(DiagnosisSql.RelatedEvents, new { IncidentId = row.Id })
+            .Where(e => RelatedEventScope.Belongs(Time(e.LoggedAtMs), loggedAt, previous))
             .Select(e => new SystemEvent(e.Provider, (int)e.EventId, e.RecordId, Time(e.LoggedAtMs), (int)e.Level, DiagnosisJson.Data(e.DataJson)))];
 
         var shutdown = new UnexpectedShutdown(
-            row.EventRecordId, Time(row.LoggedAtMs), row.BugcheckCode, (int)row.SleepState, TimeOrNull(row.PowerButtonMs),
+            row.EventRecordId, loggedAt, row.BugcheckCode, (int)row.SleepState, TimeOrNull(row.PowerButtonMs),
             row.LongPowerButton != 0, TimeOrNull(row.LastAliveMs), DiagnosisJson.Data(row.DataJson));
         var incident = new Incident(shutdown, TimeOrNull(row.EstimatedFailureMs), Enum.Parse<FailureTimeSource>(row.FailureTimeSource),
             row.SessionId, row.SegmentId, TimeOrNull(row.TelemetryEndMs), related);

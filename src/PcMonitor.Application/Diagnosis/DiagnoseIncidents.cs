@@ -14,18 +14,18 @@ public sealed partial class DiagnoseIncidents(
     public int Run()
     {
         var saved = 0;
-        foreach (var evidence in reader.IncidentsNeedingDiagnosis(DiagnosisEngine.Version))
+        foreach (var incidentId in reader.IncidentsNeedingDiagnosis(DiagnosisEngine.Version))
         {
             try
             {
-                var diagnosis = engine.Diagnose(evidence);
-                writer.Save(evidence.IncidentId, diagnosis);
+                var diagnosis = engine.Diagnose(reader.Load(incidentId));
+                writer.Save(incidentId, diagnosis);
                 saved++;
-                LogDiagnosed(logger, evidence.IncidentId, diagnosis.Top, diagnosis.Confidence);
+                LogDiagnosed(logger, incidentId, diagnosis.Top, diagnosis.Confidence);
             }
             catch (Exception exception) when (exception is not OutOfMemoryException)
             {
-                LogDiagnosisFailed(logger, exception, evidence.IncidentId);
+                LogDiagnosisFailed(logger, exception, incidentId);
             }
         }
 

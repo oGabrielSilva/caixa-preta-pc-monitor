@@ -4,24 +4,33 @@ namespace PcMonitor.Infrastructure.Persistence.Sqlite.Diagnosis;
 internal static class DiagnosisSql
 {
     public const string IncidentsNeedingDiagnosis = """
+        SELECT i.id FROM incident i LEFT JOIN diagnosis d ON d.incident_id = i.id
+        WHERE d.incident_id IS NULL OR d.engine_version < @EngineVersion
+        ORDER BY i.logged_at_ms, i.id;
+        """;
+
+    public const string Incident = """
         SELECT i.id AS Id, i.event_record_id AS EventRecordId, i.logged_at_ms AS LoggedAtMs,
                i.estimated_failure_ms AS EstimatedFailureMs, i.failure_time_source AS FailureTimeSource,
                i.session_id AS SessionId, i.segment_id AS SegmentId, i.telemetry_end_ms AS TelemetryEndMs,
                i.bugcheck_code AS BugcheckCode, i.sleep_in_progress AS SleepState, i.power_button_ms AS PowerButtonMs,
                i.long_power_button AS LongPowerButton, i.last_alive_ms AS LastAliveMs, i.data_json AS DataJson
-        FROM incident i LEFT JOIN diagnosis d ON d.incident_id = i.id
-        WHERE d.incident_id IS NULL OR d.engine_version < @EngineVersion
-        ORDER BY i.event_record_id;
+        FROM incident i
+        WHERE i.id = @IncidentId;
         """;
 
-    /// <summary>Every incident in log order, to find each one's neighbours.</summary>
-    public const string IncidentTimeline = "SELECT id AS Id, logged_at_ms AS LoggedAtMs FROM incident ORDER BY event_record_id;";
+    /// <summary>
+    /// The incident logged just before this one, by time (record ids restart when the System log is cleared).
+    /// </summary>
+    public const string PreviousLoggedAt = """
+        SELECT MAX(logged_at_ms) FROM incident WHERE logged_at_ms < @LoggedAtMs;
+        """;
 
     public const string RelatedEvents = """
         SELECT provider AS Provider, event_id AS EventId, record_id AS RecordId, logged_at_ms AS LoggedAtMs,
                level AS Level, data_json AS DataJson
         FROM incident_event
-        WHERE incident_id = @IncidentId AND logged_at_ms > @AfterMs AND logged_at_ms < @BeforeMs
+        WHERE incident_id = @IncidentId
         ORDER BY logged_at_ms, record_id;
         """;
 

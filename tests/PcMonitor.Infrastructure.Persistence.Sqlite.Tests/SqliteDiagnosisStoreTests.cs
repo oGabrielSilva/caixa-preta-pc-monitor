@@ -61,7 +61,7 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
     {
         SaveUnlinked(1, _t0);
 
-        var input = _store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).ShouldHaveSingleItem();
+        var input = _store.Load(_store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).ShouldHaveSingleItem());
 
         input.Incident.Shutdown.RecordId.ShouldBe(1);
         input.Incident.Shutdown.SleepState.ShouldBe(4);
@@ -73,7 +73,7 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
     public void Diagnosis_of_the_current_version_is_not_redone_but_an_older_one_is()
     {
         SaveUnlinked(1, _t0);
-        var id = _store.IncidentsNeedingDiagnosis(2).Single().IncidentId;
+        var id = _store.IncidentsNeedingDiagnosis(2).Single();
         _store.Save(id, Diagnosis(version: 2));
 
         _store.IncidentsNeedingDiagnosis(2).ShouldBeEmpty();
@@ -84,7 +84,7 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
     public void Save_replaces_an_older_diagnosis()
     {
         SaveUnlinked(1, _t0);
-        var id = _store.IncidentsNeedingDiagnosis(1).Single().IncidentId;
+        var id = _store.IncidentsNeedingDiagnosis(1).Single();
         _store.Save(id, Diagnosis(version: 1));
 
         _store.Save(id, Diagnosis(version: 2));
@@ -110,7 +110,7 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
         var end = _t0.AddSeconds(200);
         _incidents.SaveIncident(new Incident(Crash(1, end.AddMinutes(2)), end, FailureTimeSource.LastFrame, session, second, end, []), null);
 
-        var telemetry = _store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).Single().Telemetry.ShouldNotBeNull();
+        var telemetry = _store.Load(_store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).Single()).Telemetry.ShouldNotBeNull();
 
         telemetry.End.ShouldBe(end);
         telemetry.Series(SensorRole.CpuTemperature).Select(p => p.Value).ShouldBe([50f, 80f]);
@@ -126,8 +126,32 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
         SaveUnlinked(2, _t0.AddMinutes(10), Event(100, _t0.AddMinutes(-1)), Event(101, _t0.AddMinutes(5)), Event(102, _t0.AddMinutes(15)));
         SaveUnlinked(3, _t0.AddMinutes(12));
 
-        var second = _store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).Single(i => i.Incident.Shutdown.RecordId == 2);
+        var second = LoadByRecord(2);
 
         second.Incident.RelatedEvents.Select(e => e.RecordId).ShouldBe([101L]);
     }
+
+    [Fact]
+    public void Boot_events_right_after_a_crash_belong_only_to_that_crash()
+    {
+        // Both incidents carry the event logged 30 s after crash 1 (old wide windows).
+        SaveUnlinked(1, _t0, Event(100, _t0.AddSeconds(30)));
+        SaveUnlinked(2, _t0.AddMinutes(10), Event(100, _t0.AddSeconds(30)), Event(101, _t0.AddMinutes(5)));
+
+        LoadByRecord(1).Incident.RelatedEvents.Select(e => e.RecordId).ShouldBe([100L]);
+        LoadByRecord(2).Incident.RelatedEvents.Select(e => e.RecordId).ShouldBe([101L]);
+    }
+
+    [Fact]
+    public void Neighbours_are_found_by_time_so_a_cleared_event_log_does_not_lose_events()
+    {
+        // After the System log was cleared, a newer crash got a smaller record id than an older one.
+        SaveUnlinked(60, _t0);
+        SaveUnlinked(50, _t0.AddDays(1), Event(7, _t0.AddDays(1).AddSeconds(10)));
+
+        LoadByRecord(50).Incident.RelatedEvents.Select(e => e.RecordId).ShouldBe([7L]);
+    }
+
+    private IncidentEvidence LoadByRecord(long record) =>
+        _store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).Select(_store.Load).Single(i => i.Incident.Shutdown.RecordId == record);
 }
