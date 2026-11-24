@@ -55,23 +55,13 @@ internal sealed partial class SamplerThread(
 
     private void Loop(TimeSpan interval, CancellationToken stopping)
     {
-        // Schedule against a reference time so slow cycles do not accumulate drift.
-        var next = time.GetUtcNow();
+        var schedule = new IntervalSchedule(time, interval);
         while (!stopping.IsCancellationRequested)
         {
             HandleSignals();
             recorder.RecordOnce();
             watchdog.Beat();
-
-            next += interval;
-            var delay = next - time.GetUtcNow();
-            if (delay <= TimeSpan.Zero)
-            {
-                next = time.GetUtcNow();
-                continue;
-            }
-
-            stopping.WaitHandle.WaitOne(delay);
+            stopping.WaitHandle.WaitOne(schedule.NextDelay());
         }
     }
 
