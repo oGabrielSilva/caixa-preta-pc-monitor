@@ -40,16 +40,17 @@ public sealed class SqliteMonitoringStore(SqliteDatabase database) : IMonitoring
         for (var ordinal = 0; ordinal < catalog.Count; ordinal++)
         {
             var sensor = catalog[ordinal];
-            var sensorId = Connection.ExecuteScalar<long>(MonitoringSql.UpsertSensor, new
+            var sensorId = Connection.ExecuteScalar<long>(MonitoringSql.UpsertSensor, new { sensor.StableKey }, transaction);
+            Connection.Execute(MonitoringSql.InsertSegmentSensor, new
             {
-                sensor.StableKey,
+                SegmentId = segmentId,
+                Ordinal = ordinal,
+                SensorId = sensorId,
                 sensor.Name,
                 Kind = sensor.Kind.ToString(),
                 sensor.Unit,
                 Role = sensor.Role.ToString(),
             }, transaction);
-            Connection.Execute(
-                MonitoringSql.InsertSegmentSensor, new { SegmentId = segmentId, Ordinal = ordinal, SensorId = sensorId }, transaction);
         }
 
         transaction.Commit();

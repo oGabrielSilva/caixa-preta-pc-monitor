@@ -104,6 +104,27 @@ public sealed class SqliteMonitoringStoreTests : IDisposable
     }
 
     [Fact]
+    public void Relabelling_a_sensor_in_a_later_segment_does_not_rewrite_earlier_segments()
+    {
+        // A profile fix moves the +5V role from voltage/1 to voltage/5.
+        var before = new SensorCatalog(
+        [
+            new SensorDescriptor("/v1", "+5V", SensorKind.Voltage, "V", SensorRole.Rail5V),
+            new SensorDescriptor("/v5", "Voltage #6", SensorKind.Voltage, "V", SensorRole.None),
+        ]);
+        var after = new SensorCatalog(
+        [
+            new SensorDescriptor("/v1", "Voltage #2", SensorKind.Voltage, "V", SensorRole.None),
+            new SensorDescriptor("/v5", "+5V", SensorKind.Voltage, "V", SensorRole.Rail5V),
+        ]);
+        var first = NewSegment(before);
+        var second = NewSegment(after);
+
+        _reader.CatalogOf(first).Sensors.ShouldBe(before.Sensors);
+        _reader.CatalogOf(second).Sensors.ShouldBe(after.Sensors);
+    }
+
+    [Fact]
     public void Same_stable_key_maps_to_one_sensor_row_across_segments()
     {
         NewSegment(Catalog("/a", "/b"));

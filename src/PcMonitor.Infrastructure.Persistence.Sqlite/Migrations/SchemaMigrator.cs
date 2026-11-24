@@ -10,13 +10,13 @@ public sealed class SchemaMigrator(SqliteDatabase database)
 {
     private const string ResourcePrefix = "PcMonitor.Infrastructure.Persistence.Sqlite.Migrations.";
 
-    /// <summary>Brings the schema to the latest version and returns it.</summary>
-    public int Migrate()
+    /// <summary>Brings the schema up to <paramref name="upTo"/> (default: the latest version) and returns the version.</summary>
+    public int Migrate(int upTo = int.MaxValue)
     {
         using var connection = database.OpenWriter();
         var current = connection.ExecuteScalar<int>("PRAGMA user_version");
 
-        foreach (var (version, script) in Scripts().Where(s => s.Version > current))
+        foreach (var (version, script) in Scripts().Where(s => s.Version > current && s.Version <= upTo))
         {
             using var transaction = connection.BeginTransaction();
             connection.Execute(script, transaction: transaction);

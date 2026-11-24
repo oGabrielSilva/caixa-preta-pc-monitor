@@ -13,14 +13,17 @@ internal static class MonitoringSql
         INSERT INTO segment (session_id, started_at_ms) VALUES (@SessionId, @StartedAtMs) RETURNING id;
         """;
 
+    /// <summary>Sensor identity only; the no-op update lets <c>RETURNING</c> yield the id of an existing row.</summary>
     public const string UpsertSensor = """
-        INSERT INTO sensor (stable_key, name, kind, unit, role) VALUES (@StableKey, @Name, @Kind, @Unit, @Role)
-        ON CONFLICT (stable_key) DO UPDATE SET name = excluded.name, kind = excluded.kind, unit = excluded.unit, role = excluded.role
+        INSERT INTO sensor (stable_key) VALUES (@StableKey)
+        ON CONFLICT (stable_key) DO UPDATE SET stable_key = excluded.stable_key
         RETURNING id;
         """;
 
+    /// <summary>Labels are stored per segment so history keeps the meaning it was recorded with.</summary>
     public const string InsertSegmentSensor = """
-        INSERT INTO segment_sensor (segment_id, ordinal, sensor_id) VALUES (@SegmentId, @Ordinal, @SensorId);
+        INSERT INTO segment_sensor (segment_id, ordinal, sensor_id, name, kind, unit, role)
+        VALUES (@SegmentId, @Ordinal, @SensorId, @Name, @Kind, @Unit, @Role);
         """;
 
     public const string InsertFrame = """
@@ -37,7 +40,7 @@ internal static class MonitoringSql
         """;
 
     public const string SelectCatalog = """
-        SELECT s.stable_key AS StableKey, s.name AS Name, s.kind AS Kind, s.unit AS Unit, s.role AS Role
+        SELECT s.stable_key AS StableKey, ss.name AS Name, ss.kind AS Kind, ss.unit AS Unit, ss.role AS Role
         FROM segment_sensor ss JOIN sensor s ON s.id = ss.sensor_id
         WHERE ss.segment_id = @SegmentId
         ORDER BY ss.ordinal;
