@@ -7,18 +7,246 @@
     "incidents": "Incidents",
     "history": "History"
   },
-  "pages": {
-    "live": {
-      "description": "Current temperature, voltage, power and load readings."
+  "common": {
+    "noReading": "—",
+    "loading": "Loading…"
+  },
+  "storage": {
+    "title": "PC Monitor data is not available",
+    "missing": "The database does not exist yet. Install and start the collector (scripts/Install-Collector.ps1).",
+    "schema_too_old": "The installed collector is older than this dashboard. Reinstall the collector.",
+    "schema_too_new": "The database comes from a newer collector than this dashboard. Reinstall the dashboard.",
+    "unreadable": "The dashboard could not open the database. Check the permissions of %ProgramData%\\PcMonitor.",
+    "network": "The dashboard did not answer. Check that the PcMonitor.Dashboard service is running.",
+    "other": "The dashboard answered with an error ({problem})."
+  },
+  "status": {
+    "success": "Normal",
+    "warning": "Attention",
+    "error": "Out of range",
+    "neutral": "—"
+  },
+  "live": {
+    "state": {
+      "Recording": "Recording 1×/s",
+      "Stale": "No new readings",
+      "Stopped": "Collector stopped",
+      "NoData": "Nothing recorded yet"
     },
-    "incidents": {
-      "description": "Every unexpected shutdown, with the seconds that led up to it."
+    "since": "for {duration}",
+    "source": {
+      "DriverMissing": "PawnIO driver missing: only CPU load is read.",
+      "BoardNotDetected": "Board not recognised: board voltages and temperatures are not read."
     },
-    "history": {
-      "description": "Sensors over time."
+    "cards": {
+      "cpuTemperature": "CPU",
+      "rail12": "+12 V",
+      "power": "CPU power",
+      "load": "CPU load"
+    },
+    "hints": {
+      "limit": "CPU design limit: {limit} °C",
+      "range": "ATX range {min} – {max} V"
+    },
+    "trend": {
+      "title": "Temperature, load and power — last 10 min",
+      "temperature": "CPU (°C)",
+      "load": "Load (%)",
+      "power": "Power (W)"
+    },
+    "rails": {
+      "title": "Supply voltages"
+    },
+    "others": {
+      "vcore": "Vcore",
+      "memory": "Memory"
+    },
+    "recent": {
+      "title": "Latest crashes",
+      "seeAll": "See all ({count})",
+      "none": "No crash recorded."
     }
   },
-  "placeholder": {
-    "title": "Under construction"
+  "incidents": {
+    "stats": {
+      "total": "Crashes recorded",
+      "totalHint": "since {date}",
+      "last24h": "Last 24 h",
+      "last24hHint": "counting back from now",
+      "earlyBoot": "Right after power-on",
+      "earlyBootHint": "within ~40 min of booting",
+      "duringSleep": "During hibernation",
+      "duringSleepHint": "sleep or Fast Startup"
+    },
+    "perDay": {
+      "title": "Crashes per day",
+      "series": "Crashes"
+    },
+    "table": {
+      "when": "Crash",
+      "precision": "Time",
+      "cause": "Likely cause",
+      "signals": "Signals"
+    },
+    "precision": {
+      "LastFrame": "± 1 s (PC Monitor)",
+      "LastFrameBeforeSleep": "before sleep (PC Monitor)",
+      "LastAliveEventLog": "approximate (Windows)",
+      "Unknown": "unknown"
+    },
+    "noConclusion": "No conclusion",
+    "notDiagnosed": "Not diagnosed yet",
+    "badges": {
+      "telemetry": "telemetry",
+      "sleep": "hibernation",
+      "earlyBoot": "right after power-on"
+    },
+    "empty": {
+      "title": "No crash recorded",
+      "description": "When the PC turns itself off, the crash shows up here with what happened before it."
+    }
+  },
+  "incident": {
+    "title": "Crash on {date}",
+    "back": "Back to incidents",
+    "notFound": "This crash does not exist.",
+    "mostLikely": "Most likely cause",
+    "summary": {
+      "High": "The evidence clearly points to this cause.",
+      "Medium": "The evidence leans to this cause, but others remain possible.",
+      "Low": "There is little evidence; this is only the most likely of the possible causes.",
+      "Inconclusive": "The data of this crash does not point to a cause. See below what could be checked.",
+      "none": "The collector has not analysed this crash yet; it does so the next time it starts."
+    },
+    "ranking": "Hypothesis scores",
+    "timeline": {
+      "title": "Timeline",
+      "lastAlive": "Last sign of life (Windows)",
+      "lastFrame": "Last PC Monitor reading",
+      "failure": "Estimated crash",
+      "logged": "Windows logged the unexpected shutdown"
+    },
+    "telemetry": {
+      "title": "The 2 minutes before the crash",
+      "perSecond": "1 reading per second",
+      "notAtFailure": "This data ends before the crash: the collector was stopped or the PC was asleep.",
+      "rail": "+12 V (ATX range {min} – {max} V)",
+      "cpu": "CPU and load",
+      "none": "PC Monitor has no readings for this crash."
+    },
+    "weighed": {
+      "title": "What weighed in",
+      "for": "for {hypotheses}",
+      "against": "against {hypotheses}",
+      "and": " and ",
+      "none": "No evidence."
+    },
+    "limits": {
+      "title": "Limits of this analysis",
+      "none": "No limitation recorded."
+    }
+  },
+  "history": {
+    "sensor": "Sensor",
+    "noSensors": "No sensor recorded yet.",
+    "ranges": {
+      "Hour": "1 hour",
+      "Day": "24 hours",
+      "Week": "7 days",
+      "TwoWeeks": "14 days"
+    },
+    "min": "Minimum in period",
+    "avg": "Mean in period",
+    "max": "Maximum in period",
+    "chartTitle": "{sensor} — {range}",
+    "buckets": "minimum, mean and maximum every {minutes} min",
+    "series": {
+      "max": "Maximum",
+      "avg": "Mean",
+      "min": "Minimum"
+    },
+    "drops": "Crashes in this period:",
+    "noData": "No readings in this period."
+  },
+  "hypotheses": {
+    "PowerSupply": "Power supply",
+    "BoardPowerDelivery": "Board / power delivery",
+    "Thermal": "Overheating",
+    "Software": "Software",
+    "CpuOrMemory": "CPU / memory",
+    "ForcedPowerOff": "Forced power-off"
+  },
+  "confidence": {
+    "High": "High confidence",
+    "Medium": "Medium confidence",
+    "Low": "Low confidence",
+    "Inconclusive": "Inconclusive"
+  },
+  "strength": {
+    "Weak": "weak",
+    "Moderate": "moderate",
+    "Strong": "strong"
+  },
+  "roles": {
+    "None": "sensor",
+    "CpuTemperature": "CPU temperature",
+    "CpuPackagePower": "CPU power",
+    "CpuLoad": "CPU load",
+    "Vcore": "core voltage (Vcore)",
+    "Rail12V": "+12 V",
+    "Rail5V": "+5 V",
+    "Rail3V3": "+3.3 V"
+  },
+  "sleepStates": {
+    "0": "no transition",
+    "3": "sleep",
+    "4": "hibernation / Fast Startup"
+  },
+  "whea": {
+    "bugcheck": "blue screen {code}",
+    "event": "event {id}",
+    "bootErrors": "{count} errors at boot"
+  },
+  "events": {
+    "kernel_power_41": "Unexpected shutdown (Kernel-Power 41)",
+    "kernel_power_42": "Entering sleep",
+    "kernel_power_107": "Resumed from sleep",
+    "kernel_power_109": "The kernel started a shutdown",
+    "eventlog_6005": "Windows started",
+    "eventlog_6006": "Windows shut down normally",
+    "eventlog_6008": "The previous shutdown was unexpected",
+    "user32_1074": "Shutdown or restart requested by a program or user",
+    "user32_1076": "Reason for an unexpected shutdown given",
+    "wer_1001": "Blue screen report",
+    "whea": "Hardware error (WHEA {id})",
+    "unknown": "Event {provider} {id}"
+  },
+  "findings": {
+    "thermal_critical": "The CPU reached {max} °C in the 10 s before the crash: thermal shutdown zone.",
+    "thermal_at_limit": "The CPU sat at {avg} °C, its design limit, in the 10 s before the crash.",
+    "thermal_normal": "The CPU was at most {max} °C when it crashed, far from the limit.",
+    "rail_out_of_tolerance": "The {rail} rail reached {observed} V ({samples} readings), outside the ATX range of {min} – {max} V.",
+    "rail_droop": "The {rail} rail dropped to {lowest} V in the last seconds (normal: {median} V), still within range.",
+    "rail_in_tolerance": "The measured voltages ({rails}) were within the ATX range.",
+    "load_high": "The CPU was working hard: {avg}% mean load in the 10 s before the crash.",
+    "load_idle": "The PC was nearly idle: {avg}% mean load in the 10 s before the crash.",
+    "restart_quick": "It came back on {seconds} s later (by itself or with the button: Windows cannot tell).",
+    "restart_stayed_off": "It stayed off for {minutes} min before being turned on again.",
+    "power_transition": "It crashed during a power transition: {state}.",
+    "bugcheck": "Windows recorded a blue screen (code {code}).",
+    "bugcheck_none": "There was no blue screen.",
+    "whea_hardware_error": "The processor or memory reported a hardware error ({sources}).",
+    "whea_pcie": "There was a corrected PCIe bus error: the board or slot of some device, not the CPU.",
+    "power_button_long_press": "The power button was held down: forced power-off.",
+    "power_button_pressed": "The power button was pressed.",
+    "boot_early_failure": "It crashed soon after power-on, before Windows' first periodic record (~40 min).",
+    "telemetry_missing": "PC Monitor was not recording when the PC crashed.",
+    "telemetry_not_at_failure": "Recording stopped before the crash (collector stopped or PC asleep): the last data is not from the moment of the crash.",
+    "telemetry_too_short": "The {role} was recorded too briefly before the crash to conclude anything.",
+    "estimate_lower_bound": "The crash time is approximate: it happened at that moment or later.",
+    "sensor_unavailable": "This board does not report the {role}.",
+    "rail_precision": "1 reading per second and ~0.1 V steps on +12 V: very fast or small drops do not show.",
+    "rail_measured_on_board": "The voltage sensor sits on the board: it cannot tell the power supply from the board or the connector.",
+    "whea_may_be_power": "Power instability also causes hardware errors: this does not rule out the power supply or the board."
   }
 }

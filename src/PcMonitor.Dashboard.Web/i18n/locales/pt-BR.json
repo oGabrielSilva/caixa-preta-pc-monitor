@@ -7,18 +7,246 @@
     "incidents": "Incidentes",
     "history": "Histórico"
   },
-  "pages": {
-    "live": {
-      "description": "Leituras atuais de temperatura, tensão, consumo e carga."
+  "common": {
+    "noReading": "—",
+    "loading": "Carregando…"
+  },
+  "storage": {
+    "title": "Os dados do PC Monitor não estão disponíveis",
+    "missing": "O banco ainda não existe. Instale e inicie o coletor (scripts/Install-Collector.ps1).",
+    "schema_too_old": "O coletor instalado é mais antigo que este painel. Reinstale o coletor.",
+    "schema_too_new": "O banco é de um coletor mais novo que este painel. Reinstale o painel.",
+    "unreadable": "O painel não conseguiu abrir o banco. Confira as permissões de %ProgramData%\\PcMonitor.",
+    "network": "O painel não respondeu. Confira se o serviço PcMonitor.Dashboard está rodando.",
+    "other": "O painel respondeu com erro ({problem})."
+  },
+  "status": {
+    "success": "Normal",
+    "warning": "Atenção",
+    "error": "Fora da faixa",
+    "neutral": "—"
+  },
+  "live": {
+    "state": {
+      "Recording": "Gravando 1×/s",
+      "Stale": "Sem leituras novas",
+      "Stopped": "Coletor parado",
+      "NoData": "Nada gravado ainda"
     },
-    "incidents": {
-      "description": "Cada desligamento inesperado, com os segundos que o antecederam."
+    "since": "há {duration}",
+    "source": {
+      "DriverMissing": "Driver PawnIO ausente: só a carga da CPU é lida.",
+      "BoardNotDetected": "Placa não reconhecida: tensões e temperaturas da placa não são lidas."
     },
-    "history": {
-      "description": "Sensores ao longo do tempo."
+    "cards": {
+      "cpuTemperature": "CPU",
+      "rail12": "+12 V",
+      "power": "Consumo da CPU",
+      "load": "Carga da CPU"
+    },
+    "hints": {
+      "limit": "Limite de projeto da CPU: {limit} °C",
+      "range": "Faixa ATX {min} – {max} V"
+    },
+    "trend": {
+      "title": "Temperatura, carga e consumo — últimos 10 min",
+      "temperature": "CPU (°C)",
+      "load": "Carga (%)",
+      "power": "Consumo (W)"
+    },
+    "rails": {
+      "title": "Tensões da fonte"
+    },
+    "others": {
+      "vcore": "Vcore",
+      "memory": "Memória"
+    },
+    "recent": {
+      "title": "Últimas quedas",
+      "seeAll": "Ver todas ({count})",
+      "none": "Nenhuma queda registrada."
     }
   },
-  "placeholder": {
-    "title": "Em construção"
+  "incidents": {
+    "stats": {
+      "total": "Quedas registradas",
+      "totalHint": "desde {date}",
+      "last24h": "Nas últimas 24 h",
+      "last24hHint": "contando a partir de agora",
+      "earlyBoot": "Logo após ligar",
+      "earlyBootHint": "antes de ~40 min ligado",
+      "duringSleep": "Durante hibernação",
+      "duringSleepHint": "suspensão ou Fast Startup"
+    },
+    "perDay": {
+      "title": "Quedas por dia",
+      "series": "Quedas"
+    },
+    "table": {
+      "when": "Queda",
+      "precision": "Horário",
+      "cause": "Causa provável",
+      "signals": "Sinais"
+    },
+    "precision": {
+      "LastFrame": "± 1 s (PC Monitor)",
+      "LastFrameBeforeSleep": "antes de dormir (PC Monitor)",
+      "LastAliveEventLog": "aproximado (Windows)",
+      "Unknown": "desconhecido"
+    },
+    "noConclusion": "Sem conclusão",
+    "notDiagnosed": "Ainda sem diagnóstico",
+    "badges": {
+      "telemetry": "telemetria",
+      "sleep": "hibernação",
+      "earlyBoot": "logo após ligar"
+    },
+    "empty": {
+      "title": "Nenhuma queda registrada",
+      "description": "Quando o PC desligar sozinho, a queda aparece aqui com o que aconteceu antes."
+    }
+  },
+  "incident": {
+    "title": "Queda de {date}",
+    "back": "Voltar para os incidentes",
+    "notFound": "Esta queda não existe.",
+    "mostLikely": "Causa mais provável",
+    "summary": {
+      "High": "As evidências apontam com clareza para esta causa.",
+      "Medium": "As evidências pesam para esta causa, mas outras continuam possíveis.",
+      "Low": "Há poucos indícios; esta causa é só a mais provável entre as possíveis.",
+      "Inconclusive": "Os dados desta queda não apontam uma causa. Veja abaixo o que foi possível verificar.",
+      "none": "O coletor ainda não analisou esta queda; isso acontece na próxima vez que ele iniciar."
+    },
+    "ranking": "Placar das hipóteses",
+    "timeline": {
+      "title": "Linha do tempo",
+      "lastAlive": "Último sinal de vida (Windows)",
+      "lastFrame": "Última leitura do PC Monitor",
+      "failure": "Queda estimada",
+      "logged": "Windows registrou o desligamento inesperado"
+    },
+    "telemetry": {
+      "title": "Os 2 minutos antes da queda",
+      "perSecond": "1 leitura por segundo",
+      "notAtFailure": "Estes dados terminam antes da queda: o coletor estava parado ou o PC dormindo.",
+      "rail": "+12 V (faixa ATX {min} – {max} V)",
+      "cpu": "CPU e carga",
+      "none": "O PC Monitor não tem leituras desta queda."
+    },
+    "weighed": {
+      "title": "O que pesou",
+      "for": "a favor de {hypotheses}",
+      "against": "contra {hypotheses}",
+      "and": " e ",
+      "none": "Nenhuma evidência."
+    },
+    "limits": {
+      "title": "Limites desta análise",
+      "none": "Nenhuma limitação registrada."
+    }
+  },
+  "history": {
+    "sensor": "Sensor",
+    "noSensors": "Nenhum sensor gravado ainda.",
+    "ranges": {
+      "Hour": "1 hora",
+      "Day": "24 horas",
+      "Week": "7 dias",
+      "TwoWeeks": "14 dias"
+    },
+    "min": "Mínimo no período",
+    "avg": "Média no período",
+    "max": "Máximo no período",
+    "chartTitle": "{sensor} — {range}",
+    "buckets": "mínimo, média e máximo a cada {minutes} min",
+    "series": {
+      "max": "Máximo",
+      "avg": "Média",
+      "min": "Mínimo"
+    },
+    "drops": "Quedas no período:",
+    "noData": "Sem leituras neste período."
+  },
+  "hypotheses": {
+    "PowerSupply": "Fonte",
+    "BoardPowerDelivery": "Placa / alimentação",
+    "Thermal": "Superaquecimento",
+    "Software": "Software",
+    "CpuOrMemory": "CPU / memória",
+    "ForcedPowerOff": "Desligado à força"
+  },
+  "confidence": {
+    "High": "Confiança alta",
+    "Medium": "Confiança média",
+    "Low": "Confiança baixa",
+    "Inconclusive": "Inconclusivo"
+  },
+  "strength": {
+    "Weak": "fraca",
+    "Moderate": "moderada",
+    "Strong": "forte"
+  },
+  "roles": {
+    "None": "sensor",
+    "CpuTemperature": "temperatura da CPU",
+    "CpuPackagePower": "consumo da CPU",
+    "CpuLoad": "carga da CPU",
+    "Vcore": "tensão do núcleo (Vcore)",
+    "Rail12V": "+12 V",
+    "Rail5V": "+5 V",
+    "Rail3V3": "+3,3 V"
+  },
+  "sleepStates": {
+    "0": "nenhuma transição",
+    "3": "suspensão",
+    "4": "hibernação / Fast Startup"
+  },
+  "whea": {
+    "bugcheck": "tela azul {code}",
+    "event": "evento {id}",
+    "bootErrors": "{count} erros no boot"
+  },
+  "events": {
+    "kernel_power_41": "Desligamento inesperado (Kernel-Power 41)",
+    "kernel_power_42": "Entrando em suspensão",
+    "kernel_power_107": "Retomou da suspensão",
+    "kernel_power_109": "O kernel iniciou o desligamento",
+    "eventlog_6005": "Windows iniciou",
+    "eventlog_6006": "Windows desligou normalmente",
+    "eventlog_6008": "O desligamento anterior foi inesperado",
+    "user32_1074": "Desligamento ou reinício pedido por um programa ou usuário",
+    "user32_1076": "Motivo de um desligamento inesperado informado",
+    "wer_1001": "Relatório de tela azul",
+    "whea": "Erro de hardware (WHEA {id})",
+    "unknown": "Evento {provider} {id}"
+  },
+  "findings": {
+    "thermal_critical": "A CPU chegou a {max} °C nos 10 s antes da queda: zona de desligamento por temperatura.",
+    "thermal_at_limit": "A CPU estava em {avg} °C, no limite de projeto, nos 10 s antes da queda.",
+    "thermal_normal": "A CPU estava a no máximo {max} °C no momento da queda, longe do limite.",
+    "rail_out_of_tolerance": "O {rail} chegou a {observed} V ({samples} leituras), fora da faixa ATX de {min} – {max} V.",
+    "rail_droop": "O {rail} caiu para {lowest} V nos últimos segundos (normal: {median} V), ainda dentro da faixa.",
+    "rail_in_tolerance": "As tensões medidas ({rails}) estavam dentro da faixa ATX.",
+    "load_high": "A CPU estava trabalhando pesado: carga média de {avg}% nos 10 s antes da queda.",
+    "load_idle": "O PC estava praticamente parado: carga média de {avg}% nos 10 s antes da queda.",
+    "restart_quick": "Voltou a ligar {seconds} s depois (sozinho ou pelo botão: o Windows não distingue).",
+    "restart_stayed_off": "Ficou desligado {minutes} min antes de ligar de novo.",
+    "power_transition": "Caiu durante a transição de energia: {state}.",
+    "bugcheck": "O Windows registrou uma tela azul (código {code}).",
+    "bugcheck_none": "Não houve tela azul.",
+    "whea_hardware_error": "O processador ou a memória reportaram erro de hardware ({sources}).",
+    "whea_pcie": "Houve um erro corrigido no barramento PCIe: placa ou slot de algum dispositivo, não a CPU.",
+    "power_button_long_press": "O botão de energia foi segurado: desligamento forçado.",
+    "power_button_pressed": "O botão de energia foi pressionado.",
+    "boot_early_failure": "Caiu pouco depois de ligar, antes do primeiro registro periódico do Windows (~40 min).",
+    "telemetry_missing": "O PC Monitor não estava gravando quando o PC caiu.",
+    "telemetry_not_at_failure": "A gravação parou antes da queda (coletor parado ou PC dormindo): os últimos dados não são do momento da queda.",
+    "telemetry_too_short": "A {role} foi gravada por pouco tempo antes da queda para concluir algo.",
+    "estimate_lower_bound": "O horário da queda é aproximado: ela aconteceu nesse momento ou depois.",
+    "sensor_unavailable": "Esta placa não informa a {role}.",
+    "rail_precision": "1 leitura por segundo e degraus de ~0,1 V no +12 V: quedas muito rápidas ou pequenas não aparecem.",
+    "rail_measured_on_board": "O sensor de tensão fica na placa: não separa a fonte da placa ou do conector.",
+    "whea_may_be_power": "Instabilidade de energia também gera erros de hardware: isto não descarta a fonte nem a placa."
   }
 }

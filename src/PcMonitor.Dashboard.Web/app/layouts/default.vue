@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Provisional shell: the final visual design is approved with mockups in Plan 05.
 const { t } = useI18n()
-const { version } = useAppVersion()
+const { version } = useHealth()
 
 const links = computed(() =>
   navigationItems.map(item => ({ label: t(item.labelKey), icon: item.icon, to: item.to })),

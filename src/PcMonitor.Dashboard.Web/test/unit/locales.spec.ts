@@ -13,3 +13,11 @@ describe('locales', () => {
     expect([...en].sort()).toEqual([...ptBR].sort())
   })
 })
+
+describe('locale keys', () => {
+  it('never contain a dot inside a key (vue-i18n reads dots as nesting)', () => {
+    const leaves = (messages: object): string[] => Object.entries(messages).flatMap(([key, value]) =>
+      typeof value === 'string' ? [key] : [key, ...leaves(value as object)])
+    expect(leaves(loadLocale('pt-BR')).filter(key => key.includes('.'))).toEqual([])
+  })
+})
