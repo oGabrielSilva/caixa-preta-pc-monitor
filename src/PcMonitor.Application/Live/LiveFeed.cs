@@ -9,7 +9,7 @@ public sealed partial class LiveFeed(ILiveReader reader, TimeProvider time, ILog
     /// <summary>How often the database is read: the collector writes one frame per second.</summary>
     public static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
 
-    public async IAsyncEnumerable<LiveUpdate> Follow(
+    public async IAsyncEnumerable<LiveUpdate> FollowAsync(
         long? segmentId,
         DateTimeOffset? after,
         [EnumeratorCancellation] CancellationToken cancellationToken)

@@ -32,7 +32,7 @@ public sealed class LiveFeedTests
     public async Task Frames_are_delivered_after_a_poll_interval()
     {
         _reader.Add(7, new Frame(_t0.AddSeconds(1), [1f]));
-        await using var feed = Feed().Follow(7, _t0, CancellationToken.None).GetAsyncEnumerator(TestContext.Current.CancellationToken);
+        await using var feed = Feed().FollowAsync(7, _t0, CancellationToken.None).GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         (await Next(feed)).ShouldBeTrue();
         feed.Current.ShouldBeOfType<FramesAppended>();
@@ -43,7 +43,7 @@ public sealed class LiveFeedTests
     {
         _reader.Add(7, new Frame(_t0.AddSeconds(1), [1f]));
         _reader.FailuresLeft = 1;
-        await using var feed = Feed().Follow(7, _t0, CancellationToken.None).GetAsyncEnumerator(TestContext.Current.CancellationToken);
+        await using var feed = Feed().FollowAsync(7, _t0, CancellationToken.None).GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         (await Next(feed)).ShouldBeTrue();
         feed.Current.ShouldBeOfType<FramesAppended>();
@@ -54,7 +54,7 @@ public sealed class LiveFeedTests
     public async Task Cancellation_ends_the_feed()
     {
         using var cancellation = new CancellationTokenSource();
-        await using var feed = Feed().Follow(7, _t0, cancellation.Token).GetAsyncEnumerator(TestContext.Current.CancellationToken);
+        await using var feed = Feed().FollowAsync(7, _t0, cancellation.Token).GetAsyncEnumerator(TestContext.Current.CancellationToken);
 
         var move = feed.MoveNextAsync().AsTask();
         await cancellation.CancelAsync();
