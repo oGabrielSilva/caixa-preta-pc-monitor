@@ -2,7 +2,7 @@
 
 Decisões em [ADR 0004](../adr/0004-sqlite-wal-full-sync-frame-rows.md) e [ADR 0011](../adr/0011-segments-gaps-and-watchdog.md). Schema versionado por `PRAGMA user_version`, scripts em `src/PcMonitor.Infrastructure.Persistence.Sqlite/Migrations/`.
 
-## Implementado ✅ (migrações 001–004)
+## Implementado ✅ (migrações 001–005)
 
 ```mermaid
 erDiagram
@@ -31,13 +31,15 @@ erDiagram
     INCIDENT_EVENT { int incident_id  text provider  int event_id  int record_id  int logged_at_ms  int level  text data_json }
 ```
 
-## Planejado 🕓 (Plano 04)
+### Diagnóstico ✅ (migração 005)
 
 ```mermaid
 erDiagram
     INCIDENT ||--o| DIAGNOSIS : tem
-    DIAGNOSIS { int incident_id  text ranking_json  text evidence_json }
+    DIAGNOSIS { int incident_id  int engine_version  int diagnosed_at_ms  text top_hypothesis  text confidence  text ranking_json  text findings_json  text limitations_json }
 ```
+
+`incident.sleep_in_progress` guarda o estado de energia (0, 3 suspensão, 4 hibernação/Fast Startup); a migração 005 recuperou o valor real dos incidentes gravados antes como 0/1.
 
 | Ponto | Decisão |
 |---|---|

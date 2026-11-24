@@ -14,5 +14,5 @@ builder.Services.AddCollector();
 
 using var host = builder.Build();
 host.Services.GetRequiredService<SchemaMigrator>().Migrate();
-host.Services.GetRequiredService<StartupIncidentDetection>().Run();
+host.Services.GetRequiredService<StartupAnalysis>().Run();
 await host.RunAsync().ConfigureAwait(false);

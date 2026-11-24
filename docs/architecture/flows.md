@@ -1,6 +1,6 @@
 # Fluxos
 
-Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes ✅ (Plano 03) · diagnóstico 🕓 (Plano 04).
+Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes ✅ (Plano 03) · diagnóstico ✅ (Plano 04).
 
 ## Ciclo de vida do coletor e amostragem ✅
 
@@ -60,7 +60,7 @@ Detalhes da implementação (`DetectIncidents`, executado pelo coletor antes de 
 - **Retenção:** os 120 s antes do fim da telemetria de cada incidente nunca são apagados, em todos os segmentos da sessão.
 - Falha na detecção é registrada (EventId 1201) e a amostragem começa mesmo assim.
 
-## Motor de diagnóstico (Plano 04)
+## Motor de diagnóstico ✅
 
 Cada regra é uma classe que implementa `IDiagnosticRule` e devolve evidências para uma hipótese; o motor só agrega. Nova regra = nova classe registrada, sem alterar o motor.
 
@@ -76,4 +76,4 @@ flowchart LR
     E --> D[Diagnóstico<br/>ranking + evidências + limitações]
 ```
 
-Tabela de regras, pesos e limitações: §6.3 do [estudo](../estudos/2026-11-24-estudo-arquitetura.md).
+Executado pelo coletor ao iniciar, logo após a detecção (`StartupAnalysis`; cada etapa isolada). Regras, códigos, limiares e confiança: [diagnosis.md](diagnosis.md).

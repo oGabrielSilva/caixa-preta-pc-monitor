@@ -1,12 +1,16 @@
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
+using PcMonitor.Application.Diagnosis;
 using PcMonitor.Application.Incidents;
 using PcMonitor.Application.Monitoring;
 using PcMonitor.Application.Retention;
 using PcMonitor.Collector.Configuration;
 using PcMonitor.Collector.Retention;
 using PcMonitor.Collector.Sampling;
+using PcMonitor.Domain.Diagnosis;
+using PcMonitor.Domain.Diagnosis.Rules;
 using PcMonitor.Infrastructure.Persistence.Sqlite;
+using PcMonitor.Infrastructure.Persistence.Sqlite.Diagnosis;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Incidents;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Monitoring;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Retention;
@@ -46,7 +50,12 @@ internal static class CollectorServiceCollectionExtensions
         services.AddSingleton<IIncidentReader>(sp => sp.GetRequiredService<SqliteIncidentStore>());
         services.AddSingleton<IIncidentWriter>(sp => sp.GetRequiredService<SqliteIncidentStore>());
         services.AddSingleton<DetectIncidents>();
-        services.AddSingleton<StartupIncidentDetection>();
+        services.AddSingleton(new DiagnosisEngine(DiagnosticRules.All));
+        services.AddSingleton<SqliteDiagnosisStore>();
+        services.AddSingleton<IDiagnosisInputReader>(sp => sp.GetRequiredService<SqliteDiagnosisStore>());
+        services.AddSingleton<IDiagnosisWriter>(sp => sp.GetRequiredService<SqliteDiagnosisStore>());
+        services.AddSingleton<DiagnoseIncidents>();
+        services.AddSingleton<StartupAnalysis>();
 
         services.AddSingleton(sp => new MonitoringRecorder(
             sp.GetRequiredService<ISensorSource>(),
