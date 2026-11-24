@@ -1,8 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <!-- LibreHardwareMonitorLib only ships Windows runtime assemblies. -->
+    <TargetFramework>net10.0-windows</TargetFramework>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\PcMonitor.Application\PcMonitor.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LibreHardwareMonitorLib" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Profiles\*.json" />
   </ItemGroup>
 </Project>

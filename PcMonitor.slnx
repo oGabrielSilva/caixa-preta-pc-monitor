@@ -14,5 +14,6 @@
     <Project Path="tests/PcMonitor.Dashboard.Tests/PcMonitor.Dashboard.Tests.csproj" />
     <Project Path="tests/PcMonitor.Domain.Tests/PcMonitor.Domain.Tests.csproj" />
     <Project Path="tests/PcMonitor.Infrastructure.Persistence.Sqlite.Tests/PcMonitor.Infrastructure.Persistence.Sqlite.Tests.csproj" />
+    <Project Path="tests/PcMonitor.Infrastructure.Sensors.Lhm.Tests/PcMonitor.Infrastructure.Sensors.Lhm.Tests.csproj" />
   </Folder>
 </Solution>
