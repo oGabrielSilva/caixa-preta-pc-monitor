@@ -1,2 +1,17 @@
 <Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PcMonitor.Application/PcMonitor.Application.csproj" />
+    <Project Path="src/PcMonitor.Collector/PcMonitor.Collector.csproj" />
+    <Project Path="src/PcMonitor.Dashboard/PcMonitor.Dashboard.csproj" />
+    <Project Path="src/PcMonitor.Domain/PcMonitor.Domain.csproj" />
+    <Project Path="src/PcMonitor.Infrastructure.Persistence.Sqlite/PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
+    <Project Path="src/PcMonitor.Infrastructure.Sensors.Lhm/PcMonitor.Infrastructure.Sensors.Lhm.csproj" />
+    <Project Path="src/PcMonitor.Infrastructure.Windows/PcMonitor.Infrastructure.Windows.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PcMonitor.Application.Tests/PcMonitor.Application.Tests.csproj" />
+    <Project Path="tests/PcMonitor.Architecture.Tests/PcMonitor.Architecture.Tests.csproj" />
+    <Project Path="tests/PcMonitor.Domain.Tests/PcMonitor.Domain.Tests.csproj" />
+    <Project Path="tests/PcMonitor.Infrastructure.Persistence.Sqlite.Tests/PcMonitor.Infrastructure.Persistence.Sqlite.Tests.csproj" />
+  </Folder>
 </Solution>

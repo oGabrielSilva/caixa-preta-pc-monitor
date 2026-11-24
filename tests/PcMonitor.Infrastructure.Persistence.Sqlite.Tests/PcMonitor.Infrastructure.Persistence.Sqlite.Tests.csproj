@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PcMonitor.Infrastructure.Persistence.Sqlite\PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
+  </ItemGroup>
+</Project>

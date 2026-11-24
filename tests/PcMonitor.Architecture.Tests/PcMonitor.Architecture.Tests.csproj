@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PcMonitor.Domain\PcMonitor.Domain.csproj" />
+    <ProjectReference Include="..\..\src\PcMonitor.Application\PcMonitor.Application.csproj" />
+    <ProjectReference Include="..\..\src\PcMonitor.Infrastructure.Sensors.Lhm\PcMonitor.Infrastructure.Sensors.Lhm.csproj" />
+    <ProjectReference Include="..\..\src\PcMonitor.Infrastructure.Persistence.Sqlite\PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\..\src\PcMonitor.Infrastructure.Windows\PcMonitor.Infrastructure.Windows.csproj" />
+    <ProjectReference Include="..\..\src\PcMonitor.Collector\PcMonitor.Collector.csproj" />
+    <ProjectReference Include="..\..\src\PcMonitor.Dashboard\PcMonitor.Dashboard.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+  </ItemGroup>
+</Project>
