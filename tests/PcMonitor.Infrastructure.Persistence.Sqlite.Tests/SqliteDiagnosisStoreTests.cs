@@ -98,6 +98,27 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
     }
 
     [Fact]
+    public void Stored_json_has_the_shape_the_dashboard_reads()
+    {
+        SaveUnlinked(1, _t0);
+        var id = _store.IncidentsNeedingDiagnosis(1).Single();
+
+        _store.Save(id, new IncidentDiagnosis(1, [new HypothesisScore(Hypothesis.BoardPowerDelivery, 2)], Confidence.Low,
+            [
+                Finding.For("power.transition", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate, new Dictionary<string, string> { ["state"] = "4" }),
+                Finding.Observation("boot.early_failure"),
+            ],
+            [Finding.Limitation("telemetry.missing")]));
+
+        using var connection = _temp.Database.OpenReader();
+        var (ranking, findings, limitations) = connection.QuerySingle<(string, string, string)>(
+            "SELECT ranking_json, findings_json, limitations_json FROM diagnosis");
+        ranking.ShouldBe("""[{"hypothesis":"BoardPowerDelivery","score":2}]""");
+        findings.ShouldBe("""[{"code":"power.transition","kind":"Evidence","hypothesis":"BoardPowerDelivery","supports":true,"strength":"Moderate","parameters":{"state":"4"}},{"code":"boot.early_failure","kind":"Observation","parameters":{}}]""");
+        limitations.ShouldBe("""[{"code":"telemetry.missing","kind":"Limitation","parameters":{}}]""");
+    }
+
+    [Fact]
     public void Telemetry_window_has_the_last_120_seconds_by_role_across_segments()
     {
         var session = _monitoring.StartSession(_t0, _t0, new SensorSourceInfo(SensorSourceStatus.Ok, null, _catalog));
