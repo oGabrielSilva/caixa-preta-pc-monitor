@@ -85,10 +85,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/history/sensors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListHistorySensors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Min, mean and max of `sensor` (stable key) over `range`, in buckets sized for the period. */
+        get: operations["GetHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description One point of the history chart: `t` (Unix ms) is the start of the bucket. */
+        BucketResponse: {
+            /** Format: int64 */
+            t: number | string;
+            /** Format: double */
+            min: number | string;
+            /** Format: double */
+            avg: number | string;
+            /** Format: double */
+            max: number | string;
+        };
         /** @enum {unknown} */
         Confidence: "Inconclusive" | "Low" | "Medium" | "High" | null;
         /** @description The stored diagnosis of an incident. */
@@ -171,6 +215,30 @@ export interface components {
             version: string;
             /** @description State of the monitoring database; data endpoints answer 503 unless it is `Ready`. */
             storage: components["schemas"]["StorageState"];
+        };
+        /** @enum {unknown} */
+        HistoryRange: "Hour" | "Day" | "Week" | "TwoWeeks";
+        /** @description One sensor over a period, in buckets. Buckets without readings (machine off) are absent. */
+        HistoryResponse: {
+            /** @description The sensor and how to judge it. */
+            sensor: components["schemas"]["SensorResponse"];
+            /**
+             * Format: date-time
+             * @description Start of the period.
+             */
+            from: string;
+            /**
+             * Format: date-time
+             * @description End of the period (now).
+             */
+            to: string;
+            /**
+             * Format: int32
+             * @description Width of each bucket.
+             */
+            bucketSeconds: number | string;
+            /** @description Oldest first. */
+            buckets: components["schemas"]["BucketResponse"][];
         };
         /** @enum {unknown} */
         Hypothesis: "PowerSupply" | "BoardPowerDelivery" | "Thermal" | "Software" | "CpuOrMemory" | "ForcedPowerOff" | null;
@@ -512,6 +580,74 @@ export interface operations {
                 content: {
                     "text/event-stream": components["schemas"]["LiveEvent"];
                 };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    ListHistorySensors: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensorResponse"][];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetHistory: {
+        parameters: {
+            query: {
+                sensor: string;
+                range: components["schemas"]["HistoryRange"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Service Unavailable */
             503: {

@@ -189,10 +189,139 @@
           }
         }
       }
+    },
+    "/api/history/sensors": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "operationId": "ListHistorySensors",
+        "responses": {
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SensorResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history": {
+      "get": {
+        "tags": [
+          "History"
+        ],
+        "description": "Min, mean and max of `sensor` (stable key) over `range`, in buckets sized for the period.",
+        "operationId": "GetHistory",
+        "parameters": [
+          {
+            "name": "sensor",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "range",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/HistoryRange"
+            }
+          }
+        ],
+        "responses": {
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "BucketResponse": {
+        "required": [
+          "t",
+          "min",
+          "avg",
+          "max"
+        ],
+        "type": "object",
+        "properties": {
+          "t": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "min": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "avg": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "max": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        },
+        "description": "One point of the history chart: `t` (Unix ms) is the start of the bucket."
+      },
       "Confidence": {
         "enum": [
           "Inconclusive",
@@ -442,6 +571,57 @@
           }
         },
         "description": "Liveness of the dashboard, the version that is running and whether the database can be read."
+      },
+      "HistoryRange": {
+        "enum": [
+          "Hour",
+          "Day",
+          "Week",
+          "TwoWeeks"
+        ]
+      },
+      "HistoryResponse": {
+        "required": [
+          "sensor",
+          "from",
+          "to",
+          "bucketSeconds",
+          "buckets"
+        ],
+        "type": "object",
+        "properties": {
+          "sensor": {
+            "description": "The sensor and how to judge it.",
+            "$ref": "#/components/schemas/SensorResponse"
+          },
+          "from": {
+            "type": "string",
+            "description": "Start of the period.",
+            "format": "date-time"
+          },
+          "to": {
+            "type": "string",
+            "description": "End of the period (now).",
+            "format": "date-time"
+          },
+          "bucketSeconds": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Width of each bucket.",
+            "format": "int32"
+          },
+          "buckets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BucketResponse"
+            },
+            "description": "Oldest first."
+          }
+        },
+        "description": "One sensor over a period, in buckets. Buckets without readings (machine off) are absent."
       },
       "Hypothesis": {
         "enum": [
@@ -1089,6 +1269,9 @@
     },
     {
       "name": "Live"
+    },
+    {
+      "name": "History"
     }
   ]
 }
