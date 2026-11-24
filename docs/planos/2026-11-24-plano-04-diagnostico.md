@@ -210,3 +210,8 @@ WHERE json_extract(data_json, '$.SleepInProgress') IS NOT NULL;
 
 - Todo incidente tem um diagnóstico da versão atual, com evidências e limitações explicáveis por códigos.
 - A próxima queda real com telemetria recebe regras térmicas, de rails, carga e religamento.
+
+## Resultado da instalação (24/11/2026, 17:51)
+
+- Reinstalado após as correções da revisão final. Sessão #6 encerrada com `ServiceStopped`; detecção: 0 incidentes novos; **diagnóstico: 16 incidentes** (EventId 1202); sessão #7 `Ok` com 35 sensores.
+- Resultado: 2 incidentes `BoardPowerDelivery` / `Low` (quedas em hibernação, S4) e 14 `Inconclusive` — 5 deles com `boot.early_failure` (teste local idêntico). Todos com `telemetry.missing`: nenhuma queda ocorreu ainda com o coletor instalado.
