@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // Explicit import (instead of the auto-import) so tests can load this file outside Nuxt.
 import { defineNuxtConfig } from 'nuxt/config'
+import { appLocales, defaultLocale } from './i18n/app-locales'
 
 export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint', '@nuxt/test-utils/module'],
@@ -34,12 +35,9 @@ export default defineNuxtConfig({
   },
 
   i18n: {
-    defaultLocale: 'pt-BR',
+    defaultLocale,
     strategy: 'no_prefix',
-    locales: [
-      { code: 'pt-BR', language: 'pt-BR', name: 'Português', file: 'pt-BR.json' },
-      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
-    ],
+    locales: [...appLocales],
   },
 
   // Icons are bundled at build time: the dashboard never calls a CDN (nothing leaves the machine)
