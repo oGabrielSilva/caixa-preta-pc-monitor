@@ -38,4 +38,14 @@ export default defineNuxtConfig({
       { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
     ],
   },
+
+  // Icons are bundled at build time: the dashboard never calls a CDN (nothing leaves the machine)
+  // and keeps working offline.
+  icon: {
+    provider: 'none',
+    fallbackToApi: false,
+    clientBundle: {
+      scan: true,
+    },
+  },
 })
