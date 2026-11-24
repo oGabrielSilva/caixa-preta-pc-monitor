@@ -1,8 +1,8 @@
 # Fluxos
 
-Status: 🕓 planejado (Planos 02–04). Os diagramas descrevem o comportamento alvo.
+Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes e diagnóstico 🕓 (Planos 03–04).
 
-## Ciclo de vida do coletor e amostragem (Plano 02)
+## Ciclo de vida do coletor e amostragem ✅
 
 ```mermaid
 flowchart TD
@@ -23,8 +23,10 @@ flowchart TD
     L --> M
 ```
 
-- O `WindowsServiceLifetime` padrão não distingue *stop* de *shutdown*; o host terá um lifetime próprio que trata `OnShutdown`, *preshutdown* e `OnPowerEvent`.
-- **Watchdog:** a leitura de sensores roda numa thread dedicada. Um ciclo acima de 10 s registra `SamplerStalled` e encerra o processo; as ações de recuperação do serviço o reiniciam.
+- Além dos eventos do SCM, uma lacuna de mais de 3 × o intervalo sem evento de energia fecha o segmento com `Gap` (cobre o *Fast Startup*).
+- `PcMonitorServiceLifetime` distingue *stop* de *shutdown* e repassa suspensão/retomada (`OnShutdown`, `OnPowerEvent`).
+- **Watchdog:** a leitura roda na thread `PcMonitor.Sampler`. Sem ciclo concluído por 10 s, registra `SamplerStalled` (EventId 1001) e chama `Environment.FailFast`; as ações de recuperação do serviço o reiniciam.
+- Decisões: [ADR 0011](../adr/0011-segments-gaps-and-watchdog.md).
 
 ## Detecção de incidentes (Plano 03)
 

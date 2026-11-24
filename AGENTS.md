@@ -30,7 +30,7 @@ Frontend commands: see `src/PcMonitor.Dashboard.Web/AGENTS.md`. CI (`.github/wor
 
 ## Rules
 
-- `net10.0` (.NET 10 LTS). Warnings are errors; fix them, never suppress them without a comment explaining why.
+- .NET 10 LTS: `net10.0`, or `net10.0-windows` for the Windows-only collector side (Collector, Sensors.Lhm, Infrastructure.Windows and their tests). Warnings are errors; fix them, never suppress them without a comment explaining why.
 - Package versions live only in `Directory.Packages.props`. Microsoft platform packages stay on the `10.0.x` line.
 - Dependencies point inward: hosts → infrastructure → application → domain. `tests/PcMonitor.Architecture.Tests` enforces it.
 - No duplicated code. Extract a shared type instead of copying; jscpd runs in CI.

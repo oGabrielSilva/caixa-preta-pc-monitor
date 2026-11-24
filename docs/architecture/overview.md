@@ -36,7 +36,7 @@ flowchart LR
 
 | Processo | Privilégio | Responsabilidade | Status |
 |---|---|---|---|
-| Collector | LocalSystem (acesso ao driver de sensores) | Ler sensores, gravar amostras, detectar incidentes | ✅ host · 🕓 funcionalidades (Planos 02–04) |
+| Collector | LocalSystem (acesso ao driver de sensores) | Ler sensores, gravar amostras, detectar incidentes | ✅ amostragem, persistência, retenção, serviço (Plano 02) · 🕓 incidentes e diagnóstico (Planos 03–04) |
 | Dashboard | `NT SERVICE\PcMonitorDashboard` (sem privilégio) | Servir API e painel em `127.0.0.1:5280`, só leitura | ✅ host, `/api/health`, SPA · 🕓 dados (Plano 05) |
 
 Os dois processos **não conversam entre si**: o banco é o contrato. Ver [ADR 0003](../adr/0003-collector-dashboard-split-least-privilege.md).

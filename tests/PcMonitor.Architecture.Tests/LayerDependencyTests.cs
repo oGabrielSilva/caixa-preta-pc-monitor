@@ -8,9 +8,12 @@ public sealed class LayerDependencyTests
     [Fact]
     public void Domain_references_only_the_base_class_library()
     {
+        // Compare against the shared framework folder, not a "System." prefix: third-party packages such as
+        // System.IO.Abstractions use that prefix too.
+        var frameworkFolder = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
         var referenced = Load(DomainAssembly).GetReferencedAssemblies().Select(a => a.Name!);
 
-        referenced.ShouldAllBe(name => name.StartsWith("System") || name == "netstandard");
+        referenced.ShouldAllBe(name => File.Exists(Path.Combine(frameworkFolder, name + ".dll")));
     }
 
     [Fact]
