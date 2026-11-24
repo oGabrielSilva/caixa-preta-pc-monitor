@@ -48,8 +48,7 @@ public sealed class DiagnoseIncidentsTests
         new Incident(
             new UnexpectedShutdown(id, _at, 0, 0, null, false, null, new Dictionary<string, string>()),
             null, FailureTimeSource.Unknown, null, null, null, []),
-        Telemetry: null,
-        RelatedEvents: []);
+        Telemetry: null);
 
     private static int Run(FakeInputs inputs, RecordingWriter writer) =>
         new DiagnoseIncidents(inputs, writer, new DiagnosisEngine([new SupplyRule()]), NullLogger<DiagnoseIncidents>.Instance).Run();

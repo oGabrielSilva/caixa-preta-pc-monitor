@@ -40,7 +40,7 @@ public sealed class StartupAnalysisTests
         [
             new(1, new Incident(
                 new UnexpectedShutdown(1, DateTimeOffset.UnixEpoch, 0, 0, null, false, null, new Dictionary<string, string>()),
-                null, FailureTimeSource.Unknown, null, null, null, []), null, []),
+                null, FailureTimeSource.Unknown, null, null, null, []), null),
         ];
 
         public void Save(long incidentId, IncidentDiagnosis diagnosis) => Saved.Add(incidentId);

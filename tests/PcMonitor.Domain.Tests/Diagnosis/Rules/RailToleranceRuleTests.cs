@@ -7,14 +7,14 @@ namespace PcMonitor.Domain.Tests.Diagnosis.Rules;
 
 public sealed class RailToleranceRuleTests
 {
-    private static List<Finding> Evaluate(EvidenceBuilder builder) => [.. new RailToleranceRule().Evaluate(builder.Build())];
-
     private static readonly Dictionary<SensorRole, float> _nominal = new()
     {
         [SensorRole.Rail12V] = 12.19f,
         [SensorRole.Rail5V] = 5f,
         [SensorRole.Rail3V3] = 3.3f,
     };
+
+    private static List<Finding> Evaluate(EvidenceBuilder builder) => [.. new RailToleranceRule().Evaluate(builder.Build())];
 
     private static EvidenceBuilder AllRails()
     {
@@ -31,35 +31,50 @@ public sealed class RailToleranceRuleTests
     [InlineData(SensorRole.Rail12V, 11.3f, "12V", "11.4", "12.6")]
     [InlineData(SensorRole.Rail5V, 5.3f, "5V", "4.75", "5.25")]
     [InlineData(SensorRole.Rail3V3, 3.1f, "3.3V", "3.135", "3.465")]
-    public void A_rail_outside_the_ATX_range_is_strong_evidence_for_the_power_supply(SensorRole role, float bad, string rail, string min, string max)
+    public void A_rail_out_of_range_twice_weighs_supply_and_board_equally(SensorRole role, float bad, string rail, string min, string max)
     {
-        var builder = AllRails().Series(role, _nominal[role], bad, _nominal[role]);
+        var findings = Evaluate(AllRails().Series(role, _nominal[role], bad, bad));
 
-        var finding = Evaluate(builder).ShouldHaveSingleItem();
-
-        finding.Summary().ShouldBe([RuleAssertions.For("rail.out_of_tolerance", Hypothesis.PowerSupply, EvidenceStrength.Strong)]);
-        finding.Parameters.ShouldBe(new Dictionary<string, string>
+        findings.Summary().ShouldBe(
+        [
+            RuleAssertions.For("rail.out_of_tolerance", Hypothesis.PowerSupply, EvidenceStrength.Moderate),
+            RuleAssertions.For("rail.out_of_tolerance", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate),
+            RuleAssertions.Limitation("rail.measured_on_board"),
+        ]);
+        findings[0].Parameters.ShouldBe(new Dictionary<string, string>
         {
             ["rail"] = rail,
             ["min"] = min,
             ["max"] = max,
             ["observed"] = bad.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture),
+            ["samples"] = "2",
         }, ignoreOrder: true);
     }
 
     [Fact]
-    public void Rails_within_range_weigh_weakly_against_the_power_supply_with_the_precision_limitation() =>
+    public void A_single_out_of_range_sample_is_treated_as_a_glitch() =>
+        Evaluate(AllRails().Series(SensorRole.Rail12V, 12.19f, 11.3f, 12.19f)).Select(f => f.Code)
+            .ShouldBe(["rail.in_tolerance", "rail.precision"]);
+
+    [Fact]
+    public void Several_bad_rails_are_counted_once_by_the_worst()
+    {
+        var findings = Evaluate(AllRails().Series(SensorRole.Rail12V, 11.3f, 11.3f).Series(SensorRole.Rail5V, 4.5f, 4.5f));
+
+        findings.Count(f => f.Kind == FindingKind.Evidence).ShouldBe(2);
+        findings[0].Parameters["rail"].ShouldBe("5V"); // 0.25 V outside beats 0.1 V
+    }
+
+    [Fact]
+    public void Rails_within_range_are_an_observation_with_the_precision_limitation() =>
         Evaluate(AllRails()).Summary().ShouldBe(
         [
-            RuleAssertions.Against("rail.in_tolerance", Hypothesis.PowerSupply, EvidenceStrength.Weak),
+            RuleAssertions.Observation("rail.in_tolerance"),
             RuleAssertions.Limitation("rail.precision"),
         ]);
 
     [Fact]
-    public void Missing_rails_are_limitations()
-    {
-        var findings = Evaluate(new EvidenceBuilder().Constant(SensorRole.Rail3V3, 3.3f, 5));
-
-        findings.Where(f => f.Code == "sensor.unavailable").Select(f => f.Parameters["role"]).ShouldBe(["Rail12V", "Rail5V"]);
-    }
+    public void Missing_rails_are_limitations() =>
+        Evaluate(new EvidenceBuilder().Constant(SensorRole.Rail3V3, 3.3f, 5))
+            .Where(f => f.Code == "sensor.unavailable").Select(f => f.Parameters["role"]).ShouldBe(["Rail12V", "Rail5V"]);
 }

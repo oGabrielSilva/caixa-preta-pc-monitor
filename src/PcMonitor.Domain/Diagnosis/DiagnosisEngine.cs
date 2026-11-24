@@ -46,6 +46,10 @@ public sealed class DiagnosisEngine(IEnumerable<IDiagnosticRule> rules)
         {
             yield return Finding.Limitation("telemetry.missing");
         }
+        else if (evidence.AtFailure is null)
+        {
+            yield return Finding.Limitation("telemetry.not_at_failure");
+        }
 
         if (evidence.Incident.FailureTimeSource is FailureTimeSource.LastAliveEventLog or FailureTimeSource.LastFrameBeforeSleep)
         {

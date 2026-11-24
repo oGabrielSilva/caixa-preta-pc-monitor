@@ -128,6 +128,6 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
 
         var second = _store.IncidentsNeedingDiagnosis(DiagnosisEngine.Version).Single(i => i.Incident.Shutdown.RecordId == 2);
 
-        second.RelatedEvents.Select(e => e.RecordId).ShouldBe([101L]);
+        second.Incident.RelatedEvents.Select(e => e.RecordId).ShouldBe([101L]);
     }
 }

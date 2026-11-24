@@ -3,13 +3,16 @@ using static PcMonitor.Domain.Diagnosis.DiagnosisThresholds;
 
 namespace PcMonitor.Domain.Diagnosis.Rules;
 
-/// <summary>CPU temperature before the failure: a thermal trip shuts the machine down at around 95 °C on this CPU.</summary>
+/// <summary>
+/// CPU temperature at the failure (the last seconds, never an earlier peak). The Ryzen 7 8700G runs at its 95 °C
+/// limit under sustained load by design, so only readings above it, or sitting at it when the machine died, count.
+/// </summary>
 public sealed class ThermalRule : IDiagnosticRule
 {
     public IEnumerable<Finding> Evaluate(IncidentEvidence evidence)
     {
         ArgumentNullException.ThrowIfNull(evidence);
-        if (evidence.Telemetry is not { } telemetry)
+        if (evidence.AtFailure is not { } telemetry)
         {
             yield break;
         }
@@ -20,26 +23,29 @@ public sealed class ThermalRule : IDiagnosticRule
             yield break;
         }
 
-        var max = telemetry.Series(SensorRole.CpuTemperature).Max(p => p.Value);
-        var parameters = FindingParameters.Of(("max", FindingParameters.Decimal(max)));
+        var end = telemetry.Tail(SensorRole.CpuTemperature, End);
+        if (end.Count < MinFramesAtEnd)
+        {
+            yield return SensorLimitation.TooShort(SensorRole.CpuTemperature);
+            yield break;
+        }
+
+        var max = end.Max(p => p.Value);
+        var average = end.Average(p => p.Value);
         if (max >= CpuCriticalCelsius)
         {
-            yield return Finding.For("thermal.critical", Hypothesis.Thermal, EvidenceStrength.Strong, parameters);
+            yield return Finding.For("thermal.critical", Hypothesis.Thermal, EvidenceStrength.Strong,
+                FindingParameters.Of(("max", FindingParameters.Decimal(max))));
         }
-        else if (max >= CpuHighCelsius)
+        else if (average >= CpuAtLimitCelsius)
         {
-            yield return Finding.For("thermal.high", Hypothesis.Thermal, EvidenceStrength.Moderate, parameters);
+            yield return Finding.For("thermal.at_limit", Hypothesis.Thermal, EvidenceStrength.Moderate,
+                FindingParameters.Of(("avg", FindingParameters.Decimal(average))));
         }
         else if (max < CpuNormalBelowCelsius)
         {
-            yield return Finding.Against("thermal.normal", Hypothesis.Thermal, EvidenceStrength.Moderate, parameters);
-        }
-
-        var recent = telemetry.Tail(SensorRole.CpuTemperature, CpuRiseSpan);
-        if (recent.Count >= MinFramesForTrend && recent[^1].Value - recent[0].Value >= CpuRiseCelsius)
-        {
-            yield return Finding.For("thermal.rising", Hypothesis.Thermal, EvidenceStrength.Weak,
-                FindingParameters.Of(("delta", FindingParameters.Decimal(recent[^1].Value - recent[0].Value))));
+            yield return Finding.Against("thermal.normal", Hypothesis.Thermal, EvidenceStrength.Moderate,
+                FindingParameters.Of(("max", FindingParameters.Decimal(max))));
         }
     }
 }

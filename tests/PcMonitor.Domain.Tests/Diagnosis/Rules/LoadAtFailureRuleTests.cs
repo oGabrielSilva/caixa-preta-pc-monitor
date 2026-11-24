@@ -18,18 +18,16 @@ public sealed class LoadAtFailureRuleTests
         ]);
 
     [Fact]
-    public void Idle_at_the_end_points_to_the_board_and_away_from_the_power_supply() =>
-        Evaluate(new EvidenceBuilder().Constant(SensorRole.CpuLoad, 5f, 20)).Summary().ShouldBe(
-        [
-            RuleAssertions.For("load.idle", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate),
-            RuleAssertions.Against("load.idle", Hypothesis.PowerSupply, EvidenceStrength.Weak),
-        ]);
+    public void Idle_at_the_end_leans_weakly_to_the_board_without_ruling_out_the_supply() =>
+        Evaluate(new EvidenceBuilder().Constant(SensorRole.CpuLoad, 5f, 20)).Summary()
+            .ShouldBe([RuleAssertions.For("load.idle", Hypothesis.BoardPowerDelivery, EvidenceStrength.Weak)]);
 
     [Fact]
     public void Medium_load_says_nothing() => Evaluate(new EvidenceBuilder().Constant(SensorRole.CpuLoad, 45f, 20)).ShouldBeEmpty();
 
     [Fact]
-    public void Too_few_recent_frames_say_nothing() => Evaluate(new EvidenceBuilder().Constant(SensorRole.CpuLoad, 90f, 3)).ShouldBeEmpty();
+    public void Too_few_recent_frames_is_a_limitation() =>
+        Evaluate(new EvidenceBuilder().Constant(SensorRole.CpuLoad, 90f, 3)).Summary().ShouldBe([RuleAssertions.Limitation("telemetry.too_short")]);
 
     [Fact]
     public void Missing_load_sensor_is_a_limitation() =>

@@ -13,7 +13,7 @@ public sealed class WheaRule : IDiagnosticRule
     public IEnumerable<Finding> Evaluate(IncidentEvidence evidence)
     {
         ArgumentNullException.ThrowIfNull(evidence);
-        var whea = evidence.RelatedEvents.Where(e => e.Provider == WheaProvider).ToList();
+        var whea = evidence.Incident.RelatedEvents.Where(e => e.Provider == WheaProvider).ToList();
         if (whea.Count > 0)
         {
             yield return Finding.For("whea.event", Hypothesis.CpuOrMemory, EvidenceStrength.Strong, FindingParameters.Of(

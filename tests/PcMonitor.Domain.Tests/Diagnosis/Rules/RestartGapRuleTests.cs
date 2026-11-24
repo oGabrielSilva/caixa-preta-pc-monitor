@@ -10,30 +10,30 @@ public sealed class RestartGapRuleTests
     private static List<Finding> Evaluate(EvidenceBuilder builder) => [.. new RestartGapRule().Evaluate(builder.Build())];
 
     [Fact]
-    public void Coming_back_within_three_minutes_means_it_restarted_by_itself()
+    public void Coming_back_within_three_minutes_is_an_observation()
     {
-        var findings = Evaluate(new EvidenceBuilder { LoggedAt = EvidenceBuilder.End.AddSeconds(95) }.WithTelemetry());
+        var finding = Evaluate(new EvidenceBuilder { LoggedAt = EvidenceBuilder.End.AddSeconds(95) }.WithTelemetry()).ShouldHaveSingleItem();
 
-        findings.Summary().ShouldBe(
-        [
-            RuleAssertions.For("restart.automatic", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate),
-            RuleAssertions.Against("restart.automatic", Hypothesis.PowerSupply, EvidenceStrength.Weak),
-        ]);
-        findings[0].Parameters["seconds"].ShouldBe("95");
+        finding.Summary().ShouldBe([RuleAssertions.Observation("restart.quick")]);
+        finding.Parameters["seconds"].ShouldBe("95");
     }
 
     [Fact]
-    public void Staying_off_for_fifteen_minutes_or_more_is_weak_evidence_for_the_power_supply()
+    public void Staying_off_for_fifteen_minutes_or_more_is_an_observation()
     {
         var finding = Evaluate(new EvidenceBuilder { LoggedAt = EvidenceBuilder.End.AddMinutes(40) }.WithTelemetry()).ShouldHaveSingleItem();
 
-        finding.Summary().ShouldBe([RuleAssertions.For("restart.stayed_off", Hypothesis.PowerSupply, EvidenceStrength.Weak)]);
+        finding.Summary().ShouldBe([RuleAssertions.Observation("restart.stayed_off")]);
         finding.Parameters["minutes"].ShouldBe("40");
     }
 
     [Fact]
     public void A_gap_between_three_and_fifteen_minutes_says_nothing() =>
         Evaluate(new EvidenceBuilder { LoggedAt = EvidenceBuilder.End.AddMinutes(8) }.WithTelemetry()).ShouldBeEmpty();
+
+    [Fact]
+    public void A_negative_gap_from_a_clock_adjustment_says_nothing() =>
+        Evaluate(new EvidenceBuilder { LoggedAt = EvidenceBuilder.End.AddSeconds(-30) }.WithTelemetry()).ShouldBeEmpty();
 
     [Theory]
     [InlineData(FailureTimeSource.LastAliveEventLog)]

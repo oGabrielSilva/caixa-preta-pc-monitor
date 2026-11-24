@@ -16,7 +16,7 @@ public sealed class BootTimingRule : IDiagnosticRule
             yield break;
         }
 
-        if (evidence.RelatedEvents.Any(e => e.Provider == "EventLog" && e.EventId == 6005 && (e.LoggedAt - lastAlive).Duration() <= SameInstant))
+        if (evidence.Incident.RelatedEvents.Any(e => e.Provider == "EventLog" && e.EventId == 6005 && (e.LoggedAt - lastAlive).Duration() <= SameInstant))
         {
             yield return Finding.Observation("boot.early_failure");
         }

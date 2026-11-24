@@ -60,7 +60,7 @@ public sealed class SqliteDiagnosisStore(SqliteDatabase database, TimeProvider t
         var incident = new Incident(shutdown, TimeOrNull(row.EstimatedFailureMs), Enum.Parse<FailureTimeSource>(row.FailureTimeSource),
             row.SessionId, row.SegmentId, TimeOrNull(row.TelemetryEndMs), related);
 
-        return new IncidentEvidence(row.Id, incident, Telemetry(connection, row), related);
+        return new IncidentEvidence(row.Id, incident, Telemetry(connection, row));
     }
 
     private static TelemetryWindow? Telemetry(SqliteConnection connection, IncidentRow row)

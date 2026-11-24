@@ -1,3 +1,5 @@
+using PcMonitor.Domain.Diagnosis;
+
 namespace PcMonitor.Application.Retention;
 
 /// <summary>
@@ -6,7 +8,8 @@ namespace PcMonitor.Application.Retention;
 /// </summary>
 public sealed record RetentionPolicy(TimeSpan RawRetention, TimeSpan IncidentWindow)
 {
-    public static readonly TimeSpan DefaultIncidentWindow = TimeSpan.FromSeconds(120);
+    /// <summary>The diagnosis window: retention keeps exactly what the rules read.</summary>
+    public static readonly TimeSpan DefaultIncidentWindow = DiagnosisThresholds.Window;
 }
 
 /// <summary>Outcome of one retention run.</summary>

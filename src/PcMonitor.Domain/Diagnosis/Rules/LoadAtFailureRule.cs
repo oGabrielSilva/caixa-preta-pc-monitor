@@ -4,15 +4,15 @@ using static PcMonitor.Domain.Diagnosis.DiagnosisThresholds;
 namespace PcMonitor.Domain.Diagnosis.Rules;
 
 /// <summary>
-/// CPU load in the last seconds. A supply or a cooler fails under load; a machine that dies while idle points to the
-/// board (reset line, short, VRM) rather than to the supply.
+/// CPU load in the last seconds. Supplies and coolers usually give out under load; dying while idle leans weakly
+/// towards the board (reset line, short, VRM), without ruling out the supply.
 /// </summary>
 public sealed class LoadAtFailureRule : IDiagnosticRule
 {
     public IEnumerable<Finding> Evaluate(IncidentEvidence evidence)
     {
         ArgumentNullException.ThrowIfNull(evidence);
-        if (evidence.Telemetry is not { } telemetry)
+        if (evidence.AtFailure is not { } telemetry)
         {
             yield break;
         }
@@ -26,6 +26,7 @@ public sealed class LoadAtFailureRule : IDiagnosticRule
         var end = telemetry.Tail(SensorRole.CpuLoad, End);
         if (end.Count < MinFramesAtEnd)
         {
+            yield return SensorLimitation.TooShort(SensorRole.CpuLoad);
             yield break;
         }
 
@@ -38,8 +39,7 @@ public sealed class LoadAtFailureRule : IDiagnosticRule
         }
         else if (average <= IdleLoadPercent)
         {
-            yield return Finding.For("load.idle", Hypothesis.BoardPowerDelivery, EvidenceStrength.Moderate, parameters);
-            yield return Finding.Against("load.idle", Hypothesis.PowerSupply, EvidenceStrength.Weak, parameters);
+            yield return Finding.For("load.idle", Hypothesis.BoardPowerDelivery, EvidenceStrength.Weak, parameters);
         }
     }
 }

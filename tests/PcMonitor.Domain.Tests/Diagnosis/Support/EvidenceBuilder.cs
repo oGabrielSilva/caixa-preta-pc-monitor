@@ -64,6 +64,6 @@ internal sealed class EvidenceBuilder
         };
         var incident = new Incident(shutdown, estimate, Source, _withTelemetry ? 1 : null, _withTelemetry ? 1 : null,
             _withTelemetry ? End : null, _events);
-        return new IncidentEvidence(7, incident, _withTelemetry ? new TelemetryWindow(End, _series) : null, _events);
+        return new IncidentEvidence(7, incident, _withTelemetry ? new TelemetryWindow(End, _series) : null);
     }
 }
