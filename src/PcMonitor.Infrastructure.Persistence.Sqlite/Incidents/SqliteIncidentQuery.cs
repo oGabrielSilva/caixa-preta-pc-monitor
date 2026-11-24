@@ -35,7 +35,8 @@ public sealed class SqliteIncidentQuery(SqliteDatabase database) : IIncidentQuer
             evidence.Incident.TelemetryEndAt,
             [.. evidence.Incident.RelatedEvents.Select(e => new RelatedEventView(e.Provider, e.EventId, e.LoggedAt, e.Level))],
             diagnosis?.ToDiagnosis(),
-            evidence.Telemetry);
+            evidence.Telemetry,
+            evidence.AtFailure is not null);
     }
 
     private static DateTimeOffset Time(long milliseconds) => DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);

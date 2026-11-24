@@ -24,10 +24,285 @@
           }
         }
       }
+    },
+    "/api/incidents": {
+      "get": {
+        "tags": [
+          "Incidents"
+        ],
+        "operationId": "ListIncidents",
+        "responses": {
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IncidentSummaryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/incidents/{id}": {
+      "get": {
+        "tags": [
+          "Incidents"
+        ],
+        "operationId": "GetIncident",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentDetailResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "Confidence": {
+        "enum": [
+          "Inconclusive",
+          "Low",
+          "Medium",
+          "High",
+          null
+        ]
+      },
+      "DiagnosisResponse": {
+        "required": [
+          "engineVersion",
+          "diagnosedAt",
+          "ranking",
+          "findings",
+          "limitations"
+        ],
+        "type": "object",
+        "properties": {
+          "engineVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Version of the rules that produced it.",
+            "format": "int32"
+          },
+          "diagnosedAt": {
+            "type": "string",
+            "description": "When it was computed.",
+            "format": "date-time"
+          },
+          "ranking": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HypothesisScoreResponse"
+            },
+            "description": "Hypotheses by score, highest first."
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingResponse"
+            },
+            "description": "Evidence and observations."
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FindingResponse"
+            },
+            "description": "What this case cannot tell."
+          }
+        },
+        "description": "The stored diagnosis of an incident."
+      },
+      "EventResponse": {
+        "required": [
+          "provider",
+          "eventId",
+          "loggedAt",
+          "level"
+        ],
+        "type": "object",
+        "properties": {
+          "provider": {
+            "type": "string"
+          },
+          "eventId": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "loggedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "level": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "A Windows event around the incident. Its data is never sent: it can name the computer and the user."
+      },
+      "EvidenceStrength": {
+        "enum": [
+          "Weak",
+          "Moderate",
+          "Strong"
+        ],
+        "description": "How much a piece of evidence weighs; the value is its score."
+      },
+      "FailureTimeSource": {
+        "enum": [
+          "LastFrame",
+          "LastFrameBeforeSleep",
+          "LastAliveEventLog",
+          "Unknown"
+        ],
+        "description": "Where the estimated failure time of an incident comes from, from most to least precise."
+      },
+      "FindingCode": {
+        "enum": [
+          "thermal.critical",
+          "thermal.at_limit",
+          "thermal.normal",
+          "rail.out_of_tolerance",
+          "rail.droop",
+          "rail.in_tolerance",
+          "load.high",
+          "load.idle",
+          "restart.quick",
+          "restart.stayed_off",
+          "power.transition",
+          "bugcheck",
+          "bugcheck.none",
+          "whea.hardware_error",
+          "whea.pcie",
+          "power_button.long_press",
+          "power_button.pressed",
+          "boot.early_failure",
+          "telemetry.missing",
+          "telemetry.not_at_failure",
+          "telemetry.too_short",
+          "estimate.lower_bound",
+          "sensor.unavailable",
+          "rail.precision",
+          "rail.measured_on_board",
+          "whea.may_be_power"
+        ],
+        "type": "string",
+        "description": "A diagnosis code (see `docs/architecture/diagnosis.md`). Serialized as a plain string; the OpenAPI document\r\nlists every value (FindingCodeSchemaTransformer) so the frontend gets a union type."
+      },
+      "FindingKind": {
+        "enum": [
+          "Evidence",
+          "Observation",
+          "Limitation"
+        ],
+        "description": "What a finding is for."
+      },
+      "FindingResponse": {
+        "required": [
+          "code",
+          "kind",
+          "hypothesis",
+          "supports",
+          "strength",
+          "parameters"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "description": "Stable code.",
+            "$ref": "#/components/schemas/FindingCode"
+          },
+          "kind": {
+            "description": "Evidence (scores), observation or limitation.",
+            "$ref": "#/components/schemas/FindingKind"
+          },
+          "hypothesis": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Hypothesis the evidence is about; `null` for observations and limitations.",
+                "$ref": "#/components/schemas/Hypothesis"
+              }
+            ]
+          },
+          "supports": {
+            "type": "boolean",
+            "description": "For or against the hypothesis."
+          },
+          "strength": {
+            "description": "Weight of the evidence.",
+            "$ref": "#/components/schemas/EvidenceStrength"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Values the text needs, as invariant strings (for example `observed` = `11.28`)."
+          }
+        },
+        "description": "One result of a diagnosis rule. The dashboard translates the code and its parameters."
+      },
       "HealthResponse": {
         "required": [
           "status",
@@ -51,6 +326,381 @@
         },
         "description": "Liveness of the dashboard, the version that is running and whether the database can be read."
       },
+      "Hypothesis": {
+        "enum": [
+          "PowerSupply",
+          "BoardPowerDelivery",
+          "Thermal",
+          "Software",
+          "CpuOrMemory",
+          "ForcedPowerOff",
+          null
+        ]
+      },
+      "HypothesisScoreResponse": {
+        "required": [
+          "hypothesis",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "hypothesis": {
+            "$ref": "#/components/schemas/Hypothesis"
+          },
+          "score": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          }
+        },
+        "description": "Sum of the evidence for one hypothesis."
+      },
+      "IncidentDetailResponse": {
+        "required": [
+          "summary",
+          "lastAliveAt",
+          "telemetryEndAt",
+          "events",
+          "diagnosis",
+          "telemetry"
+        ],
+        "type": "object",
+        "properties": {
+          "summary": {
+            "description": "The list entry.",
+            "$ref": "#/components/schemas/IncidentSummaryResponse"
+          },
+          "lastAliveAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Last sign of life Windows recorded (event 6008).",
+            "format": "date-time"
+          },
+          "telemetryEndAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Last frame the collector recorded in that session.",
+            "format": "date-time"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EventResponse"
+            },
+            "description": "Windows events this incident owns, oldest first."
+          },
+          "diagnosis": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "`null` until the collector diagnoses it.",
+                "$ref": "#/components/schemas/DiagnosisResponse"
+              }
+            ]
+          },
+          "telemetry": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "`null` without telemetry.",
+                "$ref": "#/components/schemas/TelemetryResponse"
+              }
+            ]
+          }
+        },
+        "description": "Everything about one incident."
+      },
+      "IncidentSummaryResponse": {
+        "required": [
+          "id",
+          "loggedAt",
+          "estimatedFailureAt",
+          "timeSource",
+          "sleepState",
+          "bugcheckCode",
+          "hasTelemetry",
+          "topHypothesis",
+          "confidence",
+          "observations"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Incident id.",
+            "format": "int64"
+          },
+          "loggedAt": {
+            "type": "string",
+            "description": "When Windows logged the shutdown (event 41, at the next boot).",
+            "format": "date-time"
+          },
+          "estimatedFailureAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Best estimate of when the machine went down.",
+            "format": "date-time"
+          },
+          "timeSource": {
+            "description": "Where the estimate comes from: `LastFrame` is within about a second.",
+            "$ref": "#/components/schemas/FailureTimeSource"
+          },
+          "sleepState": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Power state in transition at the failure: 0 none, 3 sleep, 4 hibernation/Fast Startup.",
+            "format": "int32"
+          },
+          "bugcheckCode": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "description": "Blue screen code; 0 when there was none.",
+            "format": "int64"
+          },
+          "hasTelemetry": {
+            "type": "boolean",
+            "description": "The collector recorded the session the shutdown ended."
+          },
+          "topHypothesis": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Most likely cause; `null` when inconclusive or not diagnosed yet.",
+                "$ref": "#/components/schemas/Hypothesis"
+              }
+            ]
+          },
+          "confidence": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "Confidence of the diagnosis; `null` when not diagnosed yet.",
+                "$ref": "#/components/schemas/Confidence"
+              }
+            ]
+          },
+          "observations": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "thermal.critical",
+                "thermal.at_limit",
+                "thermal.normal",
+                "rail.out_of_tolerance",
+                "rail.droop",
+                "rail.in_tolerance",
+                "load.high",
+                "load.idle",
+                "restart.quick",
+                "restart.stayed_off",
+                "power.transition",
+                "bugcheck",
+                "bugcheck.none",
+                "whea.hardware_error",
+                "whea.pcie",
+                "power_button.long_press",
+                "power_button.pressed",
+                "boot.early_failure",
+                "telemetry.missing",
+                "telemetry.not_at_failure",
+                "telemetry.too_short",
+                "estimate.lower_bound",
+                "sensor.unavailable",
+                "rail.precision",
+                "rail.measured_on_board",
+                "whea.may_be_power"
+              ],
+              "type": "string"
+            },
+            "description": "Codes of the neutral observations (for example `boot.early_failure`)."
+          }
+        },
+        "description": "One unexpected shutdown in the list."
+      },
+      "PointResponse": {
+        "required": [
+          "t",
+          "v"
+        ],
+        "type": "object",
+        "properties": {
+          "t": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int64"
+          },
+          "v": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "float"
+          }
+        },
+        "description": "One reading: `t` in Unix milliseconds."
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "title": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "status": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "null",
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "detail": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "instance": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "RangeResponse": {
+        "required": [
+          "min",
+          "max"
+        ],
+        "type": "object",
+        "properties": {
+          "min": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "float"
+          },
+          "max": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "float"
+          }
+        },
+        "description": "The safe range of a reading, inclusive (ATX ±5 % for supply rails)."
+      },
+      "RoleSeriesResponse": {
+        "required": [
+          "role",
+          "unit",
+          "range",
+          "limit",
+          "critical",
+          "points"
+        ],
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/SensorRole"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "range": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RangeResponse"
+              }
+            ]
+          },
+          "limit": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "float"
+          },
+          "critical": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "float"
+          },
+          "points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PointResponse"
+            }
+          }
+        },
+        "description": "Readings of one sensor role, with how to judge them."
+      },
+      "SensorRole": {
+        "enum": [
+          "None",
+          "CpuTemperature",
+          "CpuPackagePower",
+          "CpuLoad",
+          "Vcore",
+          "Rail12V",
+          "Rail5V",
+          "Rail3V3"
+        ],
+        "description": "Meaning of a sensor for diagnosis, independent of how a board names it.\r\nAt most one sensor per catalog holds each role other than SensorRole.None."
+      },
       "StorageState": {
         "enum": [
           "Ready",
@@ -60,12 +710,42 @@
           "Unreadable"
         ],
         "description": "Whether the database can be read by this build."
+      },
+      "TelemetryResponse": {
+        "required": [
+          "endAt",
+          "atFailure",
+          "series"
+        ],
+        "type": "object",
+        "properties": {
+          "endAt": {
+            "type": "string",
+            "description": "Last recorded frame.",
+            "format": "date-time"
+          },
+          "atFailure": {
+            "type": "boolean",
+            "description": "The window ends at the failure; otherwise the collector had stopped or the machine was asleep."
+          },
+          "series": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoleSeriesResponse"
+            },
+            "description": "One series per recorded role; readings without a value are left out."
+          }
+        },
+        "description": "The recorded seconds before the end of telemetry, by sensor role."
       }
     }
   },
   "tags": [
     {
       "name": "Health"
+    },
+    {
+      "name": "Incidents"
     }
   ]
 }

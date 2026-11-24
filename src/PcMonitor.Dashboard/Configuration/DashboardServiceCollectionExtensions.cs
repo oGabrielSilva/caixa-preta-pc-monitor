@@ -6,6 +6,7 @@ using PcMonitor.Application.History;
 using PcMonitor.Application.Incidents;
 using PcMonitor.Application.Live;
 using PcMonitor.Application.Storage;
+using PcMonitor.Dashboard.Api.OpenApi;
 using PcMonitor.Infrastructure.Persistence.Sqlite;
 using PcMonitor.Infrastructure.Persistence.Sqlite.History;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Incidents;
@@ -38,7 +39,7 @@ internal static class DashboardServiceCollectionExtensions
         services.AddSingleton<QueryHistory>();
         services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
         services.AddProblemDetails();
-        services.AddOpenApi();
+        services.AddOpenApi(options => options.AddSchemaTransformer<FindingCodeSchemaTransformer>());
         return builder;
     }
 

@@ -6,6 +6,7 @@ namespace PcMonitor.Application.Incidents;
 /// <remarks>
 /// <see cref="Events"/>: Only the events this incident owns (<see cref="Domain.Incidents.RelatedEventScope"/>), oldest first.<br/>
 /// <see cref="Telemetry"/>: The same 120 s window the diagnosis evaluated; <c>null</c> without telemetry.<br/>
+/// <see cref="TelemetryAtFailure"/>: The window ends at the failure; otherwise the collector had stopped or the machine was asleep.<br/>
 /// </remarks>
 public sealed record IncidentDetail(
     IncidentSummary Summary,
@@ -13,4 +14,5 @@ public sealed record IncidentDetail(
     DateTimeOffset? TelemetryEndAt,
     IReadOnlyList<RelatedEventView> Events,
     StoredDiagnosis? Diagnosis,
-    TelemetryWindow? Telemetry);
+    TelemetryWindow? Telemetry,
+    bool TelemetryAtFailure);

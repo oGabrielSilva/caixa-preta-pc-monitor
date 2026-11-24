@@ -1,4 +1,5 @@
 using PcMonitor.Dashboard.Api.Health;
+using PcMonitor.Dashboard.Api.Incidents;
 
 namespace PcMonitor.Dashboard.Api;
 
@@ -15,6 +16,7 @@ internal static class ApiEndpoints
         var api = app.MapGroup(Prefix);
 
         api.MapHealthEndpoints();
+        api.MapIncidentEndpoints();
         api.MapFallback(() => TypedResults.NotFound()).ExcludeFromDescription();
 
         return app;

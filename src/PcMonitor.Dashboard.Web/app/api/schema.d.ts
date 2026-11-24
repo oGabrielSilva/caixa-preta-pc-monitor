@@ -20,10 +20,110 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/incidents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListIncidents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/incidents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetIncident"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @enum {unknown} */
+        Confidence: "Inconclusive" | "Low" | "Medium" | "High" | null;
+        /** @description The stored diagnosis of an incident. */
+        DiagnosisResponse: {
+            /**
+             * Format: int32
+             * @description Version of the rules that produced it.
+             */
+            engineVersion: number | string;
+            /**
+             * Format: date-time
+             * @description When it was computed.
+             */
+            diagnosedAt: string;
+            /** @description Hypotheses by score, highest first. */
+            ranking: components["schemas"]["HypothesisScoreResponse"][];
+            /** @description Evidence and observations. */
+            findings: components["schemas"]["FindingResponse"][];
+            /** @description What this case cannot tell. */
+            limitations: components["schemas"]["FindingResponse"][];
+        };
+        /** @description A Windows event around the incident. Its data is never sent: it can name the computer and the user. */
+        EventResponse: {
+            provider: string;
+            /** Format: int32 */
+            eventId: number | string;
+            /** Format: date-time */
+            loggedAt: string;
+            /** Format: int32 */
+            level: number | string;
+        };
+        /**
+         * @description How much a piece of evidence weighs; the value is its score.
+         * @enum {unknown}
+         */
+        EvidenceStrength: "Weak" | "Moderate" | "Strong";
+        /**
+         * @description Where the estimated failure time of an incident comes from, from most to least precise.
+         * @enum {unknown}
+         */
+        FailureTimeSource: "LastFrame" | "LastFrameBeforeSleep" | "LastAliveEventLog" | "Unknown";
+        /**
+         * @description A diagnosis code (see `docs/architecture/diagnosis.md`). Serialized as a plain string; the OpenAPI document
+         *     lists every value (FindingCodeSchemaTransformer) so the frontend gets a union type.
+         * @enum {string}
+         */
+        FindingCode: "thermal.critical" | "thermal.at_limit" | "thermal.normal" | "rail.out_of_tolerance" | "rail.droop" | "rail.in_tolerance" | "load.high" | "load.idle" | "restart.quick" | "restart.stayed_off" | "power.transition" | "bugcheck" | "bugcheck.none" | "whea.hardware_error" | "whea.pcie" | "power_button.long_press" | "power_button.pressed" | "boot.early_failure" | "telemetry.missing" | "telemetry.not_at_failure" | "telemetry.too_short" | "estimate.lower_bound" | "sensor.unavailable" | "rail.precision" | "rail.measured_on_board" | "whea.may_be_power";
+        /**
+         * @description What a finding is for.
+         * @enum {unknown}
+         */
+        FindingKind: "Evidence" | "Observation" | "Limitation";
+        /** @description One result of a diagnosis rule. The dashboard translates the code and its parameters. */
+        FindingResponse: {
+            /** @description Stable code. */
+            code: components["schemas"]["FindingCode"];
+            /** @description Evidence (scores), observation or limitation. */
+            kind: components["schemas"]["FindingKind"];
+            hypothesis: null | components["schemas"]["Hypothesis"];
+            /** @description For or against the hypothesis. */
+            supports: boolean;
+            /** @description Weight of the evidence. */
+            strength: components["schemas"]["EvidenceStrength"];
+            /** @description Values the text needs, as invariant strings (for example `observed` = `11.28`). */
+            parameters: {
+                [key: string]: string;
+            };
+        };
         /** @description Liveness of the dashboard, the version that is running and whether the database can be read. */
         HealthResponse: {
             /** @description Always `ok` when the dashboard answers. */
@@ -33,11 +133,125 @@ export interface components {
             /** @description State of the monitoring database; data endpoints answer 503 unless it is `Ready`. */
             storage: components["schemas"]["StorageState"];
         };
+        /** @enum {unknown} */
+        Hypothesis: "PowerSupply" | "BoardPowerDelivery" | "Thermal" | "Software" | "CpuOrMemory" | "ForcedPowerOff" | null;
+        /** @description Sum of the evidence for one hypothesis. */
+        HypothesisScoreResponse: {
+            hypothesis: components["schemas"]["Hypothesis"];
+            /** Format: int32 */
+            score: number | string;
+        };
+        /** @description Everything about one incident. */
+        IncidentDetailResponse: {
+            /** @description The list entry. */
+            summary: components["schemas"]["IncidentSummaryResponse"];
+            /**
+             * Format: date-time
+             * @description Last sign of life Windows recorded (event 6008).
+             */
+            lastAliveAt: null | string;
+            /**
+             * Format: date-time
+             * @description Last frame the collector recorded in that session.
+             */
+            telemetryEndAt: null | string;
+            /** @description Windows events this incident owns, oldest first. */
+            events: components["schemas"]["EventResponse"][];
+            diagnosis: null | components["schemas"]["DiagnosisResponse"];
+            telemetry: null | components["schemas"]["TelemetryResponse"];
+        };
+        /** @description One unexpected shutdown in the list. */
+        IncidentSummaryResponse: {
+            /**
+             * Format: int64
+             * @description Incident id.
+             */
+            id: number | string;
+            /**
+             * Format: date-time
+             * @description When Windows logged the shutdown (event 41, at the next boot).
+             */
+            loggedAt: string;
+            /**
+             * Format: date-time
+             * @description Best estimate of when the machine went down.
+             */
+            estimatedFailureAt: null | string;
+            /** @description Where the estimate comes from: `LastFrame` is within about a second. */
+            timeSource: components["schemas"]["FailureTimeSource"];
+            /**
+             * Format: int32
+             * @description Power state in transition at the failure: 0 none, 3 sleep, 4 hibernation/Fast Startup.
+             */
+            sleepState: number | string;
+            /**
+             * Format: int64
+             * @description Blue screen code; 0 when there was none.
+             */
+            bugcheckCode: number | string;
+            /** @description The collector recorded the session the shutdown ended. */
+            hasTelemetry: boolean;
+            topHypothesis: null | components["schemas"]["Hypothesis"];
+            confidence: null | components["schemas"]["Confidence"];
+            /** @description Codes of the neutral observations (for example `boot.early_failure`). */
+            observations: ("thermal.critical" | "thermal.at_limit" | "thermal.normal" | "rail.out_of_tolerance" | "rail.droop" | "rail.in_tolerance" | "load.high" | "load.idle" | "restart.quick" | "restart.stayed_off" | "power.transition" | "bugcheck" | "bugcheck.none" | "whea.hardware_error" | "whea.pcie" | "power_button.long_press" | "power_button.pressed" | "boot.early_failure" | "telemetry.missing" | "telemetry.not_at_failure" | "telemetry.too_short" | "estimate.lower_bound" | "sensor.unavailable" | "rail.precision" | "rail.measured_on_board" | "whea.may_be_power")[];
+        };
+        /** @description One reading: `t` in Unix milliseconds. */
+        PointResponse: {
+            /** Format: int64 */
+            t: number | string;
+            /** Format: float */
+            v: number | string;
+        };
+        ProblemDetails: {
+            type?: null | string;
+            title?: null | string;
+            /** Format: int32 */
+            status?: null | number | string;
+            detail?: null | string;
+            instance?: null | string;
+        };
+        /** @description The safe range of a reading, inclusive (ATX ±5 % for supply rails). */
+        RangeResponse: {
+            /** Format: float */
+            min: number | string;
+            /** Format: float */
+            max: number | string;
+        };
+        /** @description Readings of one sensor role, with how to judge them. */
+        RoleSeriesResponse: {
+            role: components["schemas"]["SensorRole"];
+            unit: string;
+            range: null | components["schemas"]["RangeResponse"];
+            /** Format: float */
+            limit: null | number | string;
+            /** Format: float */
+            critical: null | number | string;
+            points: components["schemas"]["PointResponse"][];
+        };
+        /**
+         * @description Meaning of a sensor for diagnosis, independent of how a board names it.
+         *     At most one sensor per catalog holds each role other than SensorRole.None.
+         * @enum {unknown}
+         */
+        SensorRole: "None" | "CpuTemperature" | "CpuPackagePower" | "CpuLoad" | "Vcore" | "Rail12V" | "Rail5V" | "Rail3V3";
         /**
          * @description Whether the database can be read by this build.
          * @enum {unknown}
          */
         StorageState: "Ready" | "Missing" | "SchemaTooOld" | "SchemaTooNew" | "Unreadable";
+        /** @description The recorded seconds before the end of telemetry, by sensor role. */
+        TelemetryResponse: {
+            /**
+             * Format: date-time
+             * @description Last recorded frame.
+             */
+            endAt: string;
+            /** @description The window ends at the failure; otherwise the collector had stopped or the machine was asleep. */
+            atFailure: boolean;
+            /** @description One series per recorded role; readings without a value are left out. */
+            series: components["schemas"]["RoleSeriesResponse"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -63,6 +277,73 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    ListIncidents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncidentSummaryResponse"][];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    GetIncident: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncidentDetailResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
         };
