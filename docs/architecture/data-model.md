@@ -2,7 +2,7 @@
 
 Decisões em [ADR 0004](../adr/0004-sqlite-wal-full-sync-frame-rows.md) e [ADR 0011](../adr/0011-segments-gaps-and-watchdog.md). Schema versionado por `PRAGMA user_version`, scripts em `src/PcMonitor.Infrastructure.Persistence.Sqlite/Migrations/`.
 
-## Implementado ✅ (migrações 001–002)
+## Implementado ✅ (migrações 001–003)
 
 ```mermaid
 erDiagram
@@ -20,15 +20,22 @@ erDiagram
     AGGREGATE_1M { int segment_id  int minute_ms  int sensor_id  real min  real avg  real max }
 ```
 
-## Planejado 🕓 (Plano 03)
+### Incidentes ✅ (migração 003)
 
 ```mermaid
 erDiagram
-    INCIDENT }o--o| SEGMENT : telemetria_opcional
-    INCIDENT ||--o{ SYSTEM_EVENT : correlaciona
+    SESSION ||--o| INCIDENT : caiu_em
+    SEGMENT ||--o| INCIDENT : telemetria
+    INCIDENT ||--o{ INCIDENT_EVENT : correlaciona
+    INCIDENT { int id  int event_record_id  int logged_at_ms  int estimated_failure_ms  text failure_time_source  int session_id  int segment_id  int bugcheck_code  int sleep_in_progress  int power_button_ms  int long_power_button  int last_alive_ms  text data_json }
+    INCIDENT_EVENT { int incident_id  text provider  int event_id  int record_id  int logged_at_ms  int level  text data_json }
+```
+
+## Planejado 🕓 (Plano 04)
+
+```mermaid
+erDiagram
     INCIDENT ||--o| DIAGNOSIS : tem
-    INCIDENT { int id  int segment_id_nullable  int event_record_id  int boot_ms  int estimated_failure_ms }
-    SYSTEM_EVENT { int incident_id  int event_id  text provider  int ts_ms  text payload_json }
     DIAGNOSIS { int incident_id  text ranking_json  text evidence_json }
 ```
 
@@ -38,6 +45,7 @@ erDiagram
 | Chave do quadro | `rowid`; índice **não único** em `(segment_id, ts_ms)`: quadros com horário repetido ou fora de ordem (ajuste de relógio) são todos mantidos. |
 | Sensores | `sensor` guarda só a identidade (`stable_key`, o identificador da LibreHardwareMonitor). Nome, tipo, unidade e papel ficam em `segment_sensor`, **por segmento**: corrigir um perfil de placa depois nunca reescreve o significado do histórico. Os valores gravados já estão multiplicados pelo perfil. |
 | Durabilidade | WAL + `synchronous=FULL` + WAL persistente (o painel lê mesmo sem permissão de escrita na pasta). |
-| Retenção | Quadros por 14 dias; agregados de 1 min (mín/méd/máx, ignorando `NaN`) para sempre; job a cada 1 h, em transações curtas. |
+| Retenção | Quadros por 14 dias, **exceto os 120 s antes de cada incidente com telemetria**; agregados de 1 min (mín/méd/máx, ignorando `NaN`) para sempre; job a cada 1 h, em transações curtas. |
+| Incidentes | Um por Kernel-Power 41, idempotente por `(event_record_id, logged_at_ms)`; `failure_time_source` diz de onde vem a estimativa. |
 | Local | `%ProgramData%\PcMonitor\pcmonitor.db`; ACL: SYSTEM e Administradores. |
 | Volume esperado | ~15–20 MB/dia no banco; < 1 GB/dia de escrita física. |

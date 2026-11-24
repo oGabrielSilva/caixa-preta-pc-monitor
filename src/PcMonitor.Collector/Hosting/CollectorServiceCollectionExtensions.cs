@@ -1,14 +1,17 @@
 using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
+using PcMonitor.Application.Incidents;
 using PcMonitor.Application.Monitoring;
 using PcMonitor.Application.Retention;
 using PcMonitor.Collector.Configuration;
 using PcMonitor.Collector.Retention;
 using PcMonitor.Collector.Sampling;
 using PcMonitor.Infrastructure.Persistence.Sqlite;
+using PcMonitor.Infrastructure.Persistence.Sqlite.Incidents;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Monitoring;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Retention;
 using PcMonitor.Infrastructure.Sensors.Lhm;
+using PcMonitor.Infrastructure.Windows.EventLog;
 
 namespace PcMonitor.Collector.Hosting;
 
@@ -38,6 +41,10 @@ internal static class CollectorServiceCollectionExtensions
         services.AddSingleton<IMonitoringStore, SqliteMonitoringStore>();
         services.AddSingleton<IRetentionStore, SqliteRetentionStore>();
         services.AddSingleton<ISensorSource, LhmSensorSource>();
+        services.AddSingleton<ISystemEventLog, WindowsEventLogReader>();
+        services.AddSingleton<IIncidentStore, SqliteIncidentStore>();
+        services.AddSingleton<DetectIncidents>();
+        services.AddSingleton<StartupIncidentDetection>();
 
         services.AddSingleton(sp => new MonitoringRecorder(
             sp.GetRequiredService<ISensorSource>(),

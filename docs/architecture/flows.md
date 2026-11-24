@@ -1,6 +1,6 @@
 # Fluxos
 
-Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes e diagnóstico 🕓 (Planos 03–04).
+Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes ✅ (Plano 03) · diagnóstico 🕓 (Plano 04).
 
 ## Ciclo de vida do coletor e amostragem ✅
 
@@ -28,7 +28,7 @@ flowchart TD
 - **Watchdog:** a leitura roda na thread `PcMonitor.Sampler`. Sem ciclo concluído por 10 s, registra `SamplerStalled` (EventId 1001) e chama `Environment.FailFast`; as ações de recuperação do serviço o reiniciam.
 - Decisões: [ADR 0011](../adr/0011-segments-gaps-and-watchdog.md).
 
-## Detecção de incidentes (Plano 03)
+## Detecção de incidentes ✅
 
 O **Kernel-Power 41** do Log de Eventos é a fonte de verdade de que a máquina caiu ([ADR 0005](../adr/0005-event-log-as-incident-source-of-truth.md)).
 
@@ -48,6 +48,13 @@ flowchart TD
     I -- não --> Z([Seguir para a amostragem])
     J --> Z
 ```
+
+Detalhes da implementação (`DetectIncidents`, executado pelo coletor antes de abrir a sessão nova):
+
+- **Estimativa da queda**, da mais precisa para a menos: último quadro gravado (`LastFrame`) → horário UTC do evento 6008 do mesmo boot, que é o *último sinal de vida* registrado pelo Windows e pode estar minutos antes da queda (`LastAliveEventLog`) → desconhecida (`Unknown`).
+- **Eventos relacionados:** de 10 min antes da estimativa (ou 40 min antes do 41, sem estimativa) até 2 min depois do 41: 6005/6006/6008, 1074/1076, BugCheck 1001, Kernel-Power 41/42/107/109 e WHEA.
+- **Retenção:** os 120 s antes da estimativa de cada incidente com telemetria nunca são apagados.
+- Falha na detecção é registrada (EventId 1201) e a amostragem começa mesmo assim.
 
 ## Motor de diagnóstico (Plano 04)
 
