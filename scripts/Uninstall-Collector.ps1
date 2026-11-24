@@ -16,15 +16,15 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-Import-Module (Join-Path $PSScriptRoot 'CollectorService.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'PcMonitorService.psm1') -Force
 
-$serviceName = Get-CollectorServiceName
-$installPath = Get-CollectorInstallPath
-$dataPath = Get-CollectorDataPath
+$serviceName = 'PcMonitor.Collector'
+$installPath = Get-PcMonitorInstallPath -Component Collector
+$dataPath = Get-PcMonitorDataPath
 
 $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 if ($service -and $PSCmdlet.ShouldProcess($serviceName, 'Stop and delete the service')) {
-    Stop-CollectorService
+    Stop-PcMonitorService -Name $serviceName
     Invoke-Sc @('delete', $serviceName)
     Write-Host "Service $serviceName removed."
 }

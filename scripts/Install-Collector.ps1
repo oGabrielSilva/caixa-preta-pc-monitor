@@ -26,16 +26,11 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-Import-Module (Join-Path $PSScriptRoot 'CollectorService.psm1') -Force
+Import-Module (Join-Path $PSScriptRoot 'PcMonitorService.psm1') -Force
 
-$serviceName = Get-CollectorServiceName
-$installPath = Get-CollectorInstallPath
-$dataPath = Get-CollectorDataPath
+$serviceName = 'PcMonitor.Collector'
+$installPath = Get-PcMonitorInstallPath -Component Collector
 $executable = Join-Path $installPath 'PcMonitor.Collector.exe'
-$systemSid = '*S-1-5-18'          # LocalSystem (language-independent)
-$administratorsSid = '*S-1-5-32-544' # BUILTIN\Administrators (language-independent)
-
-function Write-Step([string] $message) { Write-Host "==> $message" -ForegroundColor Cyan }
 
 if (-not (Test-Path (Join-Path $SourcePath 'PcMonitor.Collector.exe'))) {
     throw "Published collector not found in '$SourcePath'. Run as a normal user first: dotnet publish src/PcMonitor.Collector -c Release -o artifacts/collector"
@@ -55,21 +50,17 @@ else {
 
 Write-Step "Stopping $serviceName (if installed)"
 $existing = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
-Stop-CollectorService
+Stop-PcMonitorService -Name $serviceName
 
 Write-Step "Copying binaries to $installPath"
 New-Item -ItemType Directory -Path $installPath -Force | Out-Null
 Copy-Item -Path (Join-Path $SourcePath '*') -Destination $installPath -Recurse -Force
 
-Write-Step "Preparing $dataPath"
-New-Item -ItemType Directory -Path $dataPath -Force | Out-Null
-icacls $dataPath /inheritance:r /grant:r "${systemSid}:(OI)(CI)F" "${administratorsSid}:(OI)(CI)F" | Out-Null
-if ($LASTEXITCODE -ne 0) { throw "icacls failed on $dataPath (exit $LASTEXITCODE)." }
+Write-Step 'Preparing the data folder'
+$dataPath = Initialize-PcMonitorDataFolder
 
 Write-Step 'Registering the event log source'
-if (-not [System.Diagnostics.EventLog]::SourceExists($serviceName)) {
-    [System.Diagnostics.EventLog]::CreateEventSource($serviceName, 'Application')
-}
+Register-PcMonitorEventSource -Name $serviceName
 
 Write-Step "Registering the $serviceName service"
 if (-not $existing) {
@@ -77,8 +68,7 @@ if (-not $existing) {
         -Description 'Records hardware sensors every second and detects unexpected shutdowns.' -StartupType Automatic | Out-Null
 }
 # Restart on failure: the stall watchdog relies on these actions to bring the collector back.
-Invoke-Sc @('failure', $serviceName, 'reset=', '86400', 'actions=', 'restart/5000/restart/5000/restart/30000')
-Invoke-Sc @('failureflag', $serviceName, '1')
+Set-PcMonitorRecovery -Name $serviceName
 
 Write-Step "Starting $serviceName"
 Start-Service -Name $serviceName

@@ -1,6 +1,6 @@
 # Fluxos
 
-Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes ✅ (Plano 03) · diagnóstico ✅ (Plano 04).
+Status: ciclo do coletor ✅ (Plano 02) · detecção de incidentes ✅ (Plano 03) · diagnóstico ✅ (Plano 04) · painel ✅ (Plano 05).
 
 ## Ciclo de vida do coletor e amostragem ✅
 
@@ -77,3 +77,50 @@ flowchart LR
 ```
 
 Executado pelo coletor ao iniciar, logo após a detecção (`StartupAnalysis`; cada etapa isolada). Regras, códigos, limiares e confiança: [diagnosis.md](diagnosis.md).
+
+## Painel ao vivo ✅
+
+O painel só lê o banco ([ADR 0014](../adr/0014-read-api-sse-and-event-privacy.md)). O navegador pega um retrato dos últimos 10 min e depois recebe os quadros novos por Server-Sent Events.
+
+```mermaid
+sequenceDiagram
+    participant B as Navegador (useLive)
+    participant A as Dashboard API
+    participant F as LiveFeed / LiveCursor
+    participant D as SQLite (somente leitura)
+    B->>A: GET /api/live
+    A->>D: último segmento + quadros dos últimos 10 min
+    A-->>B: estado, sensores (faixas e limites), quadros
+    B->>A: GET /api/live/stream?segmentId&after
+    loop a cada 1 s
+        F->>D: segmento atual + quadros depois de "after"
+        alt quadros novos
+            A-->>B: event: frames
+        else segmento mudou (suspensão, nova sessão, lacuna)
+            A-->>B: event: segment
+            B->>A: GET /api/live (recarrega o retrato)
+        end
+        Note over F: a cada 5 consultas
+        A-->>B: event: state (Recording, Stale, Stopped, NoData)
+    end
+    B--xA: fecha a aba: o laço termina (RequestAborted)
+```
+
+- `Recording`: sessão aberta e último quadro há no máximo 5 s; `Stale`: sessão aberta sem quadros novos (coletor travado, PC voltando da suspensão ou sem energia); `Stopped`: sessão encerrada; `NoData`: nada gravado.
+- Uma leitura que falhar (banco ocupado) é registrada e tentada de novo no ciclo seguinte. O `EventSource` reconecta sozinho, e o cliente recarrega o retrato ao reconectar.
+- Banco ausente ou de outra versão: os endpoints de dados respondem 503 com o tipo do problema e a página mostra o aviso.
+
+## Abrir uma queda ✅
+
+```mermaid
+flowchart LR
+    U[/incidents/:id/] --> Q[GET /api/incidents/:id]
+    Q --> S[SqliteIncidentQuery]
+    S --> E[IncidentEvidenceAssembler<br/>mesma entrada do diagnóstico]
+    S --> J[diagnosis: ranking, findings,<br/>limitations em JSON]
+    E --> R[Resumo + eventos sem dados<br/>+ janela de 120 s por papel]
+    J --> R
+    R --> T[Frontend traduz códigos<br/>finding-keys.ts + i18n]
+```
+
+Os eventos e a telemetria vêm do mesmo `IncidentEvidenceAssembler` que monta a entrada do diagnóstico: o painel mostra exatamente o que as regras avaliaram. Os dados dos eventos nunca saem do banco.

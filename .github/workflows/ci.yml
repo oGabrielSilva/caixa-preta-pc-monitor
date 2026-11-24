@@ -70,6 +70,10 @@ jobs:
         working-directory: src/PcMonitor.Dashboard.Web
         run: pnpm test
 
+      - name: Generate the static SPA
+        working-directory: src/PcMonitor.Dashboard.Web
+        run: pnpm generate
+
       # --- Cross-cutting checks -------------------------------------------
       - name: Verify API contract is up to date
         run: |

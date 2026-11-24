@@ -49,5 +49,5 @@ erDiagram
 | Durabilidade | WAL + `synchronous=FULL` + WAL persistente (o painel lê mesmo sem permissão de escrita na pasta). |
 | Retenção | Quadros por 14 dias, **exceto os 120 s antes do fim da telemetria de cada incidente, em qualquer segmento da sessão**; agregados de 1 min (mín/méd/máx, ignorando `NaN`) para sempre; job a cada 1 h, em transações curtas. |
 | Incidentes | Um por Kernel-Power 41, idempotente por `(event_record_id, logged_at_ms)`; `failure_time_source` diz de onde vem a estimativa. |
-| Local | `%ProgramData%\PcMonitor\pcmonitor.db`; ACL: SYSTEM e Administradores. |
+| Local | `%ProgramData%\PcMonitor\pcmonitor.db`; ACL: SYSTEM e Administradores com controle total, `NT SERVICE\PcMonitor.Dashboard` só leitura (o painel abre com `Mode=ReadOnly` e nunca migra o schema). |
 | Volume esperado | ~15–20 MB/dia no banco; < 1 GB/dia de escrita física. |
