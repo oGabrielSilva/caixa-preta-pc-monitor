@@ -367,3 +367,11 @@ Não produz código; prova que o coletor funciona de verdade.
 - Suíte .NET, frontend, contrato, agent docs e jscpd verdes.
 - Coletor instalado como serviço nesta máquina, gravando 1 quadro/s com os papéis do perfil, e sobrevivendo a reinício.
 - Toda decisão nova registrada (ADR 0011 e rulings do ledger).
+
+## Resultado da instalação (24/11/2026)
+
+- `Install-Collector.ps1` executado como administrador: PawnIO já instalado; serviço `PcMonitor.Collector` em execução, início automático, recuperação `restart/5000/restart/5000/restart/30000`.
+- Sessão #1: `source_status = Ok`, placa `TUF GAMING A620M-PLUS WIFI`, 35 sensores, horário de boot 13:54:36 (coerente com o último Kernel-Power 41, 13:54:38). 84 quadros, intervalos de 989–1011 ms.
+- Papéis com valores coerentes em repouso: +12V 12,192 V · +5V 5,000 V · +3.3V 3,296 V · Vcore 1,06 V · CPU 33–35 °C, 11–15 W, 3–5 % de carga.
+- `Restart-Service`: a sessão #1 terminou com `ServiceStopped` (16:18:36) e a #2 começou em 16:18:38 com o mesmo catálogo.
+- Banco após ~90 s: 56 KB + WAL 1,5 MB (o WAL é reaproveitado após checkpoint; o crescimento real deve ser medido após um dia).
