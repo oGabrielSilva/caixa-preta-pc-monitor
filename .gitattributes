@@ -6,3 +6,4 @@
 # Generated API contract
 src/PcMonitor.Dashboard/openapi/*.json linguist-generated=true
 src/PcMonitor.Dashboard.Web/app/api/schema.d.ts linguist-generated=true
+*.psm1 text eol=crlf
