@@ -1,5 +1,5 @@
 {
-  "threshold": 1,
+  "threshold": 0,
   "minTokens": 50,
   "reporters": ["console"],
   "path": ["src", "tests"],
@@ -15,5 +15,6 @@
     "**/pnpm-lock.yaml",
     "**/*.Designer.cs"
   ],
+  "ignorePattern": ["using [A-Za-z0-9_.]+;"],
   "gitignore": true
 }
