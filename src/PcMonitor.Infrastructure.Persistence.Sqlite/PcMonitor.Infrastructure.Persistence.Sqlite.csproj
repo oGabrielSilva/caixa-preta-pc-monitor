@@ -13,4 +13,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\*.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PcMonitor.Infrastructure.Persistence.Sqlite.Tests" />
+  </ItemGroup>
 </Project>

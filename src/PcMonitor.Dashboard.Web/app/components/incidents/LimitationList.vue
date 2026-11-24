@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { Finding } from '~/api/types'
 
-const props = defineProps<{ limitations: readonly Finding[] }>()
+/** `null` while the incident has no diagnosis yet. */
+const props = defineProps<{ limitations: readonly Finding[] | null }>()
 
 const { t, locale } = useI18n()
 
-const items = computed(() => groupFindings(props.limitations).map(limitation => ({
+const items = computed(() => groupFindings(props.limitations ?? []).map(limitation => ({
   key: `${limitation.code}-${JSON.stringify(limitation.parameters)}`,
   text: t(findingKeys[limitation.code], findingParams(limitation.parameters, locale.value, t)),
 })))
@@ -16,7 +17,7 @@ const items = computed(() => groupFindings(props.limitations).map(limitation => 
     v-if="items.length === 0"
     class="text-sm text-muted"
   >
-    {{ t('incident.limits.none') }}
+    {{ props.limitations === null ? t('incidents.notDiagnosed') : t('incident.limits.none') }}
   </p>
   <ul
     v-else

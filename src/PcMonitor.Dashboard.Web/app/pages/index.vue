@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const { t } = useI18n()
-const { buffer, state, problem, session } = useLive()
+const { buffer, state, problem, session, lastFrameAt } = useLive()
 const { incidents } = useIncidents()
 </script>
 
@@ -12,6 +12,7 @@ const { incidents } = useIncidents()
           <LiveStatus
             :state="state"
             :session="session"
+            :last-frame-at="lastFrameAt"
           />
         </template>
       </UDashboardNavbar>

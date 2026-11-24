@@ -65,7 +65,8 @@
       "title": "Últimas quedas",
       "seeAll": "Ver todas ({count})",
       "none": "Nenhuma queda registrada."
-    }
+    },
+    "staleFor": "Sem leituras há {duration}"
   },
   "incidents": {
     "stats": {

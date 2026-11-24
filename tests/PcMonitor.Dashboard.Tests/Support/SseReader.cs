@@ -29,5 +29,24 @@ public sealed class SseReader(Stream stream) : IDisposable
         throw new EndOfStreamException($"The stream ended before a '{type}' event.");
     }
 
+    /// <summary>Reads until the server ends the stream; <c>false</c> when it is still open after the timeout.</summary>
+    public async Task<bool> EndsWithin(TimeSpan timeout)
+    {
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
+        cancellation.CancelAfter(timeout);
+        try
+        {
+            while (await _reader.ReadLineAsync(cancellation.Token) is not null)
+            {
+            }
+
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
     public void Dispose() => _reader.Dispose();
 }

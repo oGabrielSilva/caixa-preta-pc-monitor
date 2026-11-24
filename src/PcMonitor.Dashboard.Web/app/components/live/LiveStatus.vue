@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { LiveResponse, LiveState } from '~/api/types'
 
-const props = defineProps<{ state: LiveState, session: LiveResponse['session'] }>()
+const props = defineProps<{ state: LiveState, session: LiveResponse['session'], lastFrameAt: number | null }>()
 
 const { t } = useI18n()
-const now = useClock(30_000)
+const now = useClock(1000)
 
 const dot = computed(() => ({ Recording: 'bg-success', Stale: 'bg-warning', Stopped: 'bg-error', NoData: 'bg-neutral-500' })[props.state])
 </script>
@@ -21,7 +21,8 @@ const dot = computed(() => ({ Recording: 'bg-success', Stale: 'bg-warning', Stop
         :class="dot"
       />
     </span>
-    <span>{{ t(`live.state.${props.state}`) }}</span>
+    <span v-if="props.state === 'Stale' && props.lastFrameAt !== null">{{ t('live.staleFor', { duration: formatDuration(now - props.lastFrameAt) }) }}</span>
+    <span v-else>{{ t(`live.state.${props.state}`) }}</span>
     <span
       v-if="props.session && props.state === 'Recording'"
       class="hidden sm:inline"

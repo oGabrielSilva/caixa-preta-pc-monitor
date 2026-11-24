@@ -17,8 +17,8 @@ internal static class LiveEndpoints
         live.MapGet("/", (ILiveReader reader, TimeProvider time) => TypedResults.Ok(Snapshot(reader, time)))
             .WithName("GetLive");
 
-        live.MapGet("/stream", (long? segmentId, long? after, LiveFeed feed, HttpContext context) =>
-                TypedResults.ServerSentEvents(EventsAsync(feed, segmentId, after, context.RequestAborted)))
+        live.MapGet("/stream", (long? segmentId, long? after, LiveFeed feed, IHostApplicationLifetime lifetime, HttpContext context) =>
+                TypedResults.ServerSentEvents(EventsAsync(feed, segmentId, after, context.RequestAborted, lifetime.ApplicationStopping)))
             .WithName("StreamLive")
             .WithDescription("Server-sent events (`frames`, `segment`, `state`) after the frame `after` (Unix ms) of segment `segmentId`.")
             .Produces<LiveEvent>(StatusCodes.Status200OK, "text/event-stream");
@@ -43,11 +43,16 @@ internal static class LiveEndpoints
             [.. snapshot.Frames.Select(FramePoint.From)]);
     }
 
+    /// <summary>
+    /// Ends when the client leaves or when the service stops: a stream never ends by itself, and the host would otherwise
+    /// wait its whole shutdown timeout for it (a stuck <c>Stop-Service</c> while a tab is open).
+    /// </summary>
     private static async IAsyncEnumerable<SseItem<LiveEvent>> EventsAsync(
-        LiveFeed feed, long? segmentId, long? after, [EnumeratorCancellation] CancellationToken cancellationToken)
+        LiveFeed feed, long? segmentId, long? after, [EnumeratorCancellation] CancellationToken requestAborted, CancellationToken stopping)
     {
+        using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(requestAborted, stopping);
         var since = after is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : (DateTimeOffset?)null;
-        await foreach (var update in feed.FollowAsync(segmentId, since, cancellationToken).ConfigureAwait(false))
+        await foreach (var update in feed.FollowAsync(segmentId, since, lifetime.Token).ConfigureAwait(false))
         {
             var item = LiveEvent.From(update);
             yield return new SseItem<LiveEvent>(item, item.EventType);

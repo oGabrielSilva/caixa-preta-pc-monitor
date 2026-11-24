@@ -15,7 +15,7 @@ public sealed class QueryHistory(IHistoryReader reader, TimeProvider time)
     /// <summary>The history of <paramref name="stableKey"/>, or <c>null</c> when that sensor was never recorded.</summary>
     public HistoryResult? Run(string stableKey, HistoryRange range)
     {
-        var sensor = reader.Sensors().FirstOrDefault(s => s.StableKey == stableKey);
+        var sensor = reader.Sensor(stableKey);
         if (sensor is null)
         {
             return null;

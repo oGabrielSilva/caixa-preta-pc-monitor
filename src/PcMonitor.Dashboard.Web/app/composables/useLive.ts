@@ -1,74 +1,31 @@
 import { api, type ApiClient } from '~/api/client'
-import type { LiveEvent, LiveResponse, LiveState } from '~/api/types'
+import type { LiveResponse } from '~/api/types'
 import { toApiResult, type ApiResult } from '~/composables/api-result'
-import { appendFrames, createLiveBuffer, type LiveBuffer } from '~/utils/live-buffer'
+import { createLiveStream, type LiveStreamView } from '~/composables/live-stream'
 
 export function loadLive(client: ApiClient = api): Promise<ApiResult<LiveResponse>> {
   return toApiResult(() => client.GET('/api/live'))
 }
 
-/**
- * The live recording: a snapshot of the last ten minutes, then frames pushed by `/api/live/stream` (server-sent
- * events). A new segment or a reconnection reloads the snapshot; the stream closes with the component.
- */
+/** The live recording while the component is mounted (see `createLiveStream`). */
 export function useLive() {
-  const buffer = shallowRef<LiveBuffer | null>(null)
-  const snapshot = shallowRef<LiveResponse | null>(null)
-  const state = ref<LiveState>('NoData')
-  const problem = ref<string | null>(null)
-  let source: EventSource | null = null
+  const view = shallowRef<LiveStreamView>({ buffer: null, snapshot: null, state: 'NoData', problem: null })
+  const stream = createLiveStream({
+    load: () => loadLive(),
+    open: url => new EventSource(url),
+    onChange: (next) => {
+      view.value = next
+    },
+  })
 
-  function connect(after: LiveBuffer) {
-    source?.close()
-    const query = new URLSearchParams()
-    if (after.segmentId !== null) {
-      query.set('segmentId', String(after.segmentId))
-    }
-    const last = after.frames.at(-1)?.t
-    if (last !== undefined) {
-      query.set('after', String(last))
-    }
-    source = new EventSource(`/api/live/stream?${query}`)
-    source.addEventListener('frames', (message) => {
-      const event = JSON.parse(message.data) as LiveEvent
-      if (buffer.value && event.frames) {
-        buffer.value = appendFrames(buffer.value, event.segmentId, event.frames)
-        state.value = 'Recording'
-      }
-    })
-    source.addEventListener('segment', () => void reload())
-    source.addEventListener('state', (message) => {
-      const event = JSON.parse(message.data) as LiveEvent
-      if (event.state) {
-        state.value = event.state
-      }
-    })
-    // EventSource reconnects by itself; reload so frames missed while disconnected are not lost.
-    source.addEventListener('open', () => {
-      if (buffer.value && buffer.value !== after) {
-        void reload()
-      }
-    })
-  }
-
-  async function reload() {
-    const result = await loadLive()
-    problem.value = result.problem
-    if (result.data) {
-      snapshot.value = result.data
-      state.value = result.data.state
-      buffer.value = createLiveBuffer(result.data)
-      connect(buffer.value)
-    }
-  }
-
-  onMounted(() => void reload())
-  onScopeDispose(() => source?.close())
+  onMounted(() => stream.start())
+  onScopeDispose(() => stream.stop())
 
   return {
-    buffer,
-    state,
-    problem,
-    session: computed(() => snapshot.value?.session ?? null),
+    buffer: computed(() => view.value.buffer),
+    state: computed(() => view.value.state),
+    problem: computed(() => view.value.problem),
+    session: computed(() => view.value.snapshot?.session ?? null),
+    lastFrameAt: computed(() => view.value.buffer?.frames.at(-1)?.t ?? null),
   }
 }

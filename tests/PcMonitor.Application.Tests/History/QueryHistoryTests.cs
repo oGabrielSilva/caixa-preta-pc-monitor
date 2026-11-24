@@ -71,6 +71,8 @@ public sealed class QueryHistoryTests
 
         public IReadOnlyList<HistorySensor> Sensors() => [new(Key, "+12V", SensorKind.Voltage, "V", SensorRole.Rail12V)];
 
+        public HistorySensor? Sensor(string stableKey) => Sensors().SingleOrDefault(s => s.StableKey == stableKey);
+
         IReadOnlyList<MinuteAggregate> IHistoryReader.Minutes(string stableKey, DateTimeOffset since, DateTimeOffset until)
         {
             Requested = (since, until);

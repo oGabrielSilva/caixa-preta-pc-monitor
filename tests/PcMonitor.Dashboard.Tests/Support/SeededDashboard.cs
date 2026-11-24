@@ -37,6 +37,8 @@ public sealed class SeededDashboard : IDisposable
 
     public HttpClient Client() => _factory.Value.CreateClient();
 
+    public IServiceProvider Services => _factory.Value.Services;
+
     /// <summary>GETs <paramref name="path"/> and parses the JSON body; fails on a non-success status.</summary>
     public async Task<JsonElement> Get(string path)
     {

@@ -47,6 +47,7 @@ erDiagram
 | Chave do quadro | `rowid`; índice **não único** em `(segment_id, ts_ms)`: quadros com horário repetido ou fora de ordem (ajuste de relógio) são todos mantidos. |
 | Sensores | `sensor` guarda só a identidade (`stable_key`, o identificador da LibreHardwareMonitor). Nome, tipo, unidade e papel ficam em `segment_sensor`, **por segmento**: corrigir um perfil de placa depois nunca reescreve o significado do histórico. Os valores gravados já estão multiplicados pelo perfil. |
 | Durabilidade | WAL + `synchronous=FULL` + WAL persistente (o painel lê mesmo sem permissão de escrita na pasta). |
+| Histórico | O painel lê um sensor por período: índice `ix_aggregate_sensor_minute (sensor_id, minute_ms)` (migração 006); os minutos ainda não agregados são calculados dos quadros, a partir do minuto seguinte ao último agregado do sensor. |
 | Retenção | Quadros por 14 dias, **exceto os 120 s antes do fim da telemetria de cada incidente, em qualquer segmento da sessão**; agregados de 1 min (mín/méd/máx, ignorando `NaN`) para sempre; job a cada 1 h, em transações curtas. |
 | Incidentes | Um por Kernel-Power 41, idempotente por `(event_record_id, logged_at_ms)`; `failure_time_source` diz de onde vem a estimativa. |
 | Local | `%ProgramData%\PcMonitor\pcmonitor.db`; ACL: SYSTEM e Administradores com controle total, `NT SERVICE\PcMonitor.Dashboard` só leitura (o painel abre com `Mode=ReadOnly` e nunca migra o schema). |

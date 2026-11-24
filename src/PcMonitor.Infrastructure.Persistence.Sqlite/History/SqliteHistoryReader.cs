@@ -16,21 +16,32 @@ public sealed class SqliteHistoryReader(SqliteDatabase database) : IHistoryReade
     public IReadOnlyList<HistorySensor> Sensors()
     {
         using var connection = database.OpenReader();
-        return [.. connection.Query<SensorRow>(HistorySql.Sensors).Select(row =>
-        {
-            var sensor = row.ToDescriptor();
-            return new HistorySensor(sensor.StableKey, sensor.Name, sensor.Kind, sensor.Unit, sensor.Role);
-        })];
+        return [.. connection.Query<SensorRow>(HistorySql.Sensors).Select(ToSensor)];
+    }
+
+    public HistorySensor? Sensor(string stableKey)
+    {
+        using var connection = database.OpenReader();
+        var row = connection.QuerySingleOrDefault<SensorRow>(HistorySql.Sensor, new { StableKey = stableKey });
+        return row is null ? null : ToSensor(row);
+    }
+
+    private static HistorySensor ToSensor(SensorRow row)
+    {
+        var sensor = row.ToDescriptor();
+        return new HistorySensor(sensor.StableKey, sensor.Name, sensor.Kind, sensor.Unit, sensor.Role);
     }
 
     public IReadOnlyList<MinuteAggregate> Minutes(string stableKey, DateTimeOffset since, DateTimeOffset until)
     {
         using var connection = database.OpenReader();
-        var parameters = new { StableKey = stableKey, SinceMs = since.ToUnixTimeMilliseconds(), UntilMs = until.ToUnixTimeMilliseconds() };
+        var parameters = new MinuteQuery(stableKey, since.ToUnixTimeMilliseconds(), until.ToUnixTimeMilliseconds());
 
         var stored = connection.Query<AggregateRow>(HistorySql.Aggregates, parameters)
             .Select(a => (a.MinuteMs, a.Min, a.Avg, a.Max));
-        var computed = connection.Query<PendingFrameRow>(HistorySql.PendingFrames, parameters)
+        var lastAggregated = connection.ExecuteScalar<long?>(HistorySql.LastAggregatedMinute, parameters);
+        var pendingSince = Math.Max(parameters.SinceMs, lastAggregated is { } last ? last + MinuteMs : long.MinValue);
+        var computed = connection.Query<PendingFrameRow>(HistorySql.PendingFrames, parameters with { SinceMs = pendingSince })
             .Select(f => (MinuteMs: f.TimestampMs / MinuteMs * MinuteMs, Value: ValueAt(f)))
             .Where(f => f.Value is { } value && !double.IsNaN(value))
             .GroupBy(f => f.MinuteMs)
@@ -48,6 +59,8 @@ public sealed class SqliteHistoryReader(SqliteDatabase database) : IHistoryReade
         var values = FrameCodec.Decode(row.Values);
         return row.Ordinal < values.Length ? values[(int)row.Ordinal] : null;
     }
+
+    private sealed record MinuteQuery(string StableKey, long SinceMs, long UntilMs);
 
     // Settable-property rows: Dapper cannot match positional constructors when SQLite reports computed columns.
     private sealed class AggregateRow

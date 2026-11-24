@@ -110,6 +110,33 @@ public sealed class SqliteHistoryReaderTests : IDisposable
         _reader.Minutes(Rail12V, _t0.AddMinutes(1), _t0.AddMinutes(2)).Select(m => m.Minute).ShouldBe([_t0.AddMinutes(1)]);
     }
 
+    /// <summary>Aggregates are kept forever: every history query must reach them through an index, never a full scan.</summary>
+    [Theory]
+    [InlineData(nameof(HistorySql.Aggregates))]
+    [InlineData(nameof(HistorySql.PendingFrames))]
+    [InlineData(nameof(HistorySql.LastAggregatedMinute))]
+    public void History_queries_never_scan_the_aggregate_table(string query)
+    {
+        var sql = (string)typeof(HistorySql).GetField(query)!.GetValue(null)!;
+        using var connection = _temp.Database.OpenReader();
+
+        var plan = connection.Query<(long Id, long Parent, long NotUsed, string Detail)>(
+            $"EXPLAIN QUERY PLAN {sql}", new { StableKey = Rail12V, SinceMs = 0L, UntilMs = 1L }).Select(r => r.Detail).ToList();
+
+        // "SEARCH … USING PRIMARY KEY" without a constraint still walks the whole table.
+        plan.Where(detail => detail.Contains(" a ", StringComparison.Ordinal) || detail.Contains("aggregate_1m", StringComparison.Ordinal))
+            .ShouldAllBe(detail => detail.StartsWith("SEARCH", StringComparison.Ordinal) && detail.Contains("?)", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Sensor_returns_one_sensor_by_key()
+    {
+        _seed.StartSegment(_seed.StartSession(_t0), _t0);
+
+        _reader.Sensor(Rail12V).ShouldNotBeNull().Role.ShouldBe(SensorRole.Rail12V);
+        _reader.Sensor("/unknown").ShouldBeNull();
+    }
+
     [Fact]
     public void Unknown_sensor_has_no_minutes() => _reader.Minutes("/unknown", _t0, _t0.AddHours(1)).ShouldBeEmpty();
 }

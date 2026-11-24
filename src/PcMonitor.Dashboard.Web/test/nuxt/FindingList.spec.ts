@@ -17,4 +17,9 @@ describe('FindingList', () => {
     expect(list.text()).toContain('a favor de Fonte e Placa / alimentação · moderada')
     expect(list.text()).toContain('Voltou a ligar 91 s depois')
   })
+  it('says when the incident was not diagnosed yet', async () => {
+    const list = await mountPtBR(FindingList, { props: { findings: null } })
+
+    expect(list.text()).toContain('Ainda sem diagnóstico')
+  })
 })

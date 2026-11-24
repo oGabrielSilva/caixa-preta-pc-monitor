@@ -49,7 +49,7 @@ const title = computed(() => incident.value
                 {{ t('incident.weighed.title') }}
               </h3>
             </template>
-            <IncidentsFindingList :findings="incident.diagnosis?.findings ?? []" />
+            <IncidentsFindingList :findings="incident.diagnosis?.findings ?? null" />
           </UCard>
           <UCard>
             <template #header>
@@ -57,7 +57,7 @@ const title = computed(() => incident.value
                 {{ t('incident.limits.title') }}
               </h3>
             </template>
-            <IncidentsLimitationList :limitations="incident.diagnosis?.limitations ?? []" />
+            <IncidentsLimitationList :limitations="incident.diagnosis?.limitations ?? null" />
           </UCard>
         </div>
       </template>

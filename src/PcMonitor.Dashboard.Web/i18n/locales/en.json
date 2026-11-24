@@ -65,7 +65,8 @@
       "title": "Latest crashes",
       "seeAll": "See all ({count})",
       "none": "No crash recorded."
-    }
+    },
+    "staleFor": "No readings for {duration}"
   },
   "incidents": {
     "stats": {

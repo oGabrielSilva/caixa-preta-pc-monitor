@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PcMonitor.Application.Live;
 using PcMonitor.Dashboard.Tests.Support;
 using PcMonitor.Domain.Monitoring;
@@ -120,6 +121,23 @@ public sealed class LiveEndpointsTests
         await Task.Delay(TimeSpan.FromSeconds(2.5), TestContext.Current.CancellationToken);
 
         reads.Count.ShouldBe(afterClose);
+    }
+
+    [Fact]
+    public async Task Stopping_the_dashboard_ends_open_streams()
+    {
+        using var dashboard = new SeededDashboard(realTime: true);
+        dashboard.Seed.Recording(DateTimeOffset.UtcNow, 1);
+        var (response, events) = await OpenStream(dashboard.Client(), string.Empty);
+        using (response)
+        using (events)
+        {
+            await events.Next("segment", _timeout);
+
+            dashboard.Services.GetRequiredService<IHostApplicationLifetime>().StopApplication();
+
+            (await events.EndsWithin(TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        }
     }
 
     [Fact]

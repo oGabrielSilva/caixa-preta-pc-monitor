@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Provisional shell: the final visual design is approved with mockups in Plan 05.
 const { t } = useI18n()
 const { version } = useHealth()
 
