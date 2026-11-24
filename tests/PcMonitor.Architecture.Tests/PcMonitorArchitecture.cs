@@ -40,9 +40,12 @@ internal static class PcMonitorArchitecture
     public static GivenTypesConjunction TypesOutside(string assemblyName) =>
         Types().That().DoNotResideInAssembly(Load(assemblyName));
 
-    /// <summary>Types from the LibreHardwareMonitor library.</summary>
+    /// <summary>
+    /// Types from the LibreHardwareMonitor library. They are only referenced, never loaded,
+    /// so the set must include referenced types (<c>Types(true)</c>) or the rule is vacuous.
+    /// </summary>
     public static GivenTypesConjunction LibreHardwareMonitorTypes() =>
-        Types().That().ResideInNamespaceMatching(@"^LibreHardwareMonitor(\..*)?$");
+        Types(true).That().ResideInNamespaceMatching(@"^LibreHardwareMonitor(\..*)?$");
 
     public static ReflectionAssembly Load(string assemblyName) => ReflectionAssembly.Load(assemblyName);
 }
