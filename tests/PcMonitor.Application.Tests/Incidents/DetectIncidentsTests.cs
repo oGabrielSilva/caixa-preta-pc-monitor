@@ -217,16 +217,18 @@ public sealed class DetectIncidentsTests
     }
 
     [Fact]
-    public void Related_event_windows_start_after_the_previous_crash_boot_settled()
+    public void Each_related_event_is_kept_by_exactly_one_crash()
     {
         _eventLog.Shutdowns.Add(Crash(10, At(13, 0)));
         _eventLog.Shutdowns.Add(Crash(11, At(13, 5)));
-        _eventLog.Shutdowns.Add(Crash(12, At(13, 6)));
+        _eventLog.Events.Add(new SystemEvent("EventLog", 6008, 50, At(13, 0, 11), 2, new Dictionary<string, string>()));  // crash 10's boot
+        _eventLog.Events.Add(new SystemEvent("EventLog", 6005, 51, At(13, 0, 11), 4, new Dictionary<string, string>()));  // session crash 11 ends
+        _eventLog.Events.Add(new SystemEvent("Microsoft-Windows-WHEA-Logger", 19, 52, At(13, 3), 2, new Dictionary<string, string>()));
 
         Detect();
 
-        _eventLog.RelatedQueries[1].ShouldBe((At(13, 2) + TimeSpan.FromTicks(1), At(13, 7)));
-        _eventLog.RelatedQueries[2].Since.ShouldBe(At(13, 7) + TimeSpan.FromTicks(1));
+        _store.Incidents[0].RelatedEvents.Select(e => e.RecordId).ShouldBe([50L]);
+        _store.Incidents[1].RelatedEvents.Select(e => e.RecordId).ShouldBe([51L, 52L]);
     }
 
     [Fact]

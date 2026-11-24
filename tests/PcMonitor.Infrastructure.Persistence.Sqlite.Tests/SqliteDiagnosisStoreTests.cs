@@ -46,7 +46,7 @@ public sealed class SqliteDiagnosisStoreTests : IDisposable
         new(record, loggedAt, 0, SleepState: 4, null, false, loggedAt.AddMinutes(-5), new Dictionary<string, string> { ["SleepInProgress"] = "4" });
 
     private static SystemEvent Event(long record, DateTimeOffset at) =>
-        new("EventLog", 6005, record, at, 4, new Dictionary<string, string>());
+        new("User32", 1074, record, at, 4, new Dictionary<string, string>());
 
     private void SaveUnlinked(long record, DateTimeOffset loggedAt, params SystemEvent[] related) =>
         _incidents.SaveIncident(new Incident(Crash(record, loggedAt), null, FailureTimeSource.Unknown, null, null, null, related), null);

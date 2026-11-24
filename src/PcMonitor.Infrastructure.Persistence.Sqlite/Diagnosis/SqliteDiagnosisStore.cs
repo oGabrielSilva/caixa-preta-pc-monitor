@@ -51,8 +51,8 @@ public sealed class SqliteDiagnosisStore(SqliteDatabase database, TimeProvider t
         var previous = TimeOrNull(connection.ExecuteScalar<long?>(DiagnosisSql.PreviousLoggedAt, new { row.LoggedAtMs }));
         IReadOnlyList<SystemEvent> related = [.. connection
             .Query<EventRow>(DiagnosisSql.RelatedEvents, new { IncidentId = row.Id })
-            .Where(e => RelatedEventScope.Belongs(Time(e.LoggedAtMs), loggedAt, previous))
-            .Select(e => new SystemEvent(e.Provider, (int)e.EventId, e.RecordId, Time(e.LoggedAtMs), (int)e.Level, DiagnosisJson.Data(e.DataJson)))];
+            .Select(e => new SystemEvent(e.Provider, (int)e.EventId, e.RecordId, Time(e.LoggedAtMs), (int)e.Level, DiagnosisJson.Data(e.DataJson)))
+            .Where(e => RelatedEventScope.Belongs(e, loggedAt, previous))];
 
         var shutdown = new UnexpectedShutdown(
             row.EventRecordId, loggedAt, row.BugcheckCode, (int)row.SleepState, TimeOrNull(row.PowerButtonMs),

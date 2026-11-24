@@ -95,11 +95,12 @@ public sealed partial class DetectIncidents(
     private Incident BuildIncident(UnexpectedShutdown shutdown, OpenSession? session, UnexpectedShutdown? previous)
     {
         var (estimate, source) = EstimateFailure(shutdown, session?.LastFrameAt);
-        var (since, until) = RelatedEventScope.Clip(
+        var (since, until) = RelatedEventScope.Window(
             (estimate ?? shutdown.LoggedAt - _searchWithoutEstimate) - _relatedBefore, shutdown.LoggedAt, previous?.LoggedAt);
+        IReadOnlyList<SystemEvent> related = [.. eventLog.ReadRelated(since, until)
+            .Where(e => RelatedEventScope.Belongs(e, shutdown.LoggedAt, previous?.LoggedAt))];
 
-        return new Incident(shutdown, estimate, source, session?.SessionId, session?.LastSegmentId, session?.LastFrameAt,
-            eventLog.ReadRelated(since, until));
+        return new Incident(shutdown, estimate, source, session?.SessionId, session?.LastSegmentId, session?.LastFrameAt, related);
     }
 
     private static (DateTimeOffset? Estimate, FailureTimeSource Source) EstimateFailure(UnexpectedShutdown shutdown, DateTimeOffset? lastFrame)
