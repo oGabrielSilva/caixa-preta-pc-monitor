@@ -16,7 +16,7 @@ public sealed class DetectIncidentsTests
     private static DateTimeOffset At(int hour, int minute, int second = 0) => _day.AddHours(hour).AddMinutes(minute).AddSeconds(second);
 
     private static UnexpectedShutdown Crash(long record, DateTimeOffset loggedAt, DateTimeOffset? lastAlive = null, bool sleeping = false) =>
-        new(record, loggedAt, BugcheckCode: 0, sleeping, PowerButtonPressedAt: null, LongPowerButtonPress: false, lastAlive,
+        new(record, loggedAt, BugcheckCode: 0, SleepState: sleeping ? 4 : 0, PowerButtonPressedAt: null, LongPowerButtonPress: false, lastAlive,
             new Dictionary<string, string>());
 
     /// <summary>A session of the boot at <paramref name="bootedAt"/>, started a minute later.</summary>

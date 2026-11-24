@@ -32,9 +32,9 @@ public sealed class SqliteIncidentStoreTests : IDisposable
     }
 
     internal static UnexpectedShutdown Crash(long record, DateTimeOffset loggedAt, long bugcheck = 0x9C) =>
-        new(record, loggedAt, bugcheck, SleepInProgress: true, PowerButtonPressedAt: loggedAt.AddMinutes(-1),
+        new(record, loggedAt, bugcheck, SleepState: 4, PowerButtonPressedAt: loggedAt.AddMinutes(-1),
             LongPowerButtonPress: false, LastAliveAt: loggedAt.AddMinutes(-4),
-            new Dictionary<string, string> { ["BugcheckCode"] = "156", ["SleepInProgress"] = "1" });
+            new Dictionary<string, string> { ["BugcheckCode"] = "156", ["SleepInProgress"] = "4" });
 
     internal static Incident Unlinked(long record, DateTimeOffset loggedAt) =>
         new(Crash(record, loggedAt), null, FailureTimeSource.Unknown, null, null, null, []);
@@ -85,7 +85,7 @@ public sealed class SqliteIncidentStoreTests : IDisposable
             SELECT event_record_id, estimated_failure_ms, failure_time_source, segment_id, telemetry_end_ms, bugcheck_code,
                    sleep_in_progress FROM incident
             """).ShouldBe((402399L, _t0.AddSeconds(2).ToUnixTimeMilliseconds(), "LastFrame", segment,
-            _t0.AddSeconds(2).ToUnixTimeMilliseconds(), 0xC000021AL, 1L));
+            _t0.AddSeconds(2).ToUnixTimeMilliseconds(), 0xC000021AL, 4L));
         connection.Query<long>("SELECT record_id FROM incident_event ORDER BY record_id").ShouldBe([5L, 6L]);
         EndOf("session", session).ShouldBe((_t0.AddSeconds(2).ToUnixTimeMilliseconds(), "UnexpectedShutdown"));
         EndOf("segment", segment).ShouldBe((_t0.AddSeconds(2).ToUnixTimeMilliseconds(), "UnexpectedShutdown"));

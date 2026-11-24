@@ -26,7 +26,7 @@ internal static class IncidentSql
                               telemetry_end_ms, bugcheck_code, sleep_in_progress, power_button_ms, long_power_button,
                               last_alive_ms, data_json)
         VALUES (@RecordId, @LoggedAtMs, @EstimatedFailureMs, @FailureTimeSource, @SessionId, @SegmentId,
-                @TelemetryEndMs, @BugcheckCode, @SleepInProgress, @PowerButtonMs, @LongPowerButton,
+                @TelemetryEndMs, @BugcheckCode, @SleepState, @PowerButtonMs, @LongPowerButton,
                 @LastAliveMs, @DataJson)
         ON CONFLICT (event_record_id, logged_at_ms) DO NOTHING
         RETURNING id;

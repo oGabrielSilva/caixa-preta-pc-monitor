@@ -17,7 +17,7 @@ public sealed class UnexpectedShutdownMapperTests
         shutdown.RecordId.ShouldBe(402399);
         shutdown.LoggedAt.ShouldBe(_kernelPower41.LoggedAt);
         shutdown.BugcheckCode.ShouldBe(0);
-        shutdown.SleepInProgress.ShouldBeFalse();
+        shutdown.SleepState.ShouldBe(0);
         shutdown.PowerButtonPressedAt.ShouldBeNull();
         shutdown.LongPowerButtonPress.ShouldBeFalse();
         shutdown.LastAliveAt.ShouldBe(new DateTimeOffset(2026, 11, 24, 16, 50, 34, 437, TimeSpan.Zero));
@@ -42,8 +42,8 @@ public sealed class UnexpectedShutdownMapperTests
 
         var shutdown = UnexpectedShutdownMapper.Map(_kernelPower41 with { Data = data }, null);
 
-        (shutdown.BugcheckCode, shutdown.SleepInProgress, shutdown.PowerButtonPressedAt, shutdown.LongPowerButtonPress)
-            .ShouldBe((156L, true, pressedAt, true));
+        (shutdown.BugcheckCode, shutdown.SleepState, shutdown.PowerButtonPressedAt, shutdown.LongPowerButtonPress)
+            .ShouldBe((156L, 4, pressedAt, true));
     }
 
     [Fact]

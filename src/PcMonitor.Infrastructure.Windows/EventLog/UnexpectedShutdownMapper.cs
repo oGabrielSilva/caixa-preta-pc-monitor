@@ -15,7 +15,7 @@ public static class UnexpectedShutdownMapper
             kernelPower41.RecordId,
             kernelPower41.LoggedAt,
             BugcheckCode: Number(data, "BugcheckCode"),
-            SleepInProgress: Number(data, "SleepInProgress") != 0,
+            SleepState: (int)Number(data, "SleepInProgress"),
             PowerButtonPressedAt: FromFileTime(Number(data, "PowerButtonTimestamp")),
             LongPowerButtonPress: data.TryGetValue("LongPowerButtonPressDetected", out var longPress)
                 && bool.TryParse(longPress, out var pressed) && pressed,

@@ -51,7 +51,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentRead
             incident.SegmentId,
             TelemetryEndMs = incident.TelemetryEndAt?.ToUnixTimeMilliseconds(),
             shutdown.BugcheckCode,
-            shutdown.SleepInProgress,
+            shutdown.SleepState,
             PowerButtonMs = shutdown.PowerButtonPressedAt?.ToUnixTimeMilliseconds(),
             LongPowerButton = shutdown.LongPowerButtonPress,
             LastAliveMs = shutdown.LastAliveAt?.ToUnixTimeMilliseconds(),
