@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build, test and verify
+    runs-on: windows-latest
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: '1'
+      DOTNET_NOLOGO: '1'
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: global.json
+
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: src/PcMonitor.Dashboard.Web/package.json
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: src/PcMonitor.Dashboard.Web/pnpm-lock.yaml
+
+      # --- Backend --------------------------------------------------------
+      - name: Restore
+        run: dotnet restore PcMonitor.slnx
+
+      - name: Build
+        run: dotnet build PcMonitor.slnx -c Release --no-restore
+
+      - name: Check formatting
+        run: dotnet format PcMonitor.slnx --verify-no-changes --no-restore
+
+      - name: Test
+        run: dotnet test --solution PcMonitor.slnx -c Release --no-build
+
+      # --- Frontend -------------------------------------------------------
+      - name: Install frontend dependencies
+        working-directory: src/PcMonitor.Dashboard.Web
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        working-directory: src/PcMonitor.Dashboard.Web
+        run: pnpm lint
+
+      - name: Typecheck
+        working-directory: src/PcMonitor.Dashboard.Web
+        run: pnpm typecheck
+
+      - name: Test frontend
+        working-directory: src/PcMonitor.Dashboard.Web
+        run: pnpm test
+
+      # --- Cross-cutting checks -------------------------------------------
+      - name: Verify API contract is up to date
+        run: |
+          pnpm --dir src/PcMonitor.Dashboard.Web gen:api
+          git diff --exit-code -- src/PcMonitor.Dashboard/openapi src/PcMonitor.Dashboard.Web/app/api
+
+      - name: Verify agent docs
+        run: ./scripts/Test-AgentDocs.ps1
+
+      - name: Detect duplicated code
+        run: pnpm dlx jscpd@5.4.3

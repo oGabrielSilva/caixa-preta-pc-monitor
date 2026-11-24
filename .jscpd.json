@@ -1,0 +1,19 @@
+{
+  "threshold": 1,
+  "minTokens": 50,
+  "reporters": ["console"],
+  "path": ["src", "tests"],
+  "format": ["csharp", "typescript", "javascript", "vue"],
+  "ignore": [
+    "**/bin/**",
+    "**/obj/**",
+    "**/node_modules/**",
+    "**/.nuxt/**",
+    "**/.output/**",
+    "**/openapi/*.json",
+    "**/app/api/schema.d.ts",
+    "**/pnpm-lock.yaml",
+    "**/*.Designer.cs"
+  ],
+  "gitignore": true
+}

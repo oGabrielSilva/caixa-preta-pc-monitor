@@ -26,7 +26,7 @@ dotnet test --solution PcMonitor.slnx
 dotnet format PcMonitor.slnx --verify-no-changes
 ```
 
-Frontend commands: see `src/PcMonitor.Dashboard.Web/AGENTS.md`.
+Frontend commands: see `src/PcMonitor.Dashboard.Web/AGENTS.md`. CI (`.github/workflows/ci.yml`) runs all of the above plus the API contract check, `scripts/Test-AgentDocs.ps1` and jscpd (`.jscpd.json`, threshold 1%).
 
 ## Rules
 
