@@ -207,3 +207,9 @@ CREATE TABLE incident_event (
 
 - Suítes verdes; incidentes existentes importados; reiniciar o coletor não duplica nada.
 - A próxima queda real da máquina gera um incidente com `LastFrame` e os 120 s anteriores preservados (verificado quando acontecer).
+
+## Resultado da instalação (24/11/2026, 16:50)
+
+- `Install-Collector.ps1` como administrador: a sessão #3 terminou com `ServiceStopped`; a detecção registrou **16 incidentes novos, 0 com telemetria, 0 sessões anormais** (EventId 1200); a sessão #4 começou `Ok` com 35 sensores.
+- Teste local anterior (banco temporário, sem administrador) confirmou o conteúdo: versão 3, 16 incidentes `LastAliveEventLog`, 2 com `SleepInProgress`, 3–19 eventos relacionados cada.
+- Observado: execuções locais do coletor também escrevem no Log de Eventos com a fonte `PcMonitor.Collector` (os avisos 200 apareceram em dobro). A ajustar: em desenvolvimento, logar só no console.
