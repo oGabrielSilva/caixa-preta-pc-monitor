@@ -51,8 +51,8 @@ internal static class CollectorServiceCollectionExtensions
 
         services.AddSingleton<IProcessTerminator, FailFastTerminator>();
         services.AddSingleton(sp => new StallWatchdog(
-            Options(sp).StallTimeout,
-            sp.GetRequiredService<TimeProvider>(),
+            ChecksIn(Options(sp).StallTimeout),
+            ChecksIn(Options(sp).StartupTimeout),
             sp.GetRequiredService<IProcessTerminator>(),
             sp.GetRequiredService<ILogger<StallWatchdog>>()));
         services.AddSingleton<SamplerThread>();
@@ -61,6 +61,8 @@ internal static class CollectorServiceCollectionExtensions
 
         return services;
     }
+
+    private static int ChecksIn(TimeSpan timeout) => (int)Math.Ceiling(timeout / SamplingWorker.CheckInterval);
 
     private static CollectorOptions Options(IServiceProvider services) =>
         services.GetRequiredService<IOptions<CollectorOptions>>().Value;

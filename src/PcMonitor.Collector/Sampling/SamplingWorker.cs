@@ -3,13 +3,15 @@ namespace PcMonitor.Collector.Sampling;
 /// <summary>Starts the sampler thread and checks the watchdog every second on the host's side.</summary>
 internal sealed class SamplingWorker(SamplerThread sampler, StallWatchdog watchdog, TimeProvider time) : BackgroundService
 {
-    private static readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(1);
+    /// <summary>How often the watchdog is checked; its limits are expressed in checks of this length.</summary>
+    public static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(1);
+
     private static readonly TimeSpan _stopGrace = TimeSpan.FromSeconds(5);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         sampler.Start();
-        using var timer = new PeriodicTimer(_checkInterval, time);
+        using var timer = new PeriodicTimer(CheckInterval, time);
         try
         {
             while (await timer.WaitForNextTickAsync(stoppingToken).ConfigureAwait(false))

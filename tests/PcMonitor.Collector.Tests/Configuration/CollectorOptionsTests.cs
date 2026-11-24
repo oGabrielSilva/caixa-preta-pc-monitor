@@ -16,6 +16,7 @@ public sealed class CollectorOptionsTests
         IsValid(options).ShouldBeTrue();
         options.SampleInterval.ShouldBe(TimeSpan.FromSeconds(1));
         options.StallTimeout.ShouldBe(TimeSpan.FromSeconds(10));
+        options.StartupTimeout.ShouldBe(TimeSpan.FromSeconds(60));
         options.RawRetention.ShouldBe(TimeSpan.FromDays(14));
         options.RetentionInterval.ShouldBe(TimeSpan.FromHours(1));
         options.DatabasePath.ShouldEndWith(@"PcMonitor\pcmonitor.db");
@@ -24,6 +25,11 @@ public sealed class CollectorOptionsTests
     [Fact]
     public void Options_reject_a_stall_timeout_shorter_than_five_intervals() =>
         IsValid(new CollectorOptions { SampleInterval = TimeSpan.FromSeconds(1), StallTimeout = TimeSpan.FromSeconds(4) })
+            .ShouldBeFalse();
+
+    [Fact]
+    public void Options_reject_a_startup_timeout_shorter_than_the_stall_timeout() =>
+        IsValid(new CollectorOptions { StallTimeout = TimeSpan.FromSeconds(30), StartupTimeout = TimeSpan.FromSeconds(20) })
             .ShouldBeFalse();
 
     [Theory]
