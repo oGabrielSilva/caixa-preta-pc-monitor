@@ -36,5 +36,6 @@ Frontend commands: see `src/PcMonitor.Dashboard.Web/AGENTS.md`.
 - No duplicated code. Extract a shared type instead of copying; jscpd runs in CI.
 - Code, identifiers, commits and log messages in English. Documentation in Portuguese.
 - DTOs are defined once in C#. TypeScript API types are generated, never hand-written.
-- Every folder with an `AGENTS.md` has a `CLAUDE.md` containing exactly `@AGENTS.md`. Put instructions in `AGENTS.md` only.
+- Every folder with an `AGENTS.md` has a `CLAUDE.md` containing exactly `@AGENTS.md`. Put instructions in `AGENTS.md` only. Check: `pwsh scripts/Test-AgentDocs.ps1`.
+- Architecture changes update `docs/architecture/` (diagrams live only there); decisions get a new ADR in `docs/adr/`.
 - Tests: xUnit v3 on Microsoft.Testing.Platform, Shouldly assertions. Write the failing test first.
