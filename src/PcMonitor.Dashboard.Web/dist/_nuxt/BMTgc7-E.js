@@ -1,1 +1,0 @@
-import{t as e}from"./BmWsFCfm.js";import{k as t,nt as n}from"./DIjMFxoZ.js";import{t as r}from"#entry";var i={};function a(r,i){let a=e;return n(),t(a,{"title-key":`nav.incidents`,"description-key":`pages.incidents.description`,icon:`i-lucide-triangle-alert`})}var o=r(i,[[`render`,a]]);export{o as default};
