@@ -40,7 +40,7 @@ public sealed class ThermalRuleTests
     {
         var finding = Evaluate(new EvidenceBuilder().Constant(SensorRole.CpuLoad, 10f)).ShouldHaveSingleItem();
 
-        finding.Summary().ShouldBe([RuleAssertions.Limitation("sensor.unavailable")]) ;
+        finding.Summary().ShouldBe([RuleAssertions.Limitation("sensor.unavailable")]);
         finding.Parameters["role"].ShouldBe("CpuTemperature");
     }
 
