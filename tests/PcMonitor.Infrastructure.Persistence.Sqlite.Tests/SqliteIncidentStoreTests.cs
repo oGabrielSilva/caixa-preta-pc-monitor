@@ -109,11 +109,21 @@ public sealed class SqliteIncidentStoreTests : IDisposable
     [Fact]
     public void SaveIncident_ignores_a_crash_already_saved()
     {
-        _store.SaveIncident(Unlinked(1, _t0), null);
+        _store.SaveIncident(Unlinked(1, _t0), null).ShouldBeTrue();
 
-        _store.SaveIncident(Unlinked(1, _t0), null);
+        _store.SaveIncident(Unlinked(1, _t0), null).ShouldBeFalse();
 
-        _store.SavedIncidents().ShouldBe([new IncidentKey(1, _t0)]);
+        _store.SavedIncidents().ShouldBe([IncidentKey.Of(Unlinked(1, _t0).Shutdown)]);
+    }
+
+    [Fact]
+    public void A_saved_crash_is_recognised_although_the_event_log_time_has_sub_millisecond_precision()
+    {
+        // Event log times carry 100 ns ticks (e.g. 16:54:38.9245715); the database keeps milliseconds.
+        var incident = Unlinked(402399, _t0.AddTicks(9_245_715));
+        _store.SaveIncident(incident, null);
+
+        _store.SavedIncidents().ShouldContain(IncidentKey.Of(incident.Shutdown));
     }
 
     [Fact]

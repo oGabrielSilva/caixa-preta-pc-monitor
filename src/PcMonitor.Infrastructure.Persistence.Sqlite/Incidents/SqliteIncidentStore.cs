@@ -18,7 +18,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentRead
     {
         using var connection = database.OpenWriter();
         return connection.Query<(long RecordId, long LoggedAtMs)>(IncidentSql.SavedKeys)
-            .Select(row => new IncidentKey(row.RecordId, DateTimeOffset.FromUnixTimeMilliseconds(row.LoggedAtMs)))
+            .Select(row => new IncidentKey(row.RecordId, row.LoggedAtMs))
             .ToHashSet();
     }
 
@@ -34,7 +34,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentRead
             FromMs(row.LastFrameMs)))];
     }
 
-    public void SaveIncident(Incident incident, SessionClosure? closure)
+    public bool SaveIncident(Incident incident, SessionClosure? closure)
     {
         ArgumentNullException.ThrowIfNull(incident);
         var shutdown = incident.Shutdown;
@@ -60,7 +60,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentRead
 
         if (incidentId is null)
         {
-            return; // Already saved: its session was closed with it.
+            return false; // Already saved: its session was closed with it.
         }
 
         foreach (var related in incident.RelatedEvents)
@@ -83,6 +83,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentRead
         }
 
         transaction.Commit();
+        return true;
     }
 
     public void CloseSession(SessionClosure closure)

@@ -22,9 +22,7 @@ public sealed class StartupIncidentDetectionTests
 
         public IReadOnlyList<OpenSession> OpenSessions() => [];
 
-        public void SaveIncident(Incident incident, SessionClosure? closure)
-        {
-        }
+        public bool SaveIncident(Incident incident, SessionClosure? closure) => true;
 
         public void CloseSession(SessionClosure closure)
         {

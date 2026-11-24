@@ -48,7 +48,10 @@ public sealed partial class DetectIncidents(
                 var incident = BuildIncident(shutdown, session, previous, next);
                 var closure = session is null ? null : new SessionClosure(session, session.LastFrameAt ?? session.StartedAt, EndReason.UnexpectedShutdown);
 
-                writer.SaveIncident(incident, closure);
+                if (!writer.SaveIncident(incident, closure))
+                {
+                    continue; // Saved meanwhile (e.g. by another run): nothing new.
+                }
 
                 if (session is not null)
                 {

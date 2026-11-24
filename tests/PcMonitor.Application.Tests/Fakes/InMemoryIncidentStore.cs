@@ -20,11 +20,16 @@ internal sealed class InMemoryIncidentStore : IIncidentReader, IIncidentWriter
 
     public IReadOnlyList<OpenSession> OpenSessions() => [.. Open.OrderBy(s => s.StartedAt)];
 
-    public void SaveIncident(Incident incident, SessionClosure? closure)
+    public bool SaveIncident(Incident incident, SessionClosure? closure)
     {
         if (incident.Shutdown.RecordId == FailOnRecordId)
         {
             throw new IOException("database busy");
+        }
+
+        if (Saved.Any(s => IncidentKey.Of(s.Incident.Shutdown) == IncidentKey.Of(incident.Shutdown)))
+        {
+            return false;
         }
 
         Saved.Add((incident, closure));
@@ -32,6 +37,8 @@ internal sealed class InMemoryIncidentStore : IIncidentReader, IIncidentWriter
         {
             Open.Remove(closure.Session);
         }
+
+        return true;
     }
 
     public void CloseSession(SessionClosure closure)
