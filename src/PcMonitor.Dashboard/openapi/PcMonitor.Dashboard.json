@@ -31,7 +31,8 @@
       "HealthResponse": {
         "required": [
           "status",
-          "version"
+          "version",
+          "storage"
         ],
         "type": "object",
         "properties": {
@@ -42,9 +43,23 @@
           "version": {
             "type": "string",
             "description": "Semantic version of the dashboard."
+          },
+          "storage": {
+            "description": "State of the monitoring database; data endpoints answer 503 unless it is `Ready`.",
+            "$ref": "#/components/schemas/StorageState"
           }
         },
-        "description": "Liveness of the dashboard and the version that is running."
+        "description": "Liveness of the dashboard, the version that is running and whether the database can be read."
+      },
+      "StorageState": {
+        "enum": [
+          "Ready",
+          "Missing",
+          "SchemaTooOld",
+          "SchemaTooNew",
+          "Unreadable"
+        ],
+        "description": "Whether the database can be read by this build."
       }
     }
   },

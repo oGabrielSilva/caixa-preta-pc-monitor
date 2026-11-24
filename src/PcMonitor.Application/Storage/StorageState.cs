@@ -14,4 +14,7 @@ public enum StorageState
 
     /// <summary>The database is newer than this build: the dashboard needs updating.</summary>
     SchemaTooNew,
+
+    /// <summary>The file exists but cannot be opened as a database (damaged, or no permission to read it).</summary>
+    Unreadable,
 }

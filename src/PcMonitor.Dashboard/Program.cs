@@ -1,10 +1,16 @@
+using Microsoft.Extensions.Hosting.WindowsServices;
 using PcMonitor.Dashboard.Api;
 using PcMonitor.Dashboard.Configuration;
 
-var builder = WebApplication.CreateBuilder(args);
+// As a service the working directory is System32: the content root (and so wwwroot) must be the install folder.
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = WindowsServiceHelpers.IsWindowsService() ? AppContext.BaseDirectory : null,
+});
 
 builder.AddLoopbackDashboard();
-builder.Services.AddOpenApi();
+builder.AddDashboard();
 
 var app = builder.Build();
 

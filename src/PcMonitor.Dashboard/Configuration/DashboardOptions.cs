@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PcMonitor.Infrastructure.Persistence.Sqlite;
 
 namespace PcMonitor.Dashboard.Configuration;
 
@@ -12,4 +13,8 @@ public sealed class DashboardOptions
 
     [Range(1024, 65535)]
     public int Port { get; init; } = 5280;
+
+    /// <summary>The collector's database, opened read-only.</summary>
+    [Required]
+    public string DatabasePath { get; init; } = SqliteDatabase.DefaultPath;
 }

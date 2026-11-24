@@ -46,6 +46,16 @@ public sealed class SqliteStorageStatusTests
     }
 
     [Fact]
+    public void A_file_that_is_not_a_database_is_unreadable()
+    {
+        using var temp = new TempDatabase();
+        Directory.CreateDirectory(temp.Folder);
+        File.WriteAllText(temp.Path, "not a database");
+
+        new SqliteStorageStatus(temp.Database).Check().ShouldBe(StorageState.Unreadable);
+    }
+
+    [Fact]
     public void Default_path_is_under_program_data() =>
         SqliteDatabase.DefaultPath.ShouldBe(Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "PcMonitor", "pcmonitor.db"));

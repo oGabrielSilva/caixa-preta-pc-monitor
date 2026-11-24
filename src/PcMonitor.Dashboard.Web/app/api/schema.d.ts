@@ -24,13 +24,20 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description Liveness of the dashboard and the version that is running. */
+        /** @description Liveness of the dashboard, the version that is running and whether the database can be read. */
         HealthResponse: {
             /** @description Always `ok` when the dashboard answers. */
             status: string;
             /** @description Semantic version of the dashboard. */
             version: string;
+            /** @description State of the monitoring database; data endpoints answer 503 unless it is `Ready`. */
+            storage: components["schemas"]["StorageState"];
         };
+        /**
+         * @description Whether the database can be read by this build.
+         * @enum {unknown}
+         */
+        StorageState: "Ready" | "Missing" | "SchemaTooOld" | "SchemaTooNew" | "Unreadable";
     };
     responses: never;
     parameters: never;
