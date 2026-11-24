@@ -2,7 +2,6 @@ using Microsoft.Extensions.Options;
 using PcMonitor.Application.Monitoring;
 using PcMonitor.Collector.Configuration;
 using PcMonitor.Collector.Hosting;
-using PcMonitor.Domain.Monitoring;
 
 namespace PcMonitor.Collector.Sampling;
 
@@ -67,14 +66,21 @@ internal sealed partial class SamplerThread(
 
     private void HandleSignals()
     {
-        while (signals.TryDequeue(out var signal))
+        while (signals.TryDequeue(out var received))
         {
-            if (signal == ServiceSignal.Suspend)
+            switch (received.Signal)
             {
-                recorder.BreakSegment(EndReason.Suspended);
+                case ServiceSignal.Suspend:
+                    recorder.Suspend(received.ReceivedAt);
+                    break;
+                case ServiceSignal.Resume:
+                    recorder.Resume();
+                    watchdog.Beat();
+                    break;
+                case ServiceSignal.Shutdown:
+                    // Handled by the stop path through ServiceSignals.StopReason.
+                    break;
             }
-
-            // Resume needs nothing: the next frame opens a new segment.
         }
     }
 

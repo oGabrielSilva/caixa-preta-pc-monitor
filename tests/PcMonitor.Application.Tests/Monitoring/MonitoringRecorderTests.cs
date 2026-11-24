@@ -72,19 +72,70 @@ public sealed class MonitoringRecorderTests
     }
 
     [Fact]
-    public void RecordOnce_after_BreakSegment_opens_a_new_segment()
+    public void Suspend_ends_the_segment_at_the_signal_time_and_pauses_recording()
     {
         var recorder = Recorder(new ScriptedSensorSource([1f, 1f], [2f, 2f]));
         recorder.Start();
         recorder.RecordOnce();
+        var signalledAt = _start.AddMilliseconds(400);
+        _time.Advance(TimeSpan.FromSeconds(1));
 
-        recorder.BreakSegment(EndReason.Suspended);
-        _time.Advance(TimeSpan.FromHours(8));
+        recorder.Suspend(signalledAt).ShouldBeTrue();
+        recorder.RecordOnce().ShouldBeFalse();
+
+        _store.EndedSegments.ShouldHaveSingleItem().ShouldBe((1L, signalledAt, EndReason.Suspended));
+        _store.Segments.ShouldHaveSingleItem();
+        _store.Frames.ShouldHaveSingleItem();
+    }
+
+    [Fact]
+    public void Resume_starts_a_new_segment_on_the_next_frame_without_a_gap_segment()
+    {
+        var recorder = Recorder(new ScriptedSensorSource([1f, 1f], [2f, 2f]));
+        recorder.Start();
         recorder.RecordOnce();
+        recorder.Suspend(_start);
 
-        _store.EndedSegments.ShouldHaveSingleItem().ShouldBe((1L, _start, EndReason.Suspended));
+        _time.Advance(TimeSpan.FromHours(8));
+        recorder.Resume();
+        recorder.RecordOnce().ShouldBeTrue();
+
+        _store.EndedSegments.ShouldHaveSingleItem().Reason.ShouldBe(EndReason.Suspended);
         _store.Segments.Count.ShouldBe(2);
         _store.Frames.Select(f => f.SegmentId).ShouldBe([1L, 2L]);
+    }
+
+    [Fact]
+    public void Recording_resumes_by_itself_when_no_resume_signal_arrives()
+    {
+        var recorder = Recorder(new ScriptedSensorSource());
+        recorder.Start();
+        recorder.Suspend(_start);
+
+        for (var i = 0; i < MonitoringRecorder.MaxCyclesSuspended; i++)
+        {
+            recorder.RecordOnce().ShouldBeFalse();
+        }
+
+        recorder.RecordOnce().ShouldBeTrue();
+        _store.Segments.Count.ShouldBe(2);
+    }
+
+    [Fact]
+    public void A_failed_segment_close_on_suspend_is_retried_as_a_gap_after_resume()
+    {
+        var recorder = Recorder(new ScriptedSensorSource([1f, 1f], [2f, 2f]));
+        recorder.Start();
+        recorder.RecordOnce();
+        _store.EndSegmentFailure = new IOException("disk full");
+
+        recorder.Suspend(_start.AddSeconds(1)).ShouldBeFalse();
+
+        _store.EndSegmentFailure = null;
+        _time.Advance(TimeSpan.FromHours(1));
+        recorder.Resume();
+        recorder.RecordOnce().ShouldBeTrue();
+        _store.EndedSegments.ShouldHaveSingleItem().ShouldBe((1L, _start, EndReason.Gap));
     }
 
     [Fact]
@@ -129,15 +180,27 @@ public sealed class MonitoringRecorderTests
     }
 
     [Fact]
-    public void Stop_after_BreakSegment_does_not_end_the_segment_twice()
+    public void Stop_after_Suspend_does_not_end_the_segment_twice()
     {
         var recorder = Recorder(new ScriptedSensorSource());
         recorder.Start();
-        recorder.BreakSegment(EndReason.Suspended);
+        recorder.Suspend(_start);
 
         recorder.Stop(EndReason.ServiceStopped);
 
         _store.EndedSegments.ShouldHaveSingleItem().Reason.ShouldBe(EndReason.Suspended);
         _store.EndedSessions.ShouldHaveSingleItem().Reason.ShouldBe(EndReason.ServiceStopped);
+    }
+
+    [Fact]
+    public void Stop_still_ends_the_session_when_closing_the_segment_fails()
+    {
+        var recorder = Recorder(new ScriptedSensorSource());
+        recorder.Start();
+        _store.EndSegmentFailure = new IOException("disk full");
+
+        Should.NotThrow(() => recorder.Stop(EndReason.SystemShutdown));
+
+        _store.EndedSessions.ShouldHaveSingleItem().Reason.ShouldBe(EndReason.SystemShutdown);
     }
 }

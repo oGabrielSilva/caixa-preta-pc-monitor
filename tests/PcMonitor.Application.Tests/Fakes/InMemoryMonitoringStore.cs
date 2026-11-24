@@ -15,6 +15,8 @@ internal sealed class InMemoryMonitoringStore : IMonitoringStore
 
     public Exception? AppendFailure { get; set; }
 
+    public Exception? EndSegmentFailure { get; set; }
+
     public long StartSession(DateTimeOffset startedAt, DateTimeOffset bootedAt, SensorSourceInfo source)
     {
         Sessions.Add((Sessions.Count + 1, startedAt, bootedAt, source));
@@ -37,8 +39,15 @@ internal sealed class InMemoryMonitoringStore : IMonitoringStore
         Frames.Add((segmentId, frame));
     }
 
-    public void EndSegment(long segmentId, DateTimeOffset endedAt, EndReason reason) =>
+    public void EndSegment(long segmentId, DateTimeOffset endedAt, EndReason reason)
+    {
+        if (EndSegmentFailure is not null)
+        {
+            throw EndSegmentFailure;
+        }
+
         EndedSegments.Add((segmentId, endedAt, reason));
+    }
 
     public void EndSession(long sessionId, DateTimeOffset endedAt, EndReason reason) =>
         EndedSessions.Add((sessionId, endedAt, reason));
