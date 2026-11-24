@@ -5,4 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="..\PcMonitor.Application\PcMonitor.Application.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Diagnostics.EventLog" />
+  </ItemGroup>
 </Project>
