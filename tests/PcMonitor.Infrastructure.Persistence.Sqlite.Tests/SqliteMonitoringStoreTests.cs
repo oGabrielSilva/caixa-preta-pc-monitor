@@ -126,6 +126,21 @@ public sealed class SqliteMonitoringStoreTests : IDisposable
     }
 
     [Fact]
+    public void AppendFrame_gives_up_quickly_when_another_connection_holds_the_write_lock()
+    {
+        var segment = NewSegment(Catalog("/a"));
+        using var blocker = _temp.Database.OpenWriter();
+        blocker.Execute("BEGIN IMMEDIATE");
+
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        Should.Throw<Microsoft.Data.Sqlite.SqliteException>(() => _store.AppendFrame(segment, new Frame(_t0, [1f])));
+
+        // Well inside the collector's 10 s stall timeout, so a busy database costs a frame, not a restart.
+        watch.Elapsed.ShouldBeLessThan(TimeSpan.FromSeconds(4));
+        blocker.Execute("ROLLBACK");
+    }
+
+    [Fact]
     public void EndSegment_and_EndSession_store_time_and_reason()
     {
         var catalog = Catalog("/a");

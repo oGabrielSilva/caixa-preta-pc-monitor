@@ -9,11 +9,18 @@ namespace PcMonitor.Infrastructure.Persistence.Sqlite;
 /// </summary>
 public sealed class SqliteDatabase(string path)
 {
-    private const string WriterPragmas = """
+    /// <summary>
+    /// How long a writer waits for a lock held by another connection. Short on purpose: a busy database costs the
+    /// sampler one frame and it retries next second, well inside the 10 s stall timeout. Both SQLite's
+    /// <c>busy_timeout</c> and Microsoft.Data.Sqlite's command timeout (30 s by default) are set to it.
+    /// </summary>
+    private const int WriterLockWaitSeconds = 2;
+
+    private static readonly string _writerPragmas = $"""
         PRAGMA journal_mode = WAL;
         PRAGMA synchronous = FULL;
         PRAGMA foreign_keys = ON;
-        PRAGMA busy_timeout = 5000;
+        PRAGMA busy_timeout = {WriterLockWaitSeconds * 1000};
         """;
 
     public string Path { get; } = System.IO.Path.GetFullPath(path);
@@ -22,8 +29,8 @@ public sealed class SqliteDatabase(string path)
     public SqliteConnection OpenWriter()
     {
         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
-        var connection = Open(SqliteOpenMode.ReadWriteCreate);
-        connection.Execute(WriterPragmas);
+        var connection = Open(SqliteOpenMode.ReadWriteCreate, WriterLockWaitSeconds);
+        connection.Execute(_writerPragmas);
         PersistentWal.Enable(connection);
         return connection;
     }
@@ -31,18 +38,19 @@ public sealed class SqliteDatabase(string path)
     /// <summary>Opens a read-only connection. It never writes to the database file.</summary>
     public SqliteConnection OpenReader()
     {
-        var connection = Open(SqliteOpenMode.ReadOnly);
+        var connection = Open(SqliteOpenMode.ReadOnly, defaultTimeoutSeconds: 30);
         connection.Execute("PRAGMA busy_timeout = 5000;");
         return connection;
     }
 
-    private SqliteConnection Open(SqliteOpenMode mode)
+    private SqliteConnection Open(SqliteOpenMode mode, int defaultTimeoutSeconds)
     {
         var connection = new SqliteConnection(new SqliteConnectionStringBuilder
         {
             DataSource = Path,
             Mode = mode,
             Pooling = false,
+            DefaultTimeout = defaultTimeoutSeconds,
         }.ToString());
         connection.Open();
         return connection;
