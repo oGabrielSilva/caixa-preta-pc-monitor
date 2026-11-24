@@ -5,7 +5,7 @@ namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests;
 
 public sealed class SchemaMigratorTests
 {
-    private const int LatestVersion = 4;
+    private const int LatestVersion = 5;
 
     [Fact]
     public void Migrate_creates_the_schema_and_sets_user_version()
@@ -17,7 +17,7 @@ public sealed class SchemaMigratorTests
         using var connection = temp.Database.OpenWriter();
         connection.ExecuteScalar<long>("PRAGMA user_version").ShouldBe(LatestVersion);
         connection.Query<string>("SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name")
-            .ShouldBe(["aggregate_1m", "frame", "incident", "incident_event", "segment", "segment_sensor", "sensor", "session"]);
+            .ShouldBe(["aggregate_1m", "diagnosis", "frame", "incident", "incident_event", "segment", "segment_sensor", "sensor", "session"]);
     }
 
     [Fact]
@@ -29,6 +29,28 @@ public sealed class SchemaMigratorTests
         migrator.Migrate();
 
         migrator.Migrate().ShouldBe(LatestVersion);
+    }
+
+    [Fact]
+    public void Version_5_recovers_the_sleep_state_from_the_event_data()
+    {
+        using var temp = new TempDatabase();
+        var migrator = new SchemaMigrator(temp.Database);
+        migrator.Migrate(upTo: 4);
+        using (var connection = temp.Database.OpenWriter())
+        {
+            connection.Execute("""
+                INSERT INTO incident (event_record_id, logged_at_ms, failure_time_source, bugcheck_code, sleep_in_progress,
+                                      long_power_button, data_json)
+                VALUES (1, 0, 'Unknown', 0, 1, 0, '{"SleepInProgress":"4"}'),
+                       (2, 1, 'Unknown', 0, 0, 0, '{"SleepInProgress":"0"}');
+                """);
+        }
+
+        migrator.Migrate();
+
+        using var check = temp.Database.OpenReader();
+        check.Query<long>("SELECT sleep_in_progress FROM incident ORDER BY event_record_id").ShouldBe([4L, 0L]);
     }
 
     [Fact]
