@@ -1,3 +1,4 @@
+using System.ServiceProcess;
 using LibreHardwareMonitor.Hardware;
 using PcMonitor.Application.Monitoring;
 using PcMonitor.Domain.Sensors;
@@ -11,6 +12,8 @@ namespace PcMonitor.Infrastructure.Sensors.Lhm;
 /// </summary>
 public sealed class LhmSensorSource : ISensorSource, IDisposable
 {
+    private const string DriverServiceName = "PawnIO";
+
     private readonly Computer _computer = new() { IsCpuEnabled = true, IsMotherboardEnabled = true, IsMemoryEnabled = true };
     private readonly UpdateVisitor _updater = new();
     private IReadOnlyList<SelectedSensor> _selected = [];
@@ -23,6 +26,7 @@ public sealed class LhmSensorSource : ISensorSource, IDisposable
         var hardware = Flatten(_computer.Hardware).ToList();
         var (status, driverUsable) = SourceStatus.Resolve(
             driverInstalled: LibreHardwareMonitor.PawnIo.PawnIo.IsInstalled,
+            driverRunning: IsDriverServiceRunning(),
             privileged: Environment.IsPrivilegedProcess,
             superIoFound: hardware.Any(h => h.HardwareType == HardwareType.SuperIO));
         var boardProduct = _computer.SMBios?.Board?.ProductName?.Trim();
@@ -47,6 +51,20 @@ public sealed class LhmSensorSource : ISensorSource, IDisposable
     }
 
     public void Dispose() => _computer.Close();
+
+    /// <summary>PawnIO is a demand-start kernel driver; after <c>Open()</c> its service must be running.</summary>
+    private static bool IsDriverServiceRunning()
+    {
+        try
+        {
+            using var driver = new ServiceController(DriverServiceName);
+            return driver.Status == ServiceControllerStatus.Running;
+        }
+        catch (InvalidOperationException)
+        {
+            return false; // Service not installed.
+        }
+    }
 
     private static IEnumerable<IHardware> Flatten(IEnumerable<IHardware> hardware) =>
         hardware.SelectMany(h => Flatten(h.SubHardware).Prepend(h));

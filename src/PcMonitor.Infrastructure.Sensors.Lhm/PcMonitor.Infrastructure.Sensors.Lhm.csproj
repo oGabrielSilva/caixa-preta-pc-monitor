@@ -8,6 +8,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LibreHardwareMonitorLib" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Profiles\*.json" />

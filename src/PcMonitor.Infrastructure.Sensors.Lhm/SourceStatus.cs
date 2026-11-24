@@ -6,16 +6,19 @@ namespace PcMonitor.Infrastructure.Sensors.Lhm;
 public static class SourceStatus
 {
     /// <summary>
-    /// Driver-backed values are only real when PawnIO is installed <em>and</em> the process is elevated; otherwise
-    /// LibreHardwareMonitor silently returns zeros or fixed placeholders.
+    /// LibreHardwareMonitor never reports a driver problem: it silently returns zeros or fixed placeholders. Driver-backed
+    /// values are trusted only when PawnIO is installed and running, the process is elevated, and the board's sensor
+    /// chip was found (the proof that the driver actually reads hardware).
     /// </summary>
     /// <returns>The status to record and whether driver-backed sensors may be recorded.</returns>
-    public static (SensorSourceStatus Status, bool DriverUsable) Resolve(bool driverInstalled, bool privileged, bool superIoFound)
+    public static (SensorSourceStatus Status, bool DriverUsable) Resolve(
+        bool driverInstalled, bool driverRunning, bool privileged, bool superIoFound)
     {
-        var driverUsable = driverInstalled && privileged;
-        var status = !driverUsable ? SensorSourceStatus.DriverMissing
-            : superIoFound ? SensorSourceStatus.Ok
-            : SensorSourceStatus.BoardNotDetected;
-        return (status, driverUsable);
+        if (!driverInstalled || !driverRunning || !privileged)
+        {
+            return (SensorSourceStatus.DriverMissing, false);
+        }
+
+        return superIoFound ? (SensorSourceStatus.Ok, true) : (SensorSourceStatus.BoardNotDetected, false);
     }
 }
