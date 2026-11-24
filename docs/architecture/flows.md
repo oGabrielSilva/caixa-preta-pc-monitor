@@ -51,9 +51,13 @@ flowchart TD
 
 Detalhes da implementação (`DetectIncidents`, executado pelo coletor antes de abrir a sessão nova):
 
-- **Estimativa da queda**, da mais precisa para a menos: último quadro gravado (`LastFrame`) → horário UTC do evento 6008 do mesmo boot, que é o *último sinal de vida* registrado pelo Windows e pode estar minutos antes da queda (`LastAliveEventLog`) → desconhecida (`Unknown`).
-- **Eventos relacionados:** de 10 min antes da estimativa (ou 40 min antes do 41, sem estimativa) até 2 min depois do 41: 6005/6006/6008, 1074/1076, BugCheck 1001, Kernel-Power 41/42/107/109 e WHEA.
-- **Retenção:** os 120 s antes da estimativa de cada incidente com telemetria nunca são apagados.
+- **Todas as quedas do log são lidas a cada início**, na ordem de registro, e as já salvas são puladas antes da associação. Não há marca d'água por horário: o relógio do boot vem do RTC da placa, que uma placa com defeito pode errar.
+- **Sessão da queda:** a sessão aberta mais recente cujo boot (medido pela própria sessão) é anterior ao 41 e não anterior ao boot da queda anterior.
+- **Estimativa da queda:** último quadro (`LastFrame`); se a máquina estava entrando/saindo da suspensão, `LastFrameBeforeSleep` (limite inferior); se o Windows ainda estava vivo depois do último quadro, o coletor já tinha parado e vale o 6008 (`LastAliveEventLog`, também limite inferior); sem nada, `Unknown`.
+- **6008 de cada queda:** o escrito no mesmo boot, pareado por ordem de registro (fica entre o 41 anterior e o 41 dele), nunca só por proximidade de horário.
+- **Eventos relacionados:** de 10 min antes da estimativa (ou 40 min antes do 41, sem estimativa) até 2 min depois do 41, **recortados nas quedas vizinhas**: 6005/6006/6008, 1074/1076, BugCheck 1001, Kernel-Power 41/42/107/109 e WHEA.
+- **Atomicidade:** o incidente e o fechamento da sessão que caiu são gravados na mesma transação. Uma queda que falha ao importar não impede as outras e é tentada de novo no próximo início.
+- **Retenção:** os 120 s antes do fim da telemetria de cada incidente nunca são apagados, em todos os segmentos da sessão.
 - Falha na detecção é registrada (EventId 1201) e a amostragem começa mesmo assim.
 
 ## Motor de diagnóstico (Plano 04)

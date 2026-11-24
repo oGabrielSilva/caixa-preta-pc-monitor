@@ -41,7 +41,7 @@ public sealed class SqliteRetentionStore(SqliteDatabase database) : IRetentionSt
         return pending.Count;
     }
 
-    public int DeleteFramesBefore(DateTimeOffset cutoff)
+    public int DeleteFramesBefore(DateTimeOffset cutoff, TimeSpan incidentWindow)
     {
         using var connection = database.OpenWriter();
         var total = 0;
@@ -50,7 +50,12 @@ public sealed class SqliteRetentionStore(SqliteDatabase database) : IRetentionSt
         {
             deleted = connection.Execute(
                 RetentionSql.DeleteFramesBatch,
-                new { CutoffMs = cutoff.ToUnixTimeMilliseconds(), RetentionSql.IncidentWindowMs, BatchSize = DeleteBatchSize });
+                new
+                {
+                    CutoffMs = cutoff.ToUnixTimeMilliseconds(),
+                    IncidentWindowMs = (long)incidentWindow.TotalMilliseconds,
+                    BatchSize = DeleteBatchSize,
+                });
             total += deleted;
         }
         while (deleted == DeleteBatchSize);

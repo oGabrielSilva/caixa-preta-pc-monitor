@@ -43,8 +43,20 @@ public sealed class UnexpectedShutdownMapperTests
         var shutdown = UnexpectedShutdownMapper.Map(_kernelPower41 with { Data = data }, null);
 
         (shutdown.BugcheckCode, shutdown.SleepInProgress, shutdown.PowerButtonPressedAt, shutdown.LongPowerButtonPress)
-            .ShouldBe((156, true, pressedAt, true));
+            .ShouldBe((156L, true, pressedAt, true));
     }
+
+    [Fact]
+    public void Mapper_keeps_bugcheck_codes_above_the_int_range() =>
+        UnexpectedShutdownMapper.Map(_kernelPower41 with { Data = new Dictionary<string, string> { ["BugcheckCode"] = "3221226010" } }, null)
+            .BugcheckCode.ShouldBe(0xC000021AL);
+
+    [Fact]
+    public void Mapper_ignores_an_out_of_range_power_button_timestamp() =>
+        UnexpectedShutdownMapper.Map(
+                _kernelPower41 with { Data = new Dictionary<string, string> { ["PowerButtonTimestamp"] = long.MaxValue.ToString(System.Globalization.CultureInfo.InvariantCulture) } },
+                null)
+            .PowerButtonPressedAt.ShouldBeNull();
 
     [Fact]
     public void Mapper_tolerates_missing_data() =>

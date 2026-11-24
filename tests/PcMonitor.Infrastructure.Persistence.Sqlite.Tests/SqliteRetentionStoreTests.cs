@@ -20,14 +20,15 @@ public sealed class SqliteRetentionStoreTests : IDisposable
     private readonly TempDatabase _temp = TempDatabase.Migrated();
     private readonly SqliteMonitoringStore _store;
     private readonly SqliteRetentionStore _retention;
+    private readonly long _session;
     private readonly long _segment;
 
     public SqliteRetentionStoreTests()
     {
         _store = new SqliteMonitoringStore(_temp.Database);
         _retention = new SqliteRetentionStore(_temp.Database);
-        var session = _store.StartSession(_minute, _minute, new SensorSourceInfo(SensorSourceStatus.Ok, null, _catalog));
-        _segment = _store.StartSegment(session, _minute, _catalog);
+        _session = _store.StartSession(_minute, _minute, new SensorSourceInfo(SensorSourceStatus.Ok, null, _catalog));
+        _segment = _store.StartSegment(_session, _minute, _catalog);
     }
 
     public void Dispose()
@@ -82,24 +83,29 @@ public sealed class SqliteRetentionStoreTests : IDisposable
     }
 
     [Fact]
-    public void Retention_keeps_the_120_seconds_before_an_incident()
+    public void Retention_keeps_the_120_seconds_before_an_incident_across_segments_of_the_session()
     {
-        for (var second = 0; second < 300; second += 30)
+        // The machine stuttered 60 s before dying: a Gap split the session, so the window spans two segments.
+        for (var second = 0; second < 180; second += 30)
         {
             Frame(_minute.AddSeconds(second), second, second);
         }
 
-        var failure = _minute.AddSeconds(240);
-        new Incidents.SqliteIncidentStore(_temp.Database).SaveIncident(new PcMonitor.Domain.Incidents.Incident(
-            SqliteIncidentStoreTests.Crash(1, failure.AddMinutes(3)), failure, PcMonitor.Domain.Incidents.FailureTimeSource.LastFrame,
-            null, _segment, []));
+        _store.EndSegment(_segment, _minute.AddSeconds(150), EndReason.Gap);
+        var after = _store.StartSegment(_session, _minute.AddSeconds(200), _catalog);
+        _store.AppendFrame(after, new Frame(_minute.AddSeconds(210), [1f, 1f]));
+        _store.AppendFrame(after, new Frame(_minute.AddSeconds(240), [1f, 1f]));
 
-        _retention.DeleteFramesBefore(_minute.AddHours(1));
+        new Incidents.SqliteIncidentStore(_temp.Database).SaveIncident(new PcMonitor.Domain.Incidents.Incident(
+            SqliteIncidentStoreTests.Crash(1, _minute.AddMinutes(10)), _minute.AddSeconds(240),
+            PcMonitor.Domain.Incidents.FailureTimeSource.LastFrame, _session, after, _minute.AddSeconds(240), []), closure: null);
+
+        _retention.DeleteFramesBefore(_minute.AddHours(1), TimeSpan.FromSeconds(120));
 
         using var connection = _temp.Database.OpenReader();
         connection.Query<long>("SELECT ts_ms FROM frame ORDER BY ts_ms")
             .Select(ms => (ms - _minute.ToUnixTimeMilliseconds()) / 1000)
-            .ShouldBe([120L, 150L, 180L, 210L, 240L]);
+            .ShouldBe([120L, 150L, 210L, 240L]);
     }
 
     [Fact]
@@ -108,7 +114,7 @@ public sealed class SqliteRetentionStoreTests : IDisposable
         Frame(_minute, 1f, 1f);
         Frame(_minute.AddSeconds(30), 2f, 2f);
 
-        _retention.DeleteFramesBefore(_minute.AddSeconds(30)).ShouldBe(1);
+        _retention.DeleteFramesBefore(_minute.AddSeconds(30), TimeSpan.FromSeconds(120)).ShouldBe(1);
 
         using var connection = _temp.Database.OpenReader();
         connection.ExecuteScalar<long>("SELECT COUNT(*) FROM frame").ShouldBe(1);

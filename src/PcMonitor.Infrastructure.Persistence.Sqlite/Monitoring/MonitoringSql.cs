@@ -31,8 +31,9 @@ internal static class MonitoringSql
         UPDATE segment SET last_frame_ms = @TimestampMs WHERE id = @SegmentId;
         """;
 
+    /// <summary>Never ends a segment before it started (an empty segment closed at an earlier last frame).</summary>
     public const string EndSegment = """
-        UPDATE segment SET ended_at_ms = @EndedAtMs, end_reason = @Reason WHERE id = @Id;
+        UPDATE segment SET ended_at_ms = MAX(@EndedAtMs, started_at_ms), end_reason = @Reason WHERE id = @Id;
         """;
 
     public const string EndSession = """

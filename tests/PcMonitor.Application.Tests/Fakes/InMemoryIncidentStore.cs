@@ -1,37 +1,42 @@
 using PcMonitor.Application.Incidents;
 using PcMonitor.Domain.Incidents;
-using PcMonitor.Domain.Monitoring;
 
 namespace PcMonitor.Application.Tests.Fakes;
 
-/// <summary>Incident store in memory, keyed like the real one by (record id, logged at).</summary>
-internal sealed class InMemoryIncidentStore : IIncidentStore
+/// <summary>Incident storage in memory; can be told to fail for one shutdown record.</summary>
+internal sealed class InMemoryIncidentStore : IIncidentReader, IIncidentWriter
 {
     public List<OpenSession> Open { get; } = [];
 
-    public List<Incident> Incidents { get; } = [];
+    public List<(Incident Incident, SessionClosure? Closure)> Saved { get; } = [];
 
-    public List<(OpenSession Session, DateTimeOffset At, EndReason Reason)> Ended { get; } = [];
+    public List<SessionClosure> Closed { get; } = [];
 
-    public DateTimeOffset? LatestIncidentLoggedAt() =>
-        Incidents.Count == 0 ? null : Incidents.Max(i => i.Shutdown.LoggedAt);
+    public long? FailOnRecordId { get; set; }
+
+    public IReadOnlyList<Incident> Incidents => [.. Saved.Select(s => s.Incident)];
+
+    public IReadOnlySet<IncidentKey> SavedIncidents() => Saved.Select(s => IncidentKey.Of(s.Incident.Shutdown)).ToHashSet();
 
     public IReadOnlyList<OpenSession> OpenSessions() => [.. Open.OrderBy(s => s.StartedAt)];
 
-    public bool SaveIncident(Incident incident)
+    public void SaveIncident(Incident incident, SessionClosure? closure)
     {
-        if (Incidents.Any(i => i.Shutdown.RecordId == incident.Shutdown.RecordId && i.Shutdown.LoggedAt == incident.Shutdown.LoggedAt))
+        if (incident.Shutdown.RecordId == FailOnRecordId)
         {
-            return false;
+            throw new IOException("database busy");
         }
 
-        Incidents.Add(incident);
-        return true;
+        Saved.Add((incident, closure));
+        if (closure is not null)
+        {
+            Open.Remove(closure.Session);
+        }
     }
 
-    public void EndSession(OpenSession session, DateTimeOffset at, EndReason reason)
+    public void CloseSession(SessionClosure closure)
     {
-        Ended.Add((session, at, reason));
-        Open.Remove(session);
+        Closed.Add(closure);
+        Open.Remove(closure.Session);
     }
 }

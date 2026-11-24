@@ -14,15 +14,31 @@ public static class UnexpectedShutdownMapper
         return new UnexpectedShutdown(
             kernelPower41.RecordId,
             kernelPower41.LoggedAt,
-            BugcheckCode: (int)Number(data, "BugcheckCode"),
+            BugcheckCode: Number(data, "BugcheckCode"),
             SleepInProgress: Number(data, "SleepInProgress") != 0,
-            PowerButtonPressedAt: Number(data, "PowerButtonTimestamp") is var fileTime and > 0
-                ? DateTimeOffset.FromFileTime(fileTime).ToUniversalTime()
-                : null,
+            PowerButtonPressedAt: FromFileTime(Number(data, "PowerButtonTimestamp")),
             LongPowerButtonPress: data.TryGetValue("LongPowerButtonPressDetected", out var longPress)
                 && bool.TryParse(longPress, out var pressed) && pressed,
             LastAliveAt: LastAliveTime.FromBinary(eventLog6008?.Data.GetValueOrDefault("Binary")),
             data);
+    }
+
+    /// <summary>FILETIME (100 ns since 1601) as UTC; <c>null</c> for 0 or a value outside the valid range.</summary>
+    private static DateTimeOffset? FromFileTime(long fileTime)
+    {
+        if (fileTime <= 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            return DateTimeOffset.FromFileTime(fileTime).ToUniversalTime();
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return null;
+        }
     }
 
     private static long Number(IReadOnlyDictionary<string, string> data, string name) =>

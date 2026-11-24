@@ -17,18 +17,17 @@ internal static class EventLogQueries
         $" or (Provider[@Name='{KernelPower}'] and (EventID=41 or EventID=42 or EventID=107 or EventID=109))" +
         " or Provider[@Name='Microsoft-Windows-WHEA-Logger']";
 
-    public static string UnexpectedShutdowns(DateTimeOffset? after) =>
-        $"*[System[Provider[@Name='{KernelPower}'] and EventID=41{After(after)}]]";
+    public const string UnexpectedShutdowns = $"*[System[Provider[@Name='{KernelPower}'] and EventID=41]]";
 
-    public static string ShutdownReports(DateTimeOffset? after) =>
-        $"*[System[Provider[@Name='EventLog'] and EventID=6008{After(after)}]]";
+    public const string ShutdownReports = "*[System[Provider[@Name='EventLog'] and EventID=6008]]";
 
     public static string Related(DateTimeOffset since, DateTimeOffset until) =>
         $"*[System[TimeCreated[@SystemTime>='{Format(since)}' and @SystemTime<='{Format(until)}'] and ({RelatedEvents})]]";
 
-    private static string After(DateTimeOffset? after) =>
-        after is { } time ? $" and TimeCreated[@SystemTime>'{Format(time)}']" : string.Empty;
-
+    /// <summary>
+    /// ISO 8601 with 7 fractional digits. The event log compares <c>SystemTime</c> at millisecond precision, so bounds
+    /// behave as if truncated to the millisecond.
+    /// </summary>
     private static string Format(DateTimeOffset time) =>
         time.UtcDateTime.ToString("yyyy-MM-dd'T'HH:mm:ss.fffffff'Z'", CultureInfo.InvariantCulture);
 }

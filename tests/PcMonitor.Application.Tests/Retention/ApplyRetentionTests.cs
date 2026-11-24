@@ -15,9 +15,9 @@ public sealed class ApplyRetentionTests
             return 3;
         }
 
-        public int DeleteFramesBefore(DateTimeOffset cutoff)
+        public int DeleteFramesBefore(DateTimeOffset cutoff, TimeSpan incidentWindow)
         {
-            Calls.Add($"delete<{cutoff:O}");
+            Calls.Add($"delete<{cutoff:O} keep {incidentWindow.TotalSeconds}s");
             return 120;
         }
     }
@@ -28,12 +28,12 @@ public sealed class ApplyRetentionTests
         var now = new DateTimeOffset(2026, 11, 24, 12, 34, 56, TimeSpan.Zero);
         var store = new RecordingRetentionStore();
 
-        var result = new ApplyRetention(store, new RetentionPolicy(TimeSpan.FromDays(14)), new FakeTimeProvider(now)).Run();
+        var result = new ApplyRetention(store, new RetentionPolicy(TimeSpan.FromDays(14), TimeSpan.FromSeconds(120)), new FakeTimeProvider(now)).Run();
 
         store.Calls.ShouldBe(
         [
             "aggregate<2026-11-24T12:34:00.0000000+00:00",
-            "delete<2026-11-10T12:34:56.0000000+00:00",
+            "delete<2026-11-10T12:34:56.0000000+00:00 keep 120s",
         ]);
         result.ShouldBe(new RetentionResult(MinutesAggregated: 3, FramesDeleted: 120));
     }

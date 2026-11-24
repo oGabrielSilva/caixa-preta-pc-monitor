@@ -9,7 +9,7 @@ public sealed class ApplyRetention(IRetentionStore store, RetentionPolicy policy
         var currentMinute = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, TimeSpan.Zero);
 
         var minutes = store.AggregateMinutesBefore(currentMinute);
-        var deleted = store.DeleteFramesBefore(now - policy.RawRetention);
+        var deleted = store.DeleteFramesBefore(now - policy.RawRetention, policy.IncidentWindow);
         return new RetentionResult(minutes, deleted);
     }
 }

@@ -5,7 +5,7 @@ namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests;
 
 public sealed class SchemaMigratorTests
 {
-    private const int LatestVersion = 3;
+    private const int LatestVersion = 4;
 
     [Fact]
     public void Migrate_creates_the_schema_and_sets_user_version()

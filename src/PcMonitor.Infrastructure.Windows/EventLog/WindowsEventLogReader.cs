@@ -7,27 +7,14 @@ namespace PcMonitor.Infrastructure.Windows.EventLog;
 /// <summary><see cref="ISystemEventLog"/> on the Windows System log (read-only).</summary>
 public sealed class WindowsEventLogReader : ISystemEventLog
 {
-    /// <summary>The 6008 written at the same boot as a 41 is logged within seconds of it.</summary>
-    private static readonly TimeSpan _sameBoot = TimeSpan.FromMinutes(2);
-
-    public IReadOnlyList<UnexpectedShutdown> ReadUnexpectedShutdowns(DateTimeOffset? after)
-    {
-        var shutdowns = Query(EventLogQueries.UnexpectedShutdowns(after));
-        if (shutdowns.Count == 0)
-        {
-            return [];
-        }
-
-        var reports = Query(EventLogQueries.ShutdownReports(after - _sameBoot));
-        return [.. shutdowns
-            .OrderBy(e => e.LoggedAt)
-            .Select(e => UnexpectedShutdownMapper.Map(
-                e, reports.FirstOrDefault(r => (r.LoggedAt - e.LoggedAt).Duration() <= _sameBoot)))];
-    }
+    public IReadOnlyList<UnexpectedShutdown> ReadUnexpectedShutdowns() =>
+        [.. ShutdownReportPairing.Pair(Query(EventLogQueries.UnexpectedShutdowns), Query(EventLogQueries.ShutdownReports))
+            .Select(pair => UnexpectedShutdownMapper.Map(pair.Shutdown, pair.Report))];
 
     public IReadOnlyList<SystemEvent> ReadRelated(DateTimeOffset since, DateTimeOffset until) =>
         [.. Query(EventLogQueries.Related(since, until)).OrderBy(e => e.LoggedAt)];
 
+    /// <summary>Records that cannot be parsed are skipped: one malformed entry must not hide every other one.</summary>
     private static List<SystemEvent> Query(string xpath)
     {
         var events = new List<SystemEvent>();
@@ -36,7 +23,14 @@ public sealed class WindowsEventLogReader : ISystemEventLog
         {
             using (record)
             {
-                events.Add(EventXml.Parse(record.ToXml()));
+                try
+                {
+                    events.Add(EventXml.Parse(record.ToXml()));
+                }
+                catch (Exception exception) when (exception is FormatException or OverflowException or System.Xml.XmlException)
+                {
+                    // Skip the malformed record.
+                }
             }
         }
 

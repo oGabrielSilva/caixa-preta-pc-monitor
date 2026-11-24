@@ -42,7 +42,9 @@ internal static class CollectorServiceCollectionExtensions
         services.AddSingleton<IRetentionStore, SqliteRetentionStore>();
         services.AddSingleton<ISensorSource, LhmSensorSource>();
         services.AddSingleton<ISystemEventLog, WindowsEventLogReader>();
-        services.AddSingleton<IIncidentStore, SqliteIncidentStore>();
+        services.AddSingleton<SqliteIncidentStore>();
+        services.AddSingleton<IIncidentReader>(sp => sp.GetRequiredService<SqliteIncidentStore>());
+        services.AddSingleton<IIncidentWriter>(sp => sp.GetRequiredService<SqliteIncidentStore>());
         services.AddSingleton<DetectIncidents>();
         services.AddSingleton<StartupIncidentDetection>();
 
@@ -53,7 +55,7 @@ internal static class CollectorServiceCollectionExtensions
             sp.GetRequiredService<ILogger<MonitoringRecorder>>(),
             Options(sp).GapThreshold,
             static () => TimeSpan.FromMilliseconds(Environment.TickCount64)));
-        services.AddSingleton(sp => new RetentionPolicy(Options(sp).RawRetention));
+        services.AddSingleton(sp => new RetentionPolicy(Options(sp).RawRetention, RetentionPolicy.DefaultIncidentWindow));
         services.AddSingleton<ApplyRetention>();
 
         services.AddSingleton<IProcessTerminator, FailFastTerminator>();

@@ -12,8 +12,7 @@ internal sealed class FakeSystemEventLog : ISystemEventLog
 
     public List<(DateTimeOffset Since, DateTimeOffset Until)> RelatedQueries { get; } = [];
 
-    public IReadOnlyList<UnexpectedShutdown> ReadUnexpectedShutdowns(DateTimeOffset? after) =>
-        [.. Shutdowns.Where(s => after is null || s.LoggedAt > after).OrderBy(s => s.LoggedAt)];
+    public IReadOnlyList<UnexpectedShutdown> ReadUnexpectedShutdowns() => [.. Shutdowns.OrderBy(s => s.RecordId)];
 
     public IReadOnlyList<SystemEvent> ReadRelated(DateTimeOffset since, DateTimeOffset until)
     {

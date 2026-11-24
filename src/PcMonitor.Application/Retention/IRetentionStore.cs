@@ -7,7 +7,10 @@ public interface IRetentionStore
     /// <returns>Number of minutes aggregated.</returns>
     int AggregateMinutesBefore(DateTimeOffset cutoff);
 
-    /// <summary>Deletes raw frames older than <paramref name="cutoff"/>.</summary>
+    /// <summary>
+    /// Deletes raw frames older than <paramref name="cutoff"/>, except those within <paramref name="incidentWindow"/>
+    /// before the end of an incident's telemetry.
+    /// </summary>
     /// <returns>Number of frames deleted.</returns>
-    int DeleteFramesBefore(DateTimeOffset cutoff);
+    int DeleteFramesBefore(DateTimeOffset cutoff, TimeSpan incidentWindow);
 }

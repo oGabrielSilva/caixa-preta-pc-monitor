@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using PcMonitor.Application.Incidents;
 using PcMonitor.Collector.Hosting;
 using PcMonitor.Domain.Incidents;
-using PcMonitor.Domain.Monitoring;
 
 namespace PcMonitor.Collector.Tests.Hosting;
 
@@ -11,21 +10,23 @@ public sealed class StartupIncidentDetectionTests
 {
     private sealed class BrokenEventLog : ISystemEventLog
     {
-        public IReadOnlyList<UnexpectedShutdown> ReadUnexpectedShutdowns(DateTimeOffset? after) =>
+        public IReadOnlyList<UnexpectedShutdown> ReadUnexpectedShutdowns() =>
             throw new UnauthorizedAccessException("event log unavailable");
 
         public IReadOnlyList<SystemEvent> ReadRelated(DateTimeOffset since, DateTimeOffset until) => [];
     }
 
-    private sealed class EmptyStore : IIncidentStore
+    private sealed class EmptyStore : IIncidentReader, IIncidentWriter
     {
-        public DateTimeOffset? LatestIncidentLoggedAt() => null;
+        public IReadOnlySet<IncidentKey> SavedIncidents() => new HashSet<IncidentKey>();
 
         public IReadOnlyList<OpenSession> OpenSessions() => [];
 
-        public bool SaveIncident(Incident incident) => true;
+        public void SaveIncident(Incident incident, SessionClosure? closure)
+        {
+        }
 
-        public void EndSession(OpenSession session, DateTimeOffset at, EndReason reason)
+        public void CloseSession(SessionClosure closure)
         {
         }
     }
@@ -34,7 +35,7 @@ public sealed class StartupIncidentDetectionTests
     public void Startup_detection_logs_and_continues_when_detection_throws()
     {
         var detection = new StartupIncidentDetection(
-            new DetectIncidents(new BrokenEventLog(), new EmptyStore(), NullLogger<DetectIncidents>.Instance),
+            new DetectIncidents(new BrokenEventLog(), new EmptyStore(), new EmptyStore(), NullLogger<DetectIncidents>.Instance),
             NullLogger<StartupIncidentDetection>.Instance);
 
         detection.Run().ShouldBeNull();
@@ -46,7 +47,8 @@ public sealed class StartupIncidentDetectionTests
         var services = new ServiceCollection().AddCollector().Select(d => d.ServiceType).ToList();
 
         services.ShouldContain(typeof(ISystemEventLog));
-        services.ShouldContain(typeof(IIncidentStore));
+        services.ShouldContain(typeof(IIncidentReader));
+        services.ShouldContain(typeof(IIncidentWriter));
         services.ShouldContain(typeof(DetectIncidents));
         services.ShouldContain(typeof(StartupIncidentDetection));
     }

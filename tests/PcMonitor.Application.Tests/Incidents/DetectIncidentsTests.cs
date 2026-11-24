@@ -19,20 +19,38 @@ public sealed class DetectIncidentsTests
         new(record, loggedAt, BugcheckCode: 0, sleeping, PowerButtonPressedAt: null, LongPowerButtonPress: false, lastAlive,
             new Dictionary<string, string>());
 
-    private DetectionResult Detect() => new DetectIncidents(_eventLog, _store, NullLogger<DetectIncidents>.Instance).Run();
+    /// <summary>A session of the boot at <paramref name="bootedAt"/>, started a minute later.</summary>
+    private static OpenSession Session(long id, DateTimeOffset bootedAt, DateTimeOffset? lastFrame, long segment = 4, long? open = 4) =>
+        new(id, bootedAt.AddMinutes(1), bootedAt, segment, open, lastFrame);
+
+    private DetectionResult Detect() => new DetectIncidents(_eventLog, _store, _store, NullLogger<DetectIncidents>.Instance).Run();
 
     [Fact]
     public void Crash_with_an_open_session_uses_the_last_frame_as_failure_time()
     {
-        _store.Open.Add(new OpenSession(1, At(13, 0), LastSegmentId: 4, OpenSegmentId: 4, LastFrameAt: At(13, 50, 30)));
-        _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38), lastAlive: At(13, 50, 34)));
+        _store.Open.Add(Session(1, At(13, 0), lastFrame: At(13, 50, 30)));
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38), lastAlive: At(13, 40)));
 
         Detect().ShouldBe(new DetectionResult(Incidents: 1, WithTelemetry: 1, AbnormalSessions: 0));
 
         var incident = _store.Incidents.ShouldHaveSingleItem();
         incident.EstimatedFailureAt.ShouldBe(At(13, 50, 30));
         incident.FailureTimeSource.ShouldBe(FailureTimeSource.LastFrame);
-        (incident.SessionId, incident.SegmentId).ShouldBe((1L, 4L));
+        (incident.SessionId, incident.SegmentId, incident.TelemetryEndAt).ShouldBe((1L, 4L, At(13, 50, 30)));
+    }
+
+    [Fact]
+    public void Incident_and_the_closure_of_its_session_are_saved_together()
+    {
+        var session = Session(1, At(13, 0), lastFrame: At(13, 50, 30));
+        _store.Open.Add(session);
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38)));
+
+        Detect();
+
+        _store.Saved.ShouldHaveSingleItem().Closure
+            .ShouldBe(new SessionClosure(session, At(13, 50, 30), EndReason.UnexpectedShutdown));
+        _store.Closed.ShouldBeEmpty();
     }
 
     [Fact]
@@ -42,11 +60,10 @@ public sealed class DetectIncidentsTests
 
         Detect();
 
-        var incident = _store.Incidents.ShouldHaveSingleItem();
+        var (incident, closure) = _store.Saved.ShouldHaveSingleItem();
         incident.EstimatedFailureAt.ShouldBe(At(13, 50, 34));
         incident.FailureTimeSource.ShouldBe(FailureTimeSource.LastAliveEventLog);
-        incident.SessionId.ShouldBeNull();
-        incident.SegmentId.ShouldBeNull();
+        (incident.SessionId, incident.SegmentId, incident.TelemetryEndAt, closure).ShouldBe((null, null, null, null));
     }
 
     [Fact]
@@ -62,21 +79,38 @@ public sealed class DetectIncidentsTests
     }
 
     [Fact]
-    public void Crashed_session_is_ended_as_UnexpectedShutdown_at_its_last_frame()
+    public void Collector_that_stopped_before_the_crash_does_not_claim_the_failure_time()
     {
-        var session = new OpenSession(1, At(13, 0), 4, 4, At(13, 50, 30));
-        _store.Open.Add(session);
-        _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38)));
+        // Last frame at 09:00, but Windows was still alive at 13:40: the collector was not recording when it failed.
+        _store.Open.Add(Session(1, At(8, 0), lastFrame: At(9, 0)));
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38), lastAlive: At(13, 40)));
 
-        Detect();
+        Detect().WithTelemetry.ShouldBe(1);
 
-        _store.Ended.ShouldHaveSingleItem().ShouldBe((session, At(13, 50, 30), EndReason.UnexpectedShutdown));
+        var incident = _store.Incidents.ShouldHaveSingleItem();
+        incident.EstimatedFailureAt.ShouldBe(At(13, 40));
+        incident.FailureTimeSource.ShouldBe(FailureTimeSource.LastAliveEventLog);
+        incident.TelemetryEndAt.ShouldBe(At(9, 0));
     }
 
     [Fact]
-    public void Two_crashes_and_one_open_session_give_telemetry_only_to_the_first_crash_after_the_session_started()
+    public void Crash_during_sleep_is_marked_as_after_the_last_frame_before_sleep()
     {
-        _store.Open.Add(new OpenSession(1, At(13, 0), 4, 4, At(13, 20)));
+        _store.Open.Add(Session(1, At(13, 0), lastFrame: At(22, 0), segment: 7, open: null));
+        _eventLog.Shutdowns.Add(Crash(10, At(23, 30), sleeping: true));
+
+        Detect();
+
+        var incident = _store.Incidents.ShouldHaveSingleItem();
+        (incident.SegmentId, incident.EstimatedFailureAt, incident.FailureTimeSource)
+            .ShouldBe((7L, At(22, 0), FailureTimeSource.LastFrameBeforeSleep));
+        incident.Shutdown.SleepInProgress.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Second_crash_before_the_collector_started_again_gets_no_telemetry()
+    {
+        _store.Open.Add(Session(1, At(13, 0), lastFrame: At(13, 20)));
         _eventLog.Shutdowns.Add(Crash(10, At(13, 25)));
         _eventLog.Shutdowns.Add(Crash(11, At(13, 30), lastAlive: At(13, 26)));
 
@@ -84,20 +118,22 @@ public sealed class DetectIncidentsTests
 
         _store.Incidents[0].SessionId.ShouldBe(1);
         _store.Incidents[1].SessionId.ShouldBeNull();
-        _store.Incidents[1].FailureTimeSource.ShouldBe(FailureTimeSource.LastAliveEventLog);
     }
 
     [Fact]
-    public void Crash_during_sleep_uses_the_last_closed_segment_and_keeps_SleepInProgress()
+    public void Session_from_a_boot_before_an_earlier_crash_is_not_linked_to_a_later_crash()
     {
-        _store.Open.Add(new OpenSession(1, At(13, 0), LastSegmentId: 7, OpenSegmentId: null, LastFrameAt: At(22, 0)));
-        _eventLog.Shutdowns.Add(Crash(10, At(23, 30), sleeping: true));
+        // Crash 10 is already saved and its session closed; an older session left open (booted 12:00) must not be
+        // taken by crash 11, which happened in a later boot (13:25).
+        _store.Saved.Add((new Incident(Crash(10, At(13, 25)), null, FailureTimeSource.Unknown, null, null, null, []), null));
+        _store.Open.Add(Session(1, At(12, 0), lastFrame: At(12, 30)));
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 25)));
+        _eventLog.Shutdowns.Add(Crash(11, At(13, 30)));
 
-        Detect();
+        Detect().ShouldBe(new DetectionResult(Incidents: 1, WithTelemetry: 0, AbnormalSessions: 1));
 
-        var incident = _store.Incidents.ShouldHaveSingleItem();
-        incident.SegmentId.ShouldBe(7);
-        incident.Shutdown.SleepInProgress.ShouldBeTrue();
+        _store.Incidents[^1].SessionId.ShouldBeNull();
+        _store.Closed.ShouldHaveSingleItem().Reason.ShouldBe(EndReason.Abnormal);
     }
 
     [Fact]
@@ -105,24 +141,24 @@ public sealed class DetectIncidentsTests
     {
         Detect().ShouldBe(new DetectionResult(0, 0, 0));
 
-        _store.Incidents.ShouldBeEmpty();
-        _store.Ended.ShouldBeEmpty();
+        _store.Saved.ShouldBeEmpty();
+        _store.Closed.ShouldBeEmpty();
     }
 
     [Fact]
     public void Open_session_without_a_crash_event_is_ended_as_Abnormal()
     {
-        var session = new OpenSession(1, At(13, 0), 4, 4, LastFrameAt: null);
+        var session = Session(1, At(13, 0), lastFrame: null);
         _store.Open.Add(session);
 
         Detect().AbnormalSessions.ShouldBe(1);
 
-        _store.Ended.ShouldHaveSingleItem().ShouldBe((session, At(13, 0), EndReason.Abnormal));
-        _store.Incidents.ShouldBeEmpty();
+        _store.Closed.ShouldHaveSingleItem().ShouldBe(new SessionClosure(session, session.StartedAt, EndReason.Abnormal));
+        _store.Saved.ShouldBeEmpty();
     }
 
     [Fact]
-    public void Already_saved_crashes_are_not_saved_again()
+    public void Already_saved_crashes_are_skipped_before_matching_sessions()
     {
         _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38)));
         Detect();
@@ -133,9 +169,34 @@ public sealed class DetectIncidentsTests
     }
 
     [Fact]
+    public void Crash_logged_with_an_earlier_clock_than_saved_ones_is_still_imported()
+    {
+        // RTC reset: the newer event (record 11) carries an older timestamp.
+        _store.Saved.Add((new Incident(Crash(10, At(13, 0)), null, FailureTimeSource.Unknown, null, null, null, []), null));
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 0)));
+        _eventLog.Shutdowns.Add(Crash(11, _day.AddYears(-6)));
+
+        Detect().Incidents.ShouldBe(1);
+
+        _store.Incidents[^1].Shutdown.RecordId.ShouldBe(11);
+    }
+
+    [Fact]
+    public void Session_without_frames_is_linked_but_not_counted_as_telemetry()
+    {
+        _store.Open.Add(Session(1, At(13, 0), lastFrame: null));
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38), lastAlive: At(13, 50)));
+
+        Detect().ShouldBe(new DetectionResult(Incidents: 1, WithTelemetry: 0, AbnormalSessions: 0));
+
+        var incident = _store.Incidents.ShouldHaveSingleItem();
+        (incident.SessionId, incident.TelemetryEndAt, incident.FailureTimeSource).ShouldBe((1L, null, FailureTimeSource.LastAliveEventLog));
+    }
+
+    [Fact]
     public void Related_events_are_read_from_ten_minutes_before_the_estimate_to_two_minutes_after_the_event()
     {
-        _store.Open.Add(new OpenSession(1, At(13, 0), 4, 4, At(13, 50, 30)));
+        _store.Open.Add(Session(1, At(13, 0), lastFrame: At(13, 50, 30)));
         _eventLog.Shutdowns.Add(Crash(10, At(13, 54, 38)));
         _eventLog.Events.Add(new SystemEvent("Microsoft-Windows-WHEA-Logger", 18, 99, At(13, 50, 29), 2, new Dictionary<string, string>()));
 
@@ -153,5 +214,30 @@ public sealed class DetectIncidentsTests
         Detect();
 
         _eventLog.RelatedQueries.ShouldHaveSingleItem().ShouldBe((At(13, 14, 38), At(13, 56, 38)));
+    }
+
+    [Fact]
+    public void Related_event_windows_stop_at_the_neighbouring_crashes()
+    {
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 0)));
+        _eventLog.Shutdowns.Add(Crash(11, At(13, 5)));
+        _eventLog.Shutdowns.Add(Crash(12, At(13, 6)));
+
+        Detect();
+
+        var tick = TimeSpan.FromTicks(1);
+        _eventLog.RelatedQueries[1].ShouldBe((At(13, 0) + tick, At(13, 6) - tick));
+    }
+
+    [Fact]
+    public void A_crash_that_fails_to_save_does_not_stop_the_others()
+    {
+        _store.FailOnRecordId = 10;
+        _eventLog.Shutdowns.Add(Crash(10, At(13, 0)));
+        _eventLog.Shutdowns.Add(Crash(11, At(14, 0)));
+
+        Detect().Incidents.ShouldBe(1);
+
+        _store.Incidents.ShouldHaveSingleItem().Shutdown.RecordId.ShouldBe(11);
     }
 }

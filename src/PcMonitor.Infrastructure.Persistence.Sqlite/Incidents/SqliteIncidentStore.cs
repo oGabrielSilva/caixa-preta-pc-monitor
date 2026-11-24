@@ -1,18 +1,25 @@
 using System.Text.Json;
 using Dapper;
+using Microsoft.Data.Sqlite;
 using PcMonitor.Application.Incidents;
 using PcMonitor.Domain.Incidents;
-using PcMonitor.Domain.Monitoring;
+using PcMonitor.Infrastructure.Persistence.Sqlite.Monitoring;
 
 namespace PcMonitor.Infrastructure.Persistence.Sqlite.Incidents;
 
-/// <summary><see cref="IIncidentStore"/> on SQLite. Used once per collector start, so it opens a connection per call.</summary>
-public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentStore
+/// <summary>
+/// Incident storage on SQLite. Used once per collector start, so it opens a connection per call. Saving an incident
+/// and ending the session that went down happen in one transaction: the database never says a session both crashed
+/// and died abnormally.
+/// </summary>
+public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentReader, IIncidentWriter
 {
-    public DateTimeOffset? LatestIncidentLoggedAt()
+    public IReadOnlySet<IncidentKey> SavedIncidents()
     {
         using var connection = database.OpenWriter();
-        return connection.ExecuteScalar<long?>(IncidentSql.LatestLoggedAt) is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : null;
+        return connection.Query<(long RecordId, long LoggedAtMs)>(IncidentSql.SavedKeys)
+            .Select(row => new IncidentKey(row.RecordId, DateTimeOffset.FromUnixTimeMilliseconds(row.LoggedAtMs)))
+            .ToHashSet();
     }
 
     public IReadOnlyList<OpenSession> OpenSessions()
@@ -21,12 +28,13 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentStor
         return [.. connection.Query<OpenSessionRow>(IncidentSql.OpenSessions).Select(row => new OpenSession(
             row.SessionId,
             DateTimeOffset.FromUnixTimeMilliseconds(row.StartedAtMs),
+            DateTimeOffset.FromUnixTimeMilliseconds(row.BootedAtMs),
             row.LastSegmentId,
             row.OpenSegmentId,
-            row.LastFrameMs is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : null))];
+            FromMs(row.LastFrameMs)))];
     }
 
-    public bool SaveIncident(Incident incident)
+    public void SaveIncident(Incident incident, SessionClosure? closure)
     {
         ArgumentNullException.ThrowIfNull(incident);
         var shutdown = incident.Shutdown;
@@ -41,6 +49,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentStor
             FailureTimeSource = incident.FailureTimeSource.ToString(),
             incident.SessionId,
             incident.SegmentId,
+            TelemetryEndMs = incident.TelemetryEndAt?.ToUnixTimeMilliseconds(),
             shutdown.BugcheckCode,
             shutdown.SleepInProgress,
             PowerButtonMs = shutdown.PowerButtonPressedAt?.ToUnixTimeMilliseconds(),
@@ -51,7 +60,7 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentStor
 
         if (incidentId is null)
         {
-            return false;
+            return; // Already saved: its session was closed with it.
         }
 
         foreach (var related in incident.RelatedEvents)
@@ -68,25 +77,37 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentStor
             }, transaction);
         }
 
-        transaction.Commit();
-        return true;
-    }
-
-    public void EndSession(OpenSession session, DateTimeOffset at, EndReason reason)
-    {
-        ArgumentNullException.ThrowIfNull(session);
-        using var connection = database.OpenWriter();
-        using var transaction = connection.BeginTransaction();
-        var parameters = new { session.SessionId, SegmentId = session.OpenSegmentId, AtMs = at.ToUnixTimeMilliseconds(), Reason = reason.ToString() };
-
-        if (session.OpenSegmentId is not null)
+        if (closure is not null)
         {
-            connection.Execute(IncidentSql.EndSegment, parameters, transaction);
+            Close(connection, transaction, closure);
         }
 
-        connection.Execute(IncidentSql.EndSession, parameters, transaction);
         transaction.Commit();
     }
+
+    public void CloseSession(SessionClosure closure)
+    {
+        ArgumentNullException.ThrowIfNull(closure);
+        using var connection = database.OpenWriter();
+        using var transaction = connection.BeginTransaction();
+        Close(connection, transaction, closure);
+        transaction.Commit();
+    }
+
+    private static void Close(SqliteConnection connection, SqliteTransaction transaction, SessionClosure closure)
+    {
+        var endedAtMs = closure.At.ToUnixTimeMilliseconds();
+        var reason = closure.Reason.ToString();
+        if (closure.Session.OpenSegmentId is { } segmentId)
+        {
+            connection.Execute(MonitoringSql.EndSegment, new { Id = segmentId, EndedAtMs = endedAtMs, Reason = reason }, transaction);
+        }
+
+        connection.Execute(MonitoringSql.EndSession, new { Id = closure.Session.SessionId, EndedAtMs = endedAtMs, Reason = reason }, transaction);
+    }
+
+    private static DateTimeOffset? FromMs(long? milliseconds) =>
+        milliseconds is { } ms ? DateTimeOffset.FromUnixTimeMilliseconds(ms) : null;
 
     // Settable properties instead of a positional record: Dapper cannot match constructor types for computed
     // columns when the query returns no rows (see SqliteRetentionStore).
@@ -95,6 +116,8 @@ public sealed class SqliteIncidentStore(SqliteDatabase database) : IIncidentStor
         public long SessionId { get; init; }
 
         public long StartedAtMs { get; init; }
+
+        public long BootedAtMs { get; init; }
 
         public long? LastSegmentId { get; init; }
 
