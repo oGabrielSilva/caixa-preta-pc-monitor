@@ -1,0 +1,24 @@
+{
+  "app": {
+    "title": "PC Monitor"
+  },
+  "nav": {
+    "live": "Live",
+    "incidents": "Incidents",
+    "history": "History"
+  },
+  "pages": {
+    "live": {
+      "description": "Current temperature, voltage, power and load readings."
+    },
+    "incidents": {
+      "description": "Every unexpected shutdown, with the seconds that led up to it."
+    },
+    "history": {
+      "description": "Sensors over time."
+    }
+  },
+  "placeholder": {
+    "title": "Under construction"
+  }
+}

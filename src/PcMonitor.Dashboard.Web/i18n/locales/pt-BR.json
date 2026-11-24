@@ -1,0 +1,24 @@
+{
+  "app": {
+    "title": "PC Monitor"
+  },
+  "nav": {
+    "live": "Ao vivo",
+    "incidents": "Incidentes",
+    "history": "Histórico"
+  },
+  "pages": {
+    "live": {
+      "description": "Leituras atuais de temperatura, tensão, consumo e carga."
+    },
+    "incidents": {
+      "description": "Cada desligamento inesperado, com os segundos que o antecederam."
+    },
+    "history": {
+      "description": "Sensores ao longo do tempo."
+    }
+  },
+  "placeholder": {
+    "title": "Em construção"
+  }
+}
