@@ -17,4 +17,7 @@ public enum EndReason
 
     /// <summary>The collector ended without recording a reason and Windows reports no crash.</summary>
     Abnormal,
+
+    /// <summary>The machine went down: Windows logged an unexpected shutdown (Kernel-Power 41) at the next boot.</summary>
+    UnexpectedShutdown,
 }
