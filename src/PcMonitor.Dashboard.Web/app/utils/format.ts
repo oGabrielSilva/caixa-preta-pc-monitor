@@ -8,6 +8,16 @@ export function formatNumber(value: number | null | undefined, locale: string, d
     : value.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })
 }
 
+/** Decimal places that make sense for a kind of reading. */
+export function digitsFor(kind: 'Temperature' | 'Voltage' | 'Power' | 'Load' | 'Fan'): number {
+  switch (kind) {
+    case 'Voltage': return 2
+    case 'Fan':
+    case 'Load': return 0
+    default: return 1
+  }
+}
+
 /** `1h14`, `25 min`, `42 s`. */
 export function formatDuration(ms: number): string {
   const seconds = Math.max(0, Math.floor(ms / 1000))

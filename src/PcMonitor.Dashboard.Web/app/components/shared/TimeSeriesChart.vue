@@ -9,12 +9,13 @@ const props = withDefaults(defineProps<{
   height?: number
   compact?: boolean
   format?: (t: number, locale: string) => string
-}>(), { height: 220, compact: false, format: undefined })
+  gapSteps?: number
+}>(), { height: 220, compact: false, format: undefined, gapSteps: 3 })
 
 const { locale } = useI18n()
 
 const rows = computed(() =>
-  toChartRows(props.series, props.stepMs, t => props.format ? props.format(t, locale.value) : formatTime(t, locale.value)))
+  toChartRows(props.series, props.stepMs, t => props.format ? props.format(t, locale.value) : formatTime(t, locale.value), props.gapSteps))
 </script>
 
 <template>

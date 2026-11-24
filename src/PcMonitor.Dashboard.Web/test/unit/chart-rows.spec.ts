@@ -26,4 +26,9 @@ describe('toChartRows', () => {
   it('treats null readings as missing', () => {
     expect(toChartRows({ a: [{ t: t0, v: null }] }, 1000, label)[0]!.a).toBeUndefined()
   })
+  it('can break on a single missing step, as history buckets need', () => {
+    const rows = toChartRows({ a: [{ t: t0, v: 1 }, { t: t0 + 2000, v: 2 }] }, 1000, label, 1.5)
+
+    expect(rows.map(r => r.a)).toEqual([1, undefined, 2])
+  })
 })

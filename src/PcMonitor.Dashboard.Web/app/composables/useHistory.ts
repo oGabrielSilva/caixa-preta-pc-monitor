@@ -20,6 +20,27 @@ export function useHistorySensors() {
   }
 }
 
+/**
+ * The sensor and period shown, kept in the URL query (`?sensor=…&range=…`) so a link can open the history on a given
+ * sensor. Without a sensor in the URL, the first one with a role is shown.
+ */
+export function useHistorySelection(sensors: MaybeRefOrGetter<readonly SensorResponse[]>) {
+  const route = useRoute()
+  const router = useRouter()
+  const update = (query: Record<string, string>) => void router.replace({ query: { ...route.query, ...query } })
+
+  return {
+    sensor: computed({
+      get: () => (typeof route.query.sensor === 'string' ? route.query.sensor : undefined) ?? toValue(sensors)[0]?.key,
+      set: (key: string | undefined) => key && update({ sensor: key }),
+    }),
+    range: computed({
+      get: () => parseRange(route.query.range),
+      set: (range: HistoryRange) => update({ range }),
+    }),
+  }
+}
+
 /** History of one sensor over a period; reloads when either changes. */
 export function useHistory(sensor: MaybeRefOrGetter<string | undefined>, range: MaybeRefOrGetter<HistoryRange>) {
   const { data, status } = useAsyncData(

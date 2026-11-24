@@ -11,6 +11,7 @@ export type FramePoint = Schemas['FramePoint']
 export type HealthResponse = Schemas['HealthResponse']
 export type HistoryRange = Schemas['HistoryRange']
 export type HistoryResponse = Schemas['HistoryResponse']
+export type HistoryBucket = Schemas['BucketResponse']
 export type Hypothesis = NonNullable<Schemas['Hypothesis']>
 export type HypothesisScore = Schemas['HypothesisScoreResponse']
 export type IncidentDetail = Schemas['IncidentDetailResponse']

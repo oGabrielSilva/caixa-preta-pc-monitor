@@ -9,13 +9,15 @@ export interface ChartRow {
 
 /**
  * Merges series by time into chart rows. `UChart` places rows on a point scale by label, so labels are made unique,
- * and a row without values is inserted where consecutive points are more than three steps apart, so the line breaks
- * where nothing was recorded (PC off, collector stopped).
+ * and a row without values is inserted where consecutive points are more than `gapSteps` steps apart, so the line
+ * breaks where nothing was recorded (PC off, collector stopped). Raw frames jitter, so they allow three steps; buckets
+ * are regular, so one missing bucket is already a gap.
  */
 export function toChartRows(
   series: Readonly<Record<string, readonly SeriesPoint[]>>,
   expectedStepMs: number,
   format: (t: number) => string,
+  gapSteps = 3,
 ): ChartRow[] {
   const keys = Object.keys(series)
   const byTime = new Map<number, Record<string, number | undefined>>()
@@ -41,7 +43,7 @@ export function toChartRows(
 
   times.forEach((t, i) => {
     const previous = times[i - 1]
-    if (previous !== undefined && t - previous > 3 * expectedStepMs) {
+    if (previous !== undefined && t - previous > gapSteps * expectedStepMs) {
       const middle = (previous + t) / 2
       rows.push({ label: unique(format(middle)), t: middle, ...Object.fromEntries(keys.map(k => [k, undefined])) })
     }
