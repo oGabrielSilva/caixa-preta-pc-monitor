@@ -2,14 +2,14 @@ using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
-namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests.Support;
+namespace PcMonitor.Tests.Support;
 
 /// <summary>
 /// Denies the current user every kind of write on a folder and the files in it, then restores the ACL on dispose.
 /// Simulates the dashboard's read-only account.
 /// </summary>
 [SupportedOSPlatform("windows")]
-internal sealed class WriteDenied : IDisposable
+public sealed class WriteDenied : IDisposable
 {
     private const FileSystemRights Writes =
         FileSystemRights.WriteData | FileSystemRights.AppendData | FileSystemRights.WriteAttributes |

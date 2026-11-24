@@ -4,7 +4,7 @@ using PcMonitor.Domain.Monitoring;
 using PcMonitor.Domain.Sensors;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Monitoring;
 using PcMonitor.Infrastructure.Persistence.Sqlite.Retention;
-using PcMonitor.Infrastructure.Persistence.Sqlite.Tests.Support;
+using PcMonitor.Tests.Support;
 
 namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests;
 

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="..\..\src\PcMonitor.Infrastructure.Persistence.Sqlite\PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
+    <ProjectReference Include="..\PcMonitor.Tests.Support\PcMonitor.Tests.Support.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" />

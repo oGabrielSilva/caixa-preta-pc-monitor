@@ -1,5 +1,5 @@
 using Dapper;
-using PcMonitor.Infrastructure.Persistence.Sqlite.Tests.Support;
+using PcMonitor.Tests.Support;
 
 namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests;
 

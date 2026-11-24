@@ -1,9 +1,10 @@
 using Microsoft.Data.Sqlite;
+using PcMonitor.Infrastructure.Persistence.Sqlite;
 
-namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests.Support;
+namespace PcMonitor.Tests.Support;
 
 /// <summary>A database file in its own temporary folder, deleted (with its WAL files) on dispose.</summary>
-internal sealed class TempDatabase : IDisposable
+public sealed class TempDatabase : IDisposable
 {
     public TempDatabase()
     {

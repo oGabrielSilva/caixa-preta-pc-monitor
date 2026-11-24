@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using PcMonitor.Infrastructure.Persistence.Sqlite;
 
 namespace PcMonitor.Collector.Configuration;
 
@@ -12,8 +13,7 @@ internal sealed class CollectorOptions : IValidatableObject
 
     /// <summary>Database file. Environment variables such as <c>%ProgramData%</c> are expanded.</summary>
     [Required]
-    public string DatabasePath { get; set; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "PcMonitor", "pcmonitor.db");
+    public string DatabasePath { get; set; } = SqliteDatabase.DefaultPath;
 
     /// <summary>Time between two frames.</summary>
     [Range(typeof(TimeSpan), "00:00:00.200", "00:01:00")]

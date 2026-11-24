@@ -1,15 +1,16 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-  <PropertyGroup>
+  <!-- Only *.Tests projects are test executables; tests/PcMonitor.Tests.Support is a plain library. -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Shouldly" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
     <Using Include="Shouldly" />
     <Using Include="Xunit" />
   </ItemGroup>

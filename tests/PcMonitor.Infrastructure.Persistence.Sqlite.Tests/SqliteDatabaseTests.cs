@@ -1,6 +1,6 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
-using PcMonitor.Infrastructure.Persistence.Sqlite.Tests.Support;
+using PcMonitor.Tests.Support;
 
 namespace PcMonitor.Infrastructure.Persistence.Sqlite.Tests;
 

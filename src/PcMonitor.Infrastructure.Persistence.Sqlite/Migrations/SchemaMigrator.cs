@@ -10,6 +10,9 @@ public sealed class SchemaMigrator(SqliteDatabase database)
 {
     private const string ResourcePrefix = "PcMonitor.Infrastructure.Persistence.Sqlite.Migrations.";
 
+    /// <summary>The schema version this build creates and reads.</summary>
+    public static int LatestVersion { get; } = Scripts().Max(s => s.Version);
+
     /// <summary>Brings the schema up to <paramref name="upTo"/> (default: the latest version) and returns the version.</summary>
     public int Migrate(int upTo = int.MaxValue)
     {

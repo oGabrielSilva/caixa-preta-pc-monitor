@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Shared helpers for test projects. A plain library: tests/Directory.Build.props only turns *.Tests projects
+       into test executables. -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PcMonitor.Infrastructure.Persistence.Sqlite\PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
+  </ItemGroup>
+</Project>

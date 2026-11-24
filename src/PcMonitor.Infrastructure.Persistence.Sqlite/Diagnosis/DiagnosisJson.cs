@@ -28,6 +28,22 @@ internal static class DiagnosisJson
             f.Parameters,
         }), _options);
 
+    public static IReadOnlyList<HypothesisScore> ReadRanking(string json) =>
+        [.. (JsonSerializer.Deserialize<List<StoredScore>>(json, _options) ?? []).Select(s => new HypothesisScore(s.Hypothesis, s.Score))];
+
+    public static IReadOnlyList<Finding> ReadFindings(string json) =>
+        [.. (JsonSerializer.Deserialize<List<StoredFinding>>(json, _options) ?? []).Select(f => f.ToFinding())];
+
     public static Dictionary<string, string> Data(string json) =>
         JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? [];
+
+    private sealed record StoredScore(Hypothesis Hypothesis, int Score);
+
+    /// <summary>Observations and limitations are stored without <c>supports</c> and <c>strength</c>; their defaults match the <see cref="Finding"/> factories.</summary>
+    private sealed record StoredFinding(
+        string Code, FindingKind Kind, Hypothesis? Hypothesis, bool? Supports, EvidenceStrength? Strength, Dictionary<string, string>? Parameters)
+    {
+        public Finding ToFinding() =>
+            new(Code, Kind, Hypothesis, Supports ?? true, Strength ?? EvidenceStrength.Weak, Parameters ?? []);
+    }
 }

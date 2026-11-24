@@ -23,7 +23,23 @@ public sealed class SqliteDatabase(string path)
         PRAGMA busy_timeout = {WriterLockWaitSeconds * 1000};
         """;
 
+    /// <summary>Where the collector keeps the database: <c>%ProgramData%\PcMonitor\pcmonitor.db</c>.</summary>
+    public static string DefaultPath { get; } = System.IO.Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "PcMonitor", "pcmonitor.db");
+
     public string Path { get; } = System.IO.Path.GetFullPath(path);
+
+    /// <summary>The schema version (<c>PRAGMA user_version</c>), read without writing; <c>null</c> when the file does not exist.</summary>
+    public int? SchemaVersion()
+    {
+        if (!File.Exists(Path))
+        {
+            return null;
+        }
+
+        using var connection = OpenReader();
+        return connection.ExecuteScalar<int>("PRAGMA user_version");
+    }
 
     /// <summary>Opens a read-write connection: WAL, <c>synchronous=FULL</c>, foreign keys and persistent WAL.</summary>
     public SqliteConnection OpenWriter()
