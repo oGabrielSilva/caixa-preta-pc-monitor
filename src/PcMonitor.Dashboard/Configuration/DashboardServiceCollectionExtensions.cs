@@ -37,7 +37,12 @@ internal static class DashboardServiceCollectionExtensions
         services.AddSingleton<IHistoryReader, SqliteHistoryReader>();
         services.AddSingleton<LiveFeed>();
         services.AddSingleton<QueryHistory>();
-        services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        services.ConfigureHttpJsonOptions(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            // Numbers are numbers: the web default also accepts strings, which makes every number "number | string" in TypeScript.
+            options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+        });
         services.AddProblemDetails();
         services.AddOpenApi(options => options.AddSchemaTransformer<FindingCodeSchemaTransformer>());
         return builder;

@@ -70,7 +70,6 @@
             "in": "path",
             "required": true,
             "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
               "type": "integer",
               "format": "int64"
             }
@@ -145,11 +144,7 @@
             "name": "segmentId",
             "in": "query",
             "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": "integer",
               "format": "int64"
             }
           },
@@ -157,11 +152,7 @@
             "name": "after",
             "in": "query",
             "schema": {
-              "pattern": "^-?(?:0|[1-9]\\d*)$",
-              "type": [
-                "integer",
-                "string"
-              ],
+              "type": "integer",
               "format": "int64"
             }
           }
@@ -288,35 +279,19 @@
         "type": "object",
         "properties": {
           "t": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int64"
           },
           "min": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "double"
           },
           "avg": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "double"
           },
           "max": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "double"
           }
         },
@@ -342,11 +317,7 @@
         "type": "object",
         "properties": {
           "engineVersion": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "Version of the rules that produced it.",
             "format": "int32"
           },
@@ -392,11 +363,7 @@
             "type": "string"
           },
           "eventId": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           },
           "loggedAt": {
@@ -404,11 +371,7 @@
             "format": "date-time"
           },
           "level": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           }
         },
@@ -527,21 +490,15 @@
         "type": "object",
         "properties": {
           "t": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int64"
           },
           "values": {
             "type": "array",
             "items": {
-              "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
               "type": [
                 "null",
-                "number",
-                "string"
+                "number"
               ],
               "format": "float"
             }
@@ -605,11 +562,7 @@
             "format": "date-time"
           },
           "bucketSeconds": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "Width of each bucket.",
             "format": "int32"
           },
@@ -645,11 +598,7 @@
             "$ref": "#/components/schemas/Hypothesis"
           },
           "score": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int32"
           }
         },
@@ -734,11 +683,7 @@
         "type": "object",
         "properties": {
           "id": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "Incident id.",
             "format": "int64"
           },
@@ -760,20 +705,12 @@
             "$ref": "#/components/schemas/FailureTimeSource"
           },
           "sleepState": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "Power state in transition at the failure: 0 none, 3 sleep, 4 hibernation/Fast Startup.",
             "format": "int32"
           },
           "bugcheckCode": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "description": "Blue screen code; 0 when there was none.",
             "format": "int64"
           },
@@ -854,11 +791,9 @@
             "$ref": "#/components/schemas/LiveEventKind"
           },
           "segmentId": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
             "format": "int64"
           },
@@ -918,11 +853,9 @@
             ]
           },
           "segmentId": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
             "description": "Segment to follow on the stream.",
             "format": "int64"
@@ -960,19 +893,11 @@
         "type": "object",
         "properties": {
           "t": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
-            "type": [
-              "integer",
-              "string"
-            ],
+            "type": "integer",
             "format": "int64"
           },
           "v": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "float"
           }
         },
@@ -994,11 +919,9 @@
             ]
           },
           "status": {
-            "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
               "null",
-              "integer",
-              "string"
+              "integer"
             ],
             "format": "int32"
           },
@@ -1024,19 +947,11 @@
         "type": "object",
         "properties": {
           "min": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "float"
           },
           "max": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
-            "type": [
-              "number",
-              "string"
-            ],
+            "type": "number",
             "format": "float"
           }
         },
@@ -1070,20 +985,16 @@
             ]
           },
           "limit": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "format": "float"
           },
           "critical": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "format": "float"
           },
@@ -1151,21 +1062,17 @@
             ]
           },
           "limit": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "description": "Reading at which to pay attention (CPU at its design limit).",
             "format": "float"
           },
           "critical": {
-            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
             "type": [
               "null",
-              "number",
-              "string"
+              "number"
             ],
             "description": "Reading that is out of range (CPU shutdown zone).",
             "format": "float"

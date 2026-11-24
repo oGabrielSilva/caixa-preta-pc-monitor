@@ -32,4 +32,13 @@ public sealed class OpenApiContractTests
         schemas.GetProperty("IncidentSummaryResponse").GetProperty("properties").GetProperty("observations").GetProperty("items")
             .GetProperty("enum").EnumerateArray().Select(e => e.GetString()).ShouldBe(FindingCodes.All);
     }
+
+    [Fact]
+    public void Numbers_are_plain_numbers_not_strings()
+    {
+        var bucket = Schemas().GetProperty("BucketResponse").GetProperty("properties");
+
+        bucket.GetProperty("t").GetProperty("type").GetString().ShouldBe("integer");
+        bucket.GetProperty("avg").GetProperty("type").GetString().ShouldBe("number");
+    }
 }

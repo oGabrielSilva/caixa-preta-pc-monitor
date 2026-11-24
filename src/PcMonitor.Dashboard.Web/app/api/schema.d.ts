@@ -125,13 +125,13 @@ export interface components {
         /** @description One point of the history chart: `t` (Unix ms) is the start of the bucket. */
         BucketResponse: {
             /** Format: int64 */
-            t: number | string;
+            t: number;
             /** Format: double */
-            min: number | string;
+            min: number;
             /** Format: double */
-            avg: number | string;
+            avg: number;
             /** Format: double */
-            max: number | string;
+            max: number;
         };
         /** @enum {unknown} */
         Confidence: "Inconclusive" | "Low" | "Medium" | "High" | null;
@@ -141,7 +141,7 @@ export interface components {
              * Format: int32
              * @description Version of the rules that produced it.
              */
-            engineVersion: number | string;
+            engineVersion: number;
             /**
              * Format: date-time
              * @description When it was computed.
@@ -158,11 +158,11 @@ export interface components {
         EventResponse: {
             provider: string;
             /** Format: int32 */
-            eventId: number | string;
+            eventId: number;
             /** Format: date-time */
             loggedAt: string;
             /** Format: int32 */
-            level: number | string;
+            level: number;
         };
         /**
          * @description How much a piece of evidence weighs; the value is its score.
@@ -204,8 +204,8 @@ export interface components {
         /** @description One frame: `t` in Unix milliseconds and one value per sensor, in the order of the sensor list (`null` = no reading). */
         FramePoint: {
             /** Format: int64 */
-            t: number | string;
-            values: (null | number | string)[];
+            t: number;
+            values: (null | number)[];
         };
         /** @description Liveness of the dashboard, the version that is running and whether the database can be read. */
         HealthResponse: {
@@ -236,7 +236,7 @@ export interface components {
              * Format: int32
              * @description Width of each bucket.
              */
-            bucketSeconds: number | string;
+            bucketSeconds: number;
             /** @description Oldest first. */
             buckets: components["schemas"]["BucketResponse"][];
         };
@@ -246,7 +246,7 @@ export interface components {
         HypothesisScoreResponse: {
             hypothesis: components["schemas"]["Hypothesis"];
             /** Format: int32 */
-            score: number | string;
+            score: number;
         };
         /** @description Everything about one incident. */
         IncidentDetailResponse: {
@@ -273,7 +273,7 @@ export interface components {
              * Format: int64
              * @description Incident id.
              */
-            id: number | string;
+            id: number;
             /**
              * Format: date-time
              * @description When Windows logged the shutdown (event 41, at the next boot).
@@ -290,12 +290,12 @@ export interface components {
              * Format: int32
              * @description Power state in transition at the failure: 0 none, 3 sleep, 4 hibernation/Fast Startup.
              */
-            sleepState: number | string;
+            sleepState: number;
             /**
              * Format: int64
              * @description Blue screen code; 0 when there was none.
              */
-            bugcheckCode: number | string;
+            bugcheckCode: number;
             /** @description The collector recorded the session the shutdown ended. */
             hasTelemetry: boolean;
             topHypothesis: null | components["schemas"]["Hypothesis"];
@@ -307,7 +307,7 @@ export interface components {
         LiveEvent: {
             kind: components["schemas"]["LiveEventKind"];
             /** Format: int64 */
-            segmentId: null | number | string;
+            segmentId: null | number;
             frames: null | components["schemas"]["FramePoint"][];
             state: null | components["schemas"]["LiveState"];
         };
@@ -325,7 +325,7 @@ export interface components {
              * Format: int64
              * @description Segment to follow on the stream.
              */
-            segmentId: null | number | string;
+            segmentId: null | number;
             /** @description The sensors, in the order of each frame's values. */
             sensors: components["schemas"]["SensorResponse"][];
             /** @description Oldest first. */
@@ -336,24 +336,24 @@ export interface components {
         /** @description One reading: `t` in Unix milliseconds. */
         PointResponse: {
             /** Format: int64 */
-            t: number | string;
+            t: number;
             /** Format: float */
-            v: number | string;
+            v: number;
         };
         ProblemDetails: {
             type?: null | string;
             title?: null | string;
             /** Format: int32 */
-            status?: null | number | string;
+            status?: null | number;
             detail?: null | string;
             instance?: null | string;
         };
         /** @description The safe range of a reading, inclusive (ATX ±5 % for supply rails). */
         RangeResponse: {
             /** Format: float */
-            min: number | string;
+            min: number;
             /** Format: float */
-            max: number | string;
+            max: number;
         };
         /** @description Readings of one sensor role, with how to judge them. */
         RoleSeriesResponse: {
@@ -361,9 +361,9 @@ export interface components {
             unit: string;
             range: null | components["schemas"]["RangeResponse"];
             /** Format: float */
-            limit: null | number | string;
+            limit: null | number;
             /** Format: float */
-            critical: null | number | string;
+            critical: null | number;
             points: components["schemas"]["PointResponse"][];
         };
         /**
@@ -388,12 +388,12 @@ export interface components {
              * Format: float
              * @description Reading at which to pay attention (CPU at its design limit).
              */
-            limit: null | number | string;
+            limit: null | number;
             /**
              * Format: float
              * @description Reading that is out of range (CPU shutdown zone).
              */
-            critical: null | number | string;
+            critical: null | number;
         };
         /**
          * @description Meaning of a sensor for diagnosis, independent of how a board names it.
@@ -563,8 +563,8 @@ export interface operations {
     StreamLive: {
         parameters: {
             query?: {
-                segmentId?: number | string;
-                after?: number | string;
+                segmentId?: number;
+                after?: number;
             };
             header?: never;
             path?: never;
