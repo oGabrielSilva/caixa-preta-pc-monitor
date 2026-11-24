@@ -2,3 +2,7 @@
 *.ps1 text eol=crlf
 *.png binary
 *.ico binary
+
+# Generated API contract
+src/PcMonitor.Dashboard/openapi/*.json linguist-generated=true
+src/PcMonitor.Dashboard.Web/app/api/schema.d.ts linguist-generated=true

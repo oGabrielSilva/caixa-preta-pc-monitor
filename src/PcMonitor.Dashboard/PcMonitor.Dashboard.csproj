@@ -1,9 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <!-- The OpenAPI document is generated on build and committed: it is the API contract
+         from which the frontend's TypeScript types are generated. -->
+    <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)/openapi</OpenApiDocumentsDirectory>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\PcMonitor.Application\PcMonitor.Application.csproj" />
     <ProjectReference Include="..\PcMonitor.Infrastructure.Persistence.Sqlite\PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Server">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

@@ -1,0 +1,56 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "PcMonitor.Dashboard | v1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "operationId": "GetHealth",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HealthResponse": {
+        "required": [
+          "status",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Always `ok` when the dashboard answers."
+          },
+          "version": {
+            "type": "string",
+            "description": "Semantic version of the dashboard."
+          }
+        },
+        "description": "Liveness of the dashboard and the version that is running."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health"
+    }
+  ]
+}
