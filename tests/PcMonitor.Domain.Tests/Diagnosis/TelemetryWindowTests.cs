@@ -21,6 +21,17 @@ public sealed class TelemetryWindowTests
     }
 
     [Fact]
+    public void Telemetry_window_drops_infinite_readings()
+    {
+        var window = new TelemetryWindow(_end, new Dictionary<SensorRole, IReadOnlyList<(DateTimeOffset, float)>>
+        {
+            [SensorRole.Rail12V] = [(_end.AddSeconds(-1), float.PositiveInfinity), (_end, 12.19f)],
+        });
+
+        window.Series(SensorRole.Rail12V).Select(p => p.Value).ShouldBe([12.19f]);
+    }
+
+    [Fact]
     public void Missing_role_has_an_empty_series()
     {
         var window = new TelemetryWindow(_end, new Dictionary<SensorRole, IReadOnlyList<(DateTimeOffset, float)>>());

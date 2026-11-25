@@ -89,6 +89,17 @@ public sealed class SqliteHistoryReaderTests : IDisposable
     }
 
     [Fact]
+    public void Infinite_values_are_ignored_in_computed_and_stored_minutes()
+    {
+        var segment = _seed.StartSegment(_seed.StartSession(_t0), _t0);
+        _seed.Frames(segment, _t0, 60, s => Rail(s % 2 == 0 ? float.PositiveInfinity : 12.2f));
+        new SqliteRetentionStore(_temp.Database).AggregateMinutesBefore(_t0.AddMinutes(1));
+        _seed.Frames(segment, _t0.AddMinutes(1), 60, s => Rail(s % 2 == 0 ? float.NegativeInfinity : 12.1f));
+
+        _reader.Minutes(Rail12V, _t0, _t0.AddHours(1)).ShouldAllBe(m => double.IsFinite(m.Min) && double.IsFinite(m.Avg) && double.IsFinite(m.Max));
+    }
+
+    [Fact]
     public void Minutes_follow_the_sensor_ordinal_of_each_segment()
     {
         var session = _seed.StartSession(_t0);

@@ -56,6 +56,15 @@ public sealed class SqliteStorageStatusTests
     }
 
     [Fact]
+    public void A_file_locked_by_another_program_is_unreadable()
+    {
+        using var temp = TempDatabase.Migrated();
+        using var exclusive = new FileStream(temp.Path, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+
+        new SqliteStorageStatus(temp.Database).Check().ShouldBe(StorageState.Unreadable);
+    }
+
+    [Fact]
     public void Default_path_is_under_program_data() =>
         SqliteDatabase.DefaultPath.ShouldBe(Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "PcMonitor", "pcmonitor.db"));

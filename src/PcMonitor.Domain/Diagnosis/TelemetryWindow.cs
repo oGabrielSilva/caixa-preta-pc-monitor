@@ -12,7 +12,7 @@ public sealed class TelemetryWindow
         ArgumentNullException.ThrowIfNull(series);
         End = end;
         _series = series
-            .Select(s => (s.Key, Points: (IReadOnlyList<(DateTimeOffset At, float Value)>)[.. s.Value.Where(p => !float.IsNaN(p.Value)).OrderBy(p => p.At)]))
+            .Select(s => (s.Key, Points: (IReadOnlyList<(DateTimeOffset At, float Value)>)[.. s.Value.Where(p => float.IsFinite(p.Value)).OrderBy(p => p.At)]))
             .Where(s => s.Points.Count > 0)
             .ToDictionary(s => s.Key, s => s.Points);
     }

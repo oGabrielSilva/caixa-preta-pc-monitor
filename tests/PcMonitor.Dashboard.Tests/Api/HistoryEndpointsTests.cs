@@ -57,6 +57,10 @@ public sealed class HistoryEndpointsTests : IDisposable
         (await StatusOf($"/api/history?sensor={Uri.EscapeDataString(Rail12V)}&range=Year")).ShouldBe(HttpStatusCode.BadRequest);
 
     [Fact]
+    public async Task Numeric_range_is_400() =>
+        (await StatusOf($"/api/history?sensor={Uri.EscapeDataString(Rail12V)}&range=7")).ShouldBe(HttpStatusCode.BadRequest);
+
+    [Fact]
     public async Task History_is_503_without_a_database()
     {
         using var factory = DashboardFactory.WithoutDatabase();

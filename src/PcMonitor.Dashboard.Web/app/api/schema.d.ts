@@ -240,6 +240,17 @@ export interface components {
             /** @description Oldest first. */
             buckets: components["schemas"]["BucketResponse"][];
         };
+        HttpValidationProblemDetails: {
+            type?: null | string;
+            title?: null | string;
+            /** Format: int32 */
+            status?: null | number;
+            detail?: null | string;
+            instance?: null | string;
+            errors?: {
+                [key: string]: string[];
+            };
+        };
         /** @enum {unknown} */
         Hypothesis: "PowerSupply" | "BoardPowerDelivery" | "Thermal" | "Software" | "CpuOrMemory" | "ForcedPowerOff" | null;
         /** @description Sum of the evidence for one hypothesis. */
@@ -640,6 +651,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HistoryResponse"];
+                };
+            };
+            /** @description Bad Request */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["HttpValidationProblemDetails"];
                 };
             };
             /** @description Not Found */

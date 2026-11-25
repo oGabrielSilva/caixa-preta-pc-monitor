@@ -72,6 +72,19 @@ public sealed class LiveCursorTests : LiveTestClock
     }
 
     [Fact]
+    public void A_stale_position_catches_up_at_most_the_live_window()
+    {
+        // A tab reconnecting hours later must not receive hours of frames in one event.
+        var cursor = Cursor(after: T0);
+        Reader.Add(7, [.. Enumerable.Range(1, 3600).Select(At)]);
+
+        var frames = cursor.Poll().ShouldHaveSingleItem().ShouldBeOfType<FramesAppended>().Frames;
+
+        frames[0].Timestamp.ShouldBe(At(3600).Timestamp - LiveCursor.MaxCatchUp + TimeSpan.FromSeconds(1));
+        frames[^1].Timestamp.ShouldBe(At(3600).Timestamp);
+    }
+
+    [Fact]
     public void A_failed_read_is_reported_and_the_next_poll_recovers()
     {
         var cursor = Cursor();

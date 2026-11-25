@@ -8,7 +8,7 @@ const { t, locale } = useI18n()
 
 const items = computed(() => groupFindings(props.limitations ?? []).map(limitation => ({
   key: `${limitation.code}-${JSON.stringify(limitation.parameters)}`,
-  text: t(findingKeys[limitation.code], findingParams(limitation.parameters, locale.value, t)),
+  text: t(findingKey(limitation.code), { code: limitation.code, ...findingParams(limitation.parameters, locale.value, t) }),
 })))
 </script>
 

@@ -32,3 +32,8 @@ export const findingKeys = {
   'rail.measured_on_board': 'findings.rail_measured_on_board',
   'whea.may_be_power': 'findings.whea_may_be_power',
 } as const satisfies Record<FindingCode, string>
+
+/** The i18n key of a code; a code this build does not know (a newer collector) gets a generic text with the code. */
+export function findingKey(code: string): string {
+  return (findingKeys as Readonly<Record<string, string>>)[code] ?? 'findings.unknown'
+}

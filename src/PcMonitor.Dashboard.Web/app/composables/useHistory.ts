@@ -31,7 +31,7 @@ export function useHistorySelection(sensors: MaybeRefOrGetter<readonly SensorRes
 
   return {
     sensor: computed({
-      get: () => (typeof route.query.sensor === 'string' ? route.query.sensor : undefined) ?? toValue(sensors)[0]?.key,
+      get: () => resolveSensor(typeof route.query.sensor === 'string' ? route.query.sensor : undefined, toValue(sensors)),
       set: (key: string | undefined) => key && update({ sensor: key }),
     }),
     range: computed({

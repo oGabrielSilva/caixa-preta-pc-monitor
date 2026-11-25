@@ -9,6 +9,12 @@ public sealed class LiveCursor(ILiveReader reader, TimeProvider time, long? segm
     /// <summary>The state is reported on every n-th poll.</summary>
     public const int StateEveryPolls = 5;
 
+    /// <summary>
+    /// The most a client is sent at once: a tab reconnecting hours later gets the last minutes (what its live page
+    /// shows), not hours of frames in one event.
+    /// </summary>
+    public static readonly TimeSpan MaxCatchUp = TimeSpan.FromMinutes(10);
+
     private long? _segmentId = segmentId;
     private DateTimeOffset _after = after;
     private DateTimeOffset? _lastFrameAt;
@@ -31,7 +37,8 @@ public sealed class LiveCursor(ILiveReader reader, TimeProvider time, long? segm
         }
         else if (_segmentId is { } followed)
         {
-            var frames = reader.FramesAfter(followed, _after);
+            var since = head.LastFrameAt is { } last && last - MaxCatchUp > _after ? last - MaxCatchUp : _after;
+            var frames = reader.FramesAfter(followed, since);
             if (frames.Count > 0)
             {
                 _after = frames[^1].Timestamp;

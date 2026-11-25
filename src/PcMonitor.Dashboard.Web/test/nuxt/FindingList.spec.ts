@@ -22,4 +22,11 @@ describe('FindingList', () => {
 
     expect(list.text()).toContain('Ainda sem diagnóstico')
   })
+  it('shows a code this build does not know instead of a blank line', async () => {
+    const list = await mountPtBR(FindingList, { props: { findings: [
+      { code: 'rail.new_rule' as never, kind: 'Observation', hypothesis: null, supports: true, strength: 'Weak', parameters: {} },
+    ] } })
+
+    expect(list.text()).toContain('rail.new_rule')
+  })
 })

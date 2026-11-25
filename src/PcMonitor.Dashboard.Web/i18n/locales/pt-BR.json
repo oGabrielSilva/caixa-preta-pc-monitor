@@ -248,6 +248,7 @@
     "sensor_unavailable": "Esta placa não informa a {role}.",
     "rail_precision": "1 leitura por segundo e degraus de ~0,1 V no +12 V: quedas muito rápidas ou pequenas não aparecem.",
     "rail_measured_on_board": "O sensor de tensão fica na placa: não separa a fonte da placa ou do conector.",
-    "whea_may_be_power": "Instabilidade de energia também gera erros de hardware: isto não descarta a fonte nem a placa."
+    "whea_may_be_power": "Instabilidade de energia também gera erros de hardware: isto não descarta a fonte nem a placa.",
+    "unknown": "Resultado \"{code}\": atualize o painel para ver a explicação."
   }
 }

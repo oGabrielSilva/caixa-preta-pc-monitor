@@ -248,6 +248,7 @@
     "sensor_unavailable": "This board does not report the {role}.",
     "rail_precision": "1 reading per second and ~0.1 V steps on +12 V: very fast or small drops do not show.",
     "rail_measured_on_board": "The voltage sensor sits on the board: it cannot tell the power supply from the board or the connector.",
-    "whea_may_be_power": "Power instability also causes hardware errors: this does not rule out the power supply or the board."
+    "whea_may_be_power": "Power instability also causes hardware errors: this does not rule out the power supply or the board.",
+    "unknown": "Finding \"{code}\": update the dashboard to see its explanation."
   }
 }

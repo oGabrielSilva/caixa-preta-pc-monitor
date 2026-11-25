@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDuration, formatNumber, minutesBetween } from '~/utils/format'
+import { formatDay, formatDuration, formatNumber, minutesBetween } from '~/utils/format'
 
 describe('format', () => {
   it('formats numbers in the locale and a dash without a reading', () => {
@@ -16,5 +16,9 @@ describe('format', () => {
 
   it('counts whole minutes between two times', () => {
     expect(minutesBetween('2026-11-24T17:00:00Z', '2026-11-24T17:14:59Z')).toBe(14)
+  })
+  it('adds the year to a day only when asked', () => {
+    expect(formatDay('2026-11-24', 'pt-BR')).toBe('24/11')
+    expect(formatDay('2026-11-24', 'pt-BR', true)).toBe('24/11/26')
   })
 })

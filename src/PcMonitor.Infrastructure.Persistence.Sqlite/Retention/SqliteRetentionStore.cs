@@ -71,7 +71,7 @@ public sealed class SqliteRetentionStore(SqliteDatabase database) : IRetentionSt
 
         for (var ordinal = 0; ordinal < sensorIds.Length; ordinal++)
         {
-            var values = frames.Where(f => ordinal < f.Length && !float.IsNaN(f[ordinal])).Select(f => (double)f[ordinal]).ToList();
+            var values = frames.Where(f => ordinal < f.Length && float.IsFinite(f[ordinal])).Select(f => (double)f[ordinal]).ToList();
             if (values.Count == 0)
             {
                 continue;

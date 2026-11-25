@@ -13,8 +13,16 @@ internal static class HistoryEndpoints
                 TypedResults.Ok(reader.Sensors().Select(HistoryResponse.Describe).ToList()))
             .WithName("ListHistorySensors");
 
-        history.MapGet("/", Results<Ok<HistoryResponse>, NotFound> (string sensor, HistoryRange range, QueryHistory query) =>
-                query.Run(sensor, range) is { } result ? TypedResults.Ok(HistoryResponse.Of(result)) : TypedResults.NotFound())
+        history.MapGet("/", Results<Ok<HistoryResponse>, NotFound, ValidationProblem> (string sensor, HistoryRange range, QueryHistory query) =>
+            {
+                // Enum binding also accepts numbers (?range=7); only the named periods exist.
+                if (!Enum.IsDefined(range))
+                {
+                    return TypedResults.ValidationProblem(new Dictionary<string, string[]> { ["range"] = [$"Unknown period '{range}'."] });
+                }
+
+                return query.Run(sensor, range) is { } result ? TypedResults.Ok(HistoryResponse.Of(result)) : TypedResults.NotFound();
+            })
             .WithName("GetHistory")
             .WithDescription("Min, mean and max of `sensor` (stable key) over `range`, in buckets sized for the period.");
 

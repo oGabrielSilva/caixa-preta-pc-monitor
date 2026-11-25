@@ -50,8 +50,10 @@ export function formatFullDateTime(time: string | number, locale: string): strin
   return new Date(time).toLocaleString(locale, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
-/** A local day `YYYY-MM-DD` as `24/11`. */
-export function formatDay(day: string, locale: string): string {
+/** A local day `YYYY-MM-DD` as `24/11` (or `24/11/26` with the year). */
+export function formatDay(day: string, locale: string, withYear = false): string {
   const [year, month, date] = day.split('-').map(Number)
-  return new Date(year!, month! - 1, date!).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })
+  return new Date(year!, month! - 1, date!).toLocaleDateString(locale, withYear
+    ? { day: '2-digit', month: '2-digit', year: '2-digit' }
+    : { day: '2-digit', month: '2-digit' })
 }

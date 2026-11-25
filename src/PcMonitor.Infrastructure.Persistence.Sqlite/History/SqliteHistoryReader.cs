@@ -37,13 +37,15 @@ public sealed class SqliteHistoryReader(SqliteDatabase database) : IHistoryReade
         using var connection = database.OpenReader();
         var parameters = new MinuteQuery(stableKey, since.ToUnixTimeMilliseconds(), until.ToUnixTimeMilliseconds());
 
+        // Aggregates written before retention ignored infinities may still hold one.
         var stored = connection.Query<AggregateRow>(HistorySql.Aggregates, parameters)
+            .Where(a => double.IsFinite(a.Min) && double.IsFinite(a.Avg) && double.IsFinite(a.Max))
             .Select(a => (a.MinuteMs, a.Min, a.Avg, a.Max));
         var lastAggregated = connection.ExecuteScalar<long?>(HistorySql.LastAggregatedMinute, parameters);
         var pendingSince = Math.Max(parameters.SinceMs, lastAggregated is { } last ? last + MinuteMs : long.MinValue);
         var computed = connection.Query<PendingFrameRow>(HistorySql.PendingFrames, parameters with { SinceMs = pendingSince })
             .Select(f => (MinuteMs: f.TimestampMs / MinuteMs * MinuteMs, Value: ValueAt(f)))
-            .Where(f => f.Value is { } value && !double.IsNaN(value))
+            .Where(f => f.Value is { } value && double.IsFinite(value))
             .GroupBy(f => f.MinuteMs)
             .Select(g => (MinuteMs: g.Key, Min: g.Min(f => f.Value!.Value), Avg: g.Average(f => f.Value!.Value), Max: g.Max(f => f.Value!.Value)));
 

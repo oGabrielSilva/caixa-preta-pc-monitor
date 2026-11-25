@@ -10,7 +10,7 @@ const items = computed(() => groupFindings(props.findings ?? []).map((finding) =
   const hypotheses = finding.hypotheses.map(h => t(`hypotheses.${h}`)).join(t('incident.weighed.and'))
   return {
     key: `${finding.code}-${finding.supports}-${JSON.stringify(finding.parameters)}`,
-    text: t(findingKeys[finding.code], findingParams(finding.parameters, locale.value, t)),
+    text: t(findingKey(finding.code), { code: finding.code, ...findingParams(finding.parameters, locale.value, t) }),
     evidence: finding.kind === 'Evidence',
     supports: finding.supports,
     detail: finding.kind === 'Evidence'
