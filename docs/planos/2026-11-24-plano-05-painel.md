@@ -450,3 +450,13 @@ Registrar o resultado na seção "Resultado da instalação" deste plano e fazer
 ## Critério de pronto
 
 Todas as tasks com testes verdes; CI local verde (build, testes .NET, format, lint, typecheck, testes do frontend, generate, contrato, agent docs, jscpd); painel instalado como serviço sem privilégio mostrando os dados reais desta máquina; revisão final do branch feita por um revisor novo.
+
+## Resultado da instalação (24/11/2026, 21:03)
+
+- Coletor reinstalado (migração 006) e painel instalado pelo dono com `Install-Collector.ps1` e `Install-Dashboard.ps1`.
+- `PcMonitor.Dashboard` roda como `NT SERVICE\PcMonitor.Dashboard`, início automático; o Log de Eventos tem a fonte `PcMonitor.Dashboard` com "Service started successfully."
+- `/api/health`: `storage: Ready`. `/api/live`: `Recording`, sessão `Ok`, placa TUF GAMING A620M-PLUS WIFI, valores mudando a cada segundo **com o coletor gravando**: a leitura com o `-shm` só leitura sob a conta virtual funciona, sem precisar do plano B do ADR 0014.
+- Incidentes: as 16 quedas reais, 2 em hibernação, 5 logo após ligar.
+- Atalho "PC Monitor" criado no menu Iniciar de todos os usuários.
+- A conta comum não consegue listar a ACL de `%ProgramData%\PcMonitor` (só SYSTEM e Administradores, como esperado); a entrada de leitura do painel é provada pelo próprio painel lendo o banco.
+- Depois da instalação, a pedido do dono, o tema do Nuxt UI foi trocado ([ADR 0015](../adr/0015-nuxt-ui-theme.md)) e a lista de leituras do Ao vivo passou a mostrar só Vcore, fans girando e memórias (com os dados reais apareciam 7 conectores de fan, vários a 0 RPM, e 6 temperaturas da placa sem nome).
