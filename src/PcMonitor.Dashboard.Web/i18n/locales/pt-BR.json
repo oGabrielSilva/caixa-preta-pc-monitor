@@ -250,5 +250,8 @@
     "rail_measured_on_board": "O sensor de tensão fica na placa: não separa a fonte da placa ou do conector.",
     "whea_may_be_power": "Instabilidade de energia também gera erros de hardware: isto não descarta a fonte nem a placa.",
     "unknown": "Resultado \"{code}\": atualize o painel para ver a explicação."
+  },
+  "layout": {
+    "toggleSidebar": "Mostrar ou recolher o menu"
   }
 }

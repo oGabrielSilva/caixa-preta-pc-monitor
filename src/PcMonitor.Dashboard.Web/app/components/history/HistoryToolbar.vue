@@ -15,24 +15,20 @@ const rangeItems = computed(() => historyRanges.map(value => ({ label: t(`histor
 </script>
 
 <template>
-  <UDashboardToolbar>
-    <template #left>
-      <USelect
-        v-model="sensor"
-        :items="sensorItems"
-        :placeholder="t('history.sensor')"
-        :aria-label="t('history.sensor')"
-        icon="i-material-symbols-monitoring-rounded"
-        class="w-72"
-      />
-    </template>
-    <template #right>
-      <UTabs
-        v-model="range"
-        :items="rangeItems"
-        :content="false"
-        size="xs"
-      />
-    </template>
-  </UDashboardToolbar>
+  <div class="flex flex-wrap items-center justify-between gap-2 border-b border-default px-4 py-2">
+    <USelect
+      v-model="sensor"
+      :items="sensorItems"
+      :placeholder="t('history.sensor')"
+      :aria-label="t('history.sensor')"
+      icon="i-material-symbols-monitoring-rounded"
+      class="w-72"
+    />
+    <UTabs
+      v-model="range"
+      :items="rangeItems"
+      :content="false"
+      size="xs"
+    />
+  </div>
 </template>

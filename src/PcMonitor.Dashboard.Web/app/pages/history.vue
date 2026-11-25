@@ -7,9 +7,8 @@ const { incidents } = useIncidents()
 </script>
 
 <template>
-  <UDashboardPanel :ui="{ body: '*:shrink-0' }">
-    <template #header>
-      <UDashboardNavbar :title="t('nav.history')" />
+  <SharedPage :title="t('nav.history')">
+    <template #toolbar>
       <HistoryToolbar
         v-model:sensor="sensor"
         v-model:range="range"
@@ -17,27 +16,25 @@ const { incidents } = useIncidents()
       />
     </template>
 
-    <template #body>
-      <SharedStorageNotice
-        v-if="sensorsProblem ?? problem"
-        :problem="(sensorsProblem ?? problem)!"
+    <SharedStorageNotice
+      v-if="sensorsProblem ?? problem"
+      :problem="(sensorsProblem ?? problem)!"
+    />
+    <UEmpty
+      v-else-if="sensors.length === 0"
+      icon="i-material-symbols-show-chart-rounded"
+      :title="t('history.noSensors')"
+    />
+    <template v-else-if="history">
+      <HistoryStats
+        :sensor="history.sensor"
+        :buckets="history.buckets"
       />
-      <UEmpty
-        v-else-if="sensors.length === 0"
-        icon="i-material-symbols-show-chart-rounded"
-        :title="t('history.noSensors')"
+      <HistoryChart
+        :history="history"
+        :range="range"
+        :incidents="incidents"
       />
-      <template v-else-if="history">
-        <HistoryStats
-          :sensor="history.sensor"
-          :buckets="history.buckets"
-        />
-        <HistoryChart
-          :history="history"
-          :range="range"
-          :incidents="incidents"
-        />
-      </template>
     </template>
-  </UDashboardPanel>
+  </SharedPage>
 </template>

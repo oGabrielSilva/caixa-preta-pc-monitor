@@ -250,5 +250,8 @@
     "rail_measured_on_board": "The voltage sensor sits on the board: it cannot tell the power supply from the board or the connector.",
     "whea_may_be_power": "Power instability also causes hardware errors: this does not rule out the power supply or the board.",
     "unknown": "Finding \"{code}\": update the dashboard to see its explanation."
+  },
+  "layout": {
+    "toggleSidebar": "Show or collapse the menu"
   }
 }
