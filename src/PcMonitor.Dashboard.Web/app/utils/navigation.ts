@@ -6,7 +6,7 @@ export interface NavigationItem {
 }
 
 export const navigationItems: readonly NavigationItem[] = [
-  { labelKey: 'nav.live', icon: 'i-lucide-activity', to: '/' },
-  { labelKey: 'nav.incidents', icon: 'i-lucide-triangle-alert', to: '/incidents' },
-  { labelKey: 'nav.history', icon: 'i-lucide-chart-line', to: '/history' },
+  { labelKey: 'nav.live', icon: 'i-material-symbols-monitoring-rounded', to: '/' },
+  { labelKey: 'nav.incidents', icon: 'i-material-symbols-warning-outline-rounded', to: '/incidents' },
+  { labelKey: 'nav.history', icon: 'i-material-symbols-show-chart-rounded', to: '/history' },
 ]

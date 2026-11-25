@@ -16,7 +16,7 @@
     "gen:api": "openapi-typescript ../PcMonitor.Dashboard/openapi/PcMonitor.Dashboard.json -o app/api/schema.d.ts"
   },
   "dependencies": {
-    "@iconify-json/lucide": "^1.2.158",
+    "@iconify-json/material-symbols": "^1.2.101",
     "@nuxt/ui": "4.13.1",
     "@nuxtjs/i18n": "10.6.0",
     "@tanstack/charts": "1.5.0",

@@ -24,7 +24,7 @@ const { incidents } = useIncidents()
       />
       <UEmpty
         v-else-if="sensors.length === 0"
-        icon="i-lucide-chart-line"
+        icon="i-material-symbols-show-chart-rounded"
         :title="t('history.noSensors')"
       />
       <template v-else-if="history">

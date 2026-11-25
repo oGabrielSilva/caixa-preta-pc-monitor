@@ -37,12 +37,12 @@ const columns = computed<TableColumn<IncidentSummary>[]>(() => [
     id: 'signals',
     header: t('incidents.table.signals'),
     cell: ({ row }) => h('div', { class: 'flex flex-wrap gap-1.5' }, [
-      row.original.hasTelemetry ? signal('success', 'i-lucide-activity', 'incidents.badges.telemetry') : null,
-      row.original.sleepState !== 0 ? signal('secondary', 'i-lucide-moon', 'incidents.badges.sleep') : null,
-      row.original.observations.includes('boot.early_failure') ? signal('neutral', 'i-lucide-power', 'incidents.badges.earlyBoot') : null,
+      row.original.hasTelemetry ? signal('success', 'i-material-symbols-monitoring-rounded', 'incidents.badges.telemetry') : null,
+      row.original.sleepState !== 0 ? signal('secondary', 'i-material-symbols-dark-mode-outline-rounded', 'incidents.badges.sleep') : null,
+      row.original.observations.includes('boot.early_failure') ? signal('neutral', 'i-material-symbols-power-settings-new-rounded', 'incidents.badges.earlyBoot') : null,
     ]),
   },
-  { id: 'open', header: '', cell: () => h(UIcon, { name: 'i-lucide-chevron-right', class: 'size-4 text-dimmed' }) },
+  { id: 'open', header: '', cell: () => h(UIcon, { name: 'i-material-symbols-chevron-right-rounded', class: 'size-4 text-dimmed' }) },
 ])
 
 function open(_: Event, row: TableRow<IncidentSummary>) {

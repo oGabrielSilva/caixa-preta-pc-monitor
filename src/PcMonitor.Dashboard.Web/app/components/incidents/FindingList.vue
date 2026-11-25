@@ -37,7 +37,7 @@ const items = computed(() => groupFindings(props.findings ?? []).map((finding) =
       class="flex gap-3"
     >
       <UIcon
-        :name="!item.evidence ? 'i-lucide-info' : item.supports ? 'i-lucide-circle-plus' : 'i-lucide-circle-minus'"
+        :name="!item.evidence ? 'i-material-symbols-info-outline-rounded' : item.supports ? 'i-material-symbols-add-circle-outline-rounded' : 'i-material-symbols-do-not-disturb-on-outline-rounded'"
         class="mt-0.5 size-5 shrink-0"
         :class="!item.evidence ? 'text-info' : item.supports ? 'text-primary' : 'text-error'"
       />

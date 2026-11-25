@@ -15,7 +15,7 @@ const message = computed(() => {
   <UAlert
     color="warning"
     variant="subtle"
-    icon="i-lucide-database-zap"
+    icon="i-material-symbols-database-off-outline-rounded"
     :title="t('storage.title')"
     :description="message"
   />

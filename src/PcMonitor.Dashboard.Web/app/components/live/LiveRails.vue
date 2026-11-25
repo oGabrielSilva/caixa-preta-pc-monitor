@@ -12,15 +12,11 @@ const rails = computed(() => props.buffer.sensors
   .sort((a, b) => railOrder.indexOf(a.role) - railOrder.indexOf(b.role))
   .map(s => ({ key: s.key, name: t(`roles.${s.role}`), value: latestValue(props.buffer, s.key), range: s.range! })))
 
-/** Vcore, fans and memory temperatures, by the names they were recorded with. */
-const others = computed(() => props.buffer.sensors
-  .filter(s => s.role === 'Vcore' || (s.role === 'None' && (s.kind === 'Fan' || s.kind === 'Temperature')))
-  .map((s) => {
-    const dimm = /^\/memory\/dimm\/(\d+)\//.exec(s.key)
-    const name = s.role === 'Vcore' ? t('live.others.vcore') : dimm ? `${t('live.others.memory')} ${Number(dimm[1]) + 1}` : s.name
-    const digits = s.kind === 'Fan' ? 0 : s.kind === 'Voltage' ? 3 : 1
-    return { key: s.key, name, text: `${formatNumber(latestValue(props.buffer, s.key), locale.value, digits)} ${s.unit}` }
-  }))
+const others = computed(() => secondaryReadings(props.buffer.sensors, key => latestValue(props.buffer, key)).map(reading => ({
+  key: reading.sensor.key,
+  name: 'text' in reading.label ? reading.label.text : `${t(reading.label.key)}${reading.label.slot ? ` ${reading.label.slot}` : ''}`,
+  text: `${formatNumber(reading.value, locale.value, digitsFor(reading.sensor.kind) + (reading.sensor.kind === 'Voltage' ? 1 : 0))} ${reading.sensor.unit}`,
+})))
 </script>
 
 <template>

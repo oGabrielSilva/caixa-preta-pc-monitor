@@ -14,7 +14,7 @@ const title = computed(() => incident.value
         <template #leading>
           <UButton
             to="/incidents"
-            icon="i-lucide-arrow-left"
+            icon="i-material-symbols-arrow-back-rounded"
             variant="ghost"
             color="neutral"
             :aria-label="t('incident.back')"
@@ -26,7 +26,7 @@ const title = computed(() => incident.value
     <template #body>
       <UEmpty
         v-if="problem === 'http.404'"
-        icon="i-lucide-search-x"
+        icon="i-material-symbols-search-off-rounded"
         :title="t('incident.notFound')"
       />
       <SharedStorageNotice

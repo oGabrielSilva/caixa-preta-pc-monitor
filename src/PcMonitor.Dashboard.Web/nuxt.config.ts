@@ -34,6 +34,12 @@ export default defineNuxtConfig({
     config: { stylistic: true },
   },
 
+  // Theme fonts (main.css) are downloaded at build time and served from /_fonts: the dashboard never calls a font CDN.
+  // Weights match the theme (semibold = 700, bold = 800).
+  fonts: {
+    defaults: { weights: [400, 500, 700, 800] },
+  },
+
   i18n: {
     defaultLocale,
     strategy: 'no_prefix',

@@ -7,10 +7,10 @@ const props = defineProps<{ buffer: LiveBuffer }>()
 const { t, locale } = useI18n()
 
 const cards: { role: SensorRole, labelKey: string, icon: string, digits: number }[] = [
-  { role: 'CpuTemperature', labelKey: 'live.cards.cpuTemperature', icon: 'i-lucide-thermometer', digits: 1 },
-  { role: 'Rail12V', labelKey: 'live.cards.rail12', icon: 'i-lucide-zap', digits: 2 },
-  { role: 'CpuPackagePower', labelKey: 'live.cards.power', icon: 'i-lucide-plug', digits: 1 },
-  { role: 'CpuLoad', labelKey: 'live.cards.load', icon: 'i-lucide-gauge', digits: 0 },
+  { role: 'CpuTemperature', labelKey: 'live.cards.cpuTemperature', icon: 'i-material-symbols-device-thermostat-rounded', digits: 1 },
+  { role: 'Rail12V', labelKey: 'live.cards.rail12', icon: 'i-material-symbols-bolt-outline-rounded', digits: 2 },
+  { role: 'CpuPackagePower', labelKey: 'live.cards.power', icon: 'i-material-symbols-electric-meter-outline-rounded', digits: 1 },
+  { role: 'CpuLoad', labelKey: 'live.cards.load', icon: 'i-material-symbols-speed-outline-rounded', digits: 0 },
 ]
 
 const metrics = computed(() => cards.flatMap((card) => {

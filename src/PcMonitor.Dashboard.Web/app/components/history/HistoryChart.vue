@@ -64,7 +64,7 @@ const drops = computed(() => {
         color="error"
         variant="subtle"
         size="xs"
-        icon="i-lucide-triangle-alert"
+        icon="i-material-symbols-warning-outline-rounded"
       >
         {{ formatDateTime(failureTime(drop).getTime(), locale) }}
       </UButton>

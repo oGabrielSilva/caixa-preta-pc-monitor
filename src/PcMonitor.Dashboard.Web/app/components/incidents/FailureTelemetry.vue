@@ -39,7 +39,7 @@ const cpu = computed(() => ({ temperature: series('CpuTemperature'), load: serie
         class="mb-4"
         color="warning"
         variant="subtle"
-        icon="i-lucide-clock-alert"
+        icon="i-material-symbols-timer-off-outline-rounded"
         :description="t('incident.telemetry.notAtFailure')"
       />
       <div class="grid gap-6 lg:grid-cols-2">

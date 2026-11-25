@@ -11,13 +11,15 @@ Frontend of the dashboard: Nuxt 4 in SPA mode (`ssr: false`), Nuxt UI v4, TypeSc
 | `composables/` | State and API access (`use*`). The only place that talks to `api/`. |
 | `api/` | `client.ts` (the single HTTP client) and the **generated** `schema.d.ts`. Never edit `schema.d.ts` by hand. |
 | `utils/` | Pure functions and static data (e.g. `navigation.ts`). |
-| `app.config.ts` | Semantic colours: `success` = in range, `warning` = attention, `error` = out of range. Use colours by meaning only. |
+| `app.config.ts` | Theme (ADR 0015): primary teal, neutral, Material Symbols icons. Semantic colours: `success` = in range, `warning` = attention, `error` = out of range. Use colours by meaning only. |
+| `assets/css/main.css` | Theme tokens: fonts (bundled at build by `@nuxt/fonts`), radius 0, light/dark backgrounds. |
 
 User-facing text always comes from `i18n/locales/*.json`; both files must have the same keys and no key may contain a dot (tests enforce both).
 
 - Charts only through `components/shared/TimeSeriesChart.vue` (unique labels, breaks where nothing was recorded). Series colours are categories, not statuses.
 - Diagnosis texts: `utils/finding-keys.ts` maps every generated `FindingCode` to an i18n key; parameters are formatted by `utils/findings.ts`.
 - Ranges and limits come from the API (`SensorResponse`); never hard-code a threshold.
+- Icons: Material Symbols only (`i-material-symbols-*`, bundled; a test checks every name exists).
 - Loaders return `ApiResult` (`composables/api-result.ts`); pages show `shared/StorageNotice` for a problem.
 - Component tests mount with `mountPtBR` (`test/support/nuxt.ts`): the test runtime would otherwise pick the browser language.
 

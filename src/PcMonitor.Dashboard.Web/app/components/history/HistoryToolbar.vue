@@ -22,7 +22,7 @@ const rangeItems = computed(() => historyRanges.map(value => ({ label: t(`histor
         :items="sensorItems"
         :placeholder="t('history.sensor')"
         :aria-label="t('history.sensor')"
-        icon="i-lucide-activity"
+        icon="i-material-symbols-monitoring-rounded"
         class="w-72"
       />
     </template>

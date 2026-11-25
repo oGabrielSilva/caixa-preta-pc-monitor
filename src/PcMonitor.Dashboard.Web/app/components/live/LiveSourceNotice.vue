@@ -11,7 +11,7 @@ const { t } = useI18n()
     v-if="props.session && props.session.sourceStatus !== 'Ok'"
     color="warning"
     variant="subtle"
-    icon="i-lucide-cpu"
+    icon="i-material-symbols-memory-outline-rounded"
     :description="t(`live.source.${props.session.sourceStatus}`)"
   />
 </template>

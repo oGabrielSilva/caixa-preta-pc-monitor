@@ -17,7 +17,7 @@ const stats = computed(() => summarize(incidents.value, new Date()))
       />
       <UEmpty
         v-else-if="incidents.length === 0"
-        icon="i-lucide-shield-check"
+        icon="i-material-symbols-verified-user-outline-rounded"
         :title="t('incidents.empty.title')"
         :description="t('incidents.empty.description')"
       />

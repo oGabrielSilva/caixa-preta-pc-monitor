@@ -19,7 +19,7 @@ const recent = computed(() => props.incidents.slice(0, 4))
           v-if="props.incidents.length > 0"
           to="/incidents"
           variant="ghost"
-          trailing-icon="i-lucide-arrow-right"
+          trailing-icon="i-material-symbols-arrow-forward-rounded"
           size="sm"
         >
           {{ t('live.recent.seeAll', { count: props.incidents.length }) }}
@@ -46,7 +46,7 @@ const recent = computed(() => props.incidents.slice(0, 4))
         >
           <span class="flex items-center gap-3">
             <UIcon
-              name="i-lucide-triangle-alert"
+              name="i-material-symbols-warning-outline-rounded"
               class="size-4 text-error"
             />
             <span class="tabular-nums">{{ formatDateTime(failureTime(incident).getTime(), locale) }}</span>

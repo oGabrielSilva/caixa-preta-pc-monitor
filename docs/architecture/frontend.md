@@ -52,3 +52,4 @@ flowchart LR
 - **Textos do diagnóstico:** cada `FindingCode` tem uma chave em `utils/finding-keys.ts` (`satisfies Record<FindingCode, string>`): um código novo no C# quebra o typecheck até ganhar texto em pt-BR e en. Parâmetros chegam como texto invariante e são formatados no idioma (`utils/findings.ts`).
 - **Gráficos:** só via `shared/TimeSeriesChart.vue` ([ADR 0013](../adr/0013-charts-with-nuxt-ui-uchart.md)).
 - **Cores:** `success`/`warning`/`error` só para status de leitura (`utils/sensor-status.ts`); séries de gráfico usam a paleta crua.
+- **Tema:** o escolhido pelo dono ([ADR 0015](../adr/0015-nuxt-ui-theme.md)): teal/neutral, cantos retos, Google Sans Flex, ícones Material Symbols; fontes e ícones empacotados no build.

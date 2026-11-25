@@ -26,7 +26,7 @@ const stats = computed(() => {
       v-for="stat in stats"
       :key="stat.key"
       :label="stat.label"
-      icon="i-lucide-sigma"
+      icon="i-material-symbols-functions-rounded"
       :value="stat.value"
     />
   </div>

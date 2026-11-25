@@ -18,3 +18,4 @@ Cada ADR registra uma decisão com **Contexto · Decisão · Alternativas · Con
 | [0012](0012-explainable-versioned-diagnosis.md) | Diagnóstico explicável, versionado e gravado por incidente | Aceito |
 | [0013](0013-charts-with-nuxt-ui-uchart.md) | Gráficos com o `UChart` do Nuxt UI | Aceito |
 | [0014](0014-read-api-sse-and-event-privacy.md) | API de leitura, ao vivo por SSE e privacidade dos eventos | Aceito |
+| [0015](0015-nuxt-ui-theme.md) | Tema do Nuxt UI escolhido pelo dono | Aceito |

@@ -11,23 +11,23 @@ const items = computed(() => {
   const detail = props.detail
   const entries: Entry[] = []
   if (detail.lastAliveAt) {
-    entries.push({ at: detail.lastAliveAt, title: t('incident.timeline.lastAlive'), icon: 'i-lucide-heart-pulse' })
+    entries.push({ at: detail.lastAliveAt, title: t('incident.timeline.lastAlive'), icon: 'i-material-symbols-ecg-heart-outline-rounded' })
   }
   if (detail.telemetryEndAt) {
-    entries.push({ at: detail.telemetryEndAt, title: t('incident.timeline.lastFrame'), icon: 'i-lucide-activity' })
+    entries.push({ at: detail.telemetryEndAt, title: t('incident.timeline.lastFrame'), icon: 'i-material-symbols-monitoring-rounded' })
   }
   const estimate = detail.summary.estimatedFailureAt
   if (estimate && estimate !== detail.telemetryEndAt && estimate !== detail.lastAliveAt) {
-    entries.push({ at: estimate, title: t('incident.timeline.failure'), icon: 'i-lucide-zap-off' })
+    entries.push({ at: estimate, title: t('incident.timeline.failure'), icon: 'i-material-symbols-power-off-rounded' })
   }
-  entries.push({ at: detail.summary.loggedAt, title: t('incident.timeline.logged'), description: 'Kernel-Power 41', icon: 'i-lucide-triangle-alert' })
+  entries.push({ at: detail.summary.loggedAt, title: t('incident.timeline.logged'), description: 'Kernel-Power 41', icon: 'i-material-symbols-warning-outline-rounded' })
   // The incident is the Kernel-Power 41 event itself: it already has its own entry.
   for (const event of detail.events.filter(e => !(e.provider === 'Microsoft-Windows-Kernel-Power' && e.eventId === 41))) {
     entries.push({
       at: event.loggedAt,
       title: t(eventKey(event.provider, event.eventId), { provider: event.provider, id: event.eventId }),
       description: `${event.provider} ${event.eventId}`,
-      icon: 'i-lucide-scroll-text',
+      icon: 'i-material-symbols-article-outline-rounded',
     })
   }
   return entries

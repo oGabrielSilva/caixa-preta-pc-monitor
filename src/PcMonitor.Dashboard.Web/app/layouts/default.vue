@@ -13,7 +13,7 @@ const links = computed(() =>
       <template #header>
         <span class="flex items-center gap-2 font-semibold">
           <UIcon
-            name="i-lucide-cpu"
+            name="i-material-symbols-memory-outline-rounded"
             class="size-5 text-primary"
           />
           {{ t('app.title') }}

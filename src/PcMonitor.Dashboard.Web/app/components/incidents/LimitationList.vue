@@ -29,7 +29,7 @@ const items = computed(() => groupFindings(props.limitations ?? []).map(limitati
       class="flex gap-3"
     >
       <UIcon
-        name="i-lucide-triangle"
+        name="i-material-symbols-report-outline-rounded"
         class="mt-0.5 size-5 shrink-0 text-warning"
       />
       <p class="text-sm text-muted">
