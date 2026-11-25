@@ -1,14 +1,14 @@
-# Plano 06 — Caixa-Preta: app na bandeja, notificações, exportação, memória e discos, instalador
+# Plano 06 — Caixa-Preta: app na bandeja, painel fixo, exportação, memória e discos, instalador
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** transformar o PC Monitor na **Caixa-Preta**: um app com nome e ícone próprios, que vive na bandeja do sistema, abre o painel numa janela nativa (WPF + WebView2), avisa por notificação quando algo sai do normal, exporta os dados (CSV, Excel, PDF), mostra memória e discos, e se instala por um único `.exe`.
+**Goal:** transformar o PC Monitor na **Caixa-Preta**: um app com nome e ícone próprios, que vive na bandeja do sistema, abre o painel numa janela nativa (WPF + WebView2), mantém um **painel fixo pequeno** sempre visível com os números principais (que ficam vermelhos quando algo sai do normal), exporta os dados (CSV, Excel, PDF), mostra memória e discos, e se instala por um único `.exe`.
 
-**Architecture:** os dois serviços continuam como estão (coletor grava, painel lê e serve API + SPA em `127.0.0.1:5280`). Entra um terceiro processo, **`PcMonitor.Tray`** (WPF, sessão do usuário, inicia com o Windows): janela com WebView2 apontando para o painel, ícone na bandeja e notificações. As regras de alerta são lógica pura na Application (`AlertMonitor`); o painel as avalia sobre as leituras e as publica num fluxo SSE (`/api/alerts/stream`); o app da bandeja só escuta e mostra. A exportação acontece no frontend, que já tem os dados e os textos traduzidos (uma única fonte para os textos do diagnóstico). O instalador (Inno Setup) leva tudo publicado como *self-contained* e chama os mesmos scripts PowerShell que já instalam os serviços.
+**Architecture:** os dois serviços continuam como estão (coletor grava, painel lê e serve API + SPA em `127.0.0.1:5280`). Entra um terceiro processo, **`PcMonitor.Tray`** (WPF, sessão do usuário, inicia com o Windows): janela principal com WebView2 apontando para o painel, o **painel fixo** (uma segunda janela pequena, sempre por cima, também em WebView2, abrindo a rota `/mini` do próprio painel) e o ícone na bandeja. O painel fixo reaproveita o que o painel já tem: o fluxo ao vivo (SSE), as faixas e limites que vêm da API e a regra de cor (`statusOf`); nenhuma regra é reescrita em C#. Sem notificações: o vermelho no painel fixo substitui os avisos. A exportação acontece no frontend, que já tem os dados e os textos traduzidos (uma única fonte para os textos do diagnóstico). O instalador (Inno Setup) leva tudo publicado como *self-contained* e chama os mesmos scripts PowerShell que já instalam os serviços.
 
-**Tech Stack:** .NET 10 (WPF, `Microsoft.Web.WebView2`, `System.Windows.Forms.NotifyIcon`) · ASP.NET Core SSE · LibreHardwareMonitor (armazenamento) · Nuxt 4 + Nuxt UI · `exceljs` e `pdfmake` (carregados só ao exportar) · `@resvg/resvg-js` (gera os ícones no build) · Inno Setup 6 · xUnit v3, Shouldly, Vitest.
+**Tech Stack:** .NET 10 (WPF, `Microsoft.Web.WebView2`, `System.Windows.Forms.NotifyIcon`) · LibreHardwareMonitor (armazenamento) · Nuxt 4 + Nuxt UI · `exceljs` e `pdfmake` (carregados só ao exportar) · `@resvg/resvg-js` (gera os ícones no build) · Inno Setup 6 · xUnit v3, Shouldly, Vitest.
 
-**Spec:** pedidos do dono em 24/11/2026: app em WebView2 + WPF na bandeja; nome e ícone (escolhidos: **Caixa-Preta**, ícone **A** "caixa + pulso"); instalar por um `.exe` (release); exportar em Excel, CSV e PDF; notificações para nova queda, tensão fora da faixa, CPU a 100 °C ou mais e coletor parado; monitorar memória e armazenamento. Mais o que já vale: [estudo](../estudos/2026-11-24-estudo-arquitetura.md), ADRs 0003, 0007, 0014, 0015, 0016.
+**Spec:** pedidos do dono em 24/11/2026: app em WebView2 + WPF na bandeja; nome e ícone (escolhidos: **Caixa-Preta**, ícone **A** "caixa + pulso"); instalar por um `.exe` (release); exportar em Excel, CSV e PDF; monitorar memória e armazenamento; **(25/11) um painel pequeno fixo na tela, como a janelinha do Teams numa reunião, com poucos números que ficam vermelhos quando algo sai do normal, no lugar das notificações**. Mais o que já vale: [estudo](../estudos/2026-11-24-estudo-arquitetura.md), ADRs 0003, 0007, 0014, 0015, 0016.
 
 ## Fatos verificados (24/11/2026)
 
@@ -20,21 +20,23 @@
 ## Global Constraints
 
 - Tudo dos planos anteriores continua valendo (camadas, CPM, warnings como erro, testes antes, jscpd 0, inglês no código, português nos docs, `AGENTS.md` + `CLAUDE.md` em cada projeto novo).
-- **Nome do produto:** "Caixa-Preta" em tudo o que o usuário vê (título da janela e do painel, bandeja, menu Iniciar, notificações, nomes de exibição dos serviços, instalador, "Aplicativos instalados"). Os nomes internos (`PcMonitor.*`, serviços `PcMonitor.Collector`/`PcMonitor.Dashboard`, `%ProgramData%\PcMonitor`) **não mudam**: renomeá-los quebraria a instalação atual e o banco sem ganho para o usuário.
+- **Nome do produto:** "Caixa-Preta" em tudo o que o usuário vê (título da janela e do painel, bandeja, painel fixo, menu Iniciar, nomes de exibição dos serviços, instalador, "Aplicativos instalados"). Os nomes internos (`PcMonitor.*`, serviços `PcMonitor.Collector`/`PcMonitor.Dashboard`, `%ProgramData%\PcMonitor`) **não mudam**: renomeá-los quebraria a instalação atual e o banco sem ganho para o usuário.
 - **Ícone:** uma única fonte, `assets/brand/caixa-preta.svg` (ícone A). Todos os outros formatos (ICO multi-tamanho, PNG, favicon) são gerados dela por script e versionados.
-- **Nada sai da máquina** em tempo de execução: o app da bandeja só fala com `127.0.0.1:5280`; as notificações são locais.
-- **Notificações** (as quatro escolhidas), cada tipo no máximo uma vez a cada **10 min** enquanto a condição continuar:
-  - `IncidentRecorded`: uma queda nova aparece no banco (o painel compara com a última que já conhecia).
-  - `RailOutOfRange`: +12 V, +5 V ou +3,3 V fora da faixa ATX (`RailTolerance.Atx`) em **2 leituras seguidas**.
-  - `CpuCritical`: CPU ≥ `DiagnosisThresholds.CpuCriticalCelsius` (100 °C). 95 °C não avisa (normal sob carga).
-  - `RecordingStopped`: sessão aberta e sem leituras novas há mais de **60 s**.
+- **Nada sai da máquina** em tempo de execução: o app da bandeja só fala com `127.0.0.1:5280`.
+- **Painel fixo** (rota `/mini`, janela do app da bandeja):
+  - Sempre por cima das outras janelas, sem barra de título nem botão na barra de tarefas, arrastável, posição lembrada entre execuções; começa no canto inferior direito, acima da bandeja.
+  - Pequeno: cerca de 240 × 132 px. Mostra só **CPU °C, carga da CPU %, +12 V, +5 V, +3,3 V** e uma bolinha de gravação. Sem gráficos.
+  - Cor dos números pela mesma regra do painel (`statusOf`, faixas e limites da API): normal na cor do texto, **vermelho** fora do normal (rail fora da faixa ATX, CPU ≥ 100 °C), âmbar para atenção (CPU no limite de projeto de 95 °C). Sem leitura: "—".
+  - Bolinha: verde gravando; **vermelha** se o coletor parou (`Stale`/`Stopped`) ou o painel não responde.
+  - Queda nova desde a última vez que o dono abriu Incidentes: um ícone vermelho pequeno no painel fixo; clicar abre a queda.
+  - Clicar no painel fixo abre a janela principal. Menu da bandeja: Abrir · Mostrar painel fixo (marcável, ligado por padrão) · Iniciar com o Windows · Sair.
 - **Exportação** no frontend, a partir dos dados da API e dos textos do i18n: CSV (UTF-8 com BOM, `;` como separador no pt-BR para abrir certo no Excel brasileiro), Excel `.xlsx`, PDF. As bibliotecas só são baixadas pelo navegador quando o usuário exporta (import dinâmico).
 - **Instalador:** um `CaixaPreta-Setup-<versão>.exe`, exige administrador, instala .NET embutido (*self-contained*, win-x64), instala ou atualiza os três componentes sem perder dados, instala o PawnIO via winget quando houver internet (ADR 0010), cria o atalho do menu Iniciar e a entrada "iniciar com o Windows" do app, e desinstala tudo menos os dados (pergunta se quer apagar os dados). Versão do produto: **1.0.0**. Sem assinatura de código (o Windows mostra o aviso do SmartScreen; documentado).
 
 ## Review Focus
 
-1. **Painel indisponível quando o app da bandeja abre** (serviço ainda iniciando no boot, ou parado): a janela mostra uma página local de espera e tenta de novo; o fluxo de alertas reconecta sozinho; nada trava nem fecha. Testes na Task 4.
-2. **Alerta repetido** (tensão oscilando em torno do limite, coletor parando e voltando): no máximo um aviso por tipo a cada 10 min, e o aviso volta a valer depois que a condição some e reaparece passado o intervalo. Testes na Task 3.
+1. **Painel indisponível quando o app da bandeja abre** (serviço ainda iniciando no boot, ou parado): a janela principal mostra uma página local de espera e tenta de novo; o painel fixo mostra a bolinha vermelha e "—" e volta sozinho quando o painel responde; nada trava nem fecha. Testes nas Tasks 3 e 4.
+2. **Painel fixo fora da tela** (monitor desligado, resolução ou escala do Windows mudou desde a última posição salva): ele volta para o canto inferior direito do monitor principal. Teste na Task 4.
 3. **Segunda instância do app** (usuário clica no atalho com o app já na bandeja): não abre outro processo; mostra a janela existente. Teste na Task 4.
 4. **Atualizar por cima de uma instalação antiga** (a feita pelos scripts dos Planos 02–05, com serviços rodando e banco com dados): o instalador para os serviços, troca os binários, mantém o banco e o histórico, e tudo volta a rodar. Verificação na Task 7.
 5. **Exportar com dados ausentes** (queda sem diagnóstico ou sem telemetria, sensor sem leituras, período sem dados): o arquivo sai mesmo assim, com "—" ou a aba vazia com cabeçalho, sem erro. Testes na Task 5.
@@ -75,64 +77,64 @@
 
 ---
 
-### Task 3: Alertas (Application + fluxo no painel)
+### Task 3: Painel fixo no frontend (rota `/mini`)
 
 **Files:**
-- Create: `src/PcMonitor.Application/Alerts/{AlertKind.cs, Alert.cs, AlertMonitor.cs, AlertFeed.cs}`
-- Create: `src/PcMonitor.Dashboard/Api/Alerts/AlertEndpoints.cs` (`GET /api/alerts/stream`, SSE, evento `alert`)
-- Test: `tests/PcMonitor.Application.Tests/Alerts/AlertMonitorTests.cs`, `AlertFeedTests.cs`; `tests/PcMonitor.Dashboard.Tests/Api/AlertEndpointsTests.cs`
-
-**Interfaces (Produces):**
-- `enum AlertKind { IncidentRecorded, RailOutOfRange, CpuCritical, RecordingStopped }`
-- `sealed record Alert(AlertKind Kind, DateTimeOffset At, IReadOnlyDictionary<string, string> Parameters)` (ex.: `rail` = `12V`, `observed` = `11.28`; `incidentId`, `topHypothesis`; parâmetros invariantes, como os achados do diagnóstico). É o mesmo tipo que o app da bandeja desserializa: nenhum DTO repetido.
-- `sealed class AlertMonitor(TimeProvider time) { static readonly TimeSpan Cooldown = 10 min; static readonly TimeSpan StoppedAfter = 60 s; IReadOnlyList<Alert> Observe(IReadOnlyList<Frame> newFrames, SensorCatalog catalog, LiveHead head, long? newestIncidentId); }` — guarda o estado entre chamadas (2 leituras seguidas de rail, último aviso por tipo, maior id de queda já visto: o primeiro valor só registra, não avisa).
-- `sealed class AlertFeed(ILiveReader live, IIncidentQuery incidents, AlertMonitor monitor, TimeProvider time, ILogger<AlertFeed> logger) { IAsyncEnumerable<Alert> FollowAsync(CancellationToken ct); }` — consulta a cada 1 s (mesmo padrão do `LiveFeed`), termina com o pedido ou com o desligamento do serviço.
+- Create: `app/layouts/mini.vue` (sem barra lateral, fundo do tema, sem rolagem), `app/pages/mini.vue` (só composição), `app/components/mini/{MiniPanel.vue, MiniValue.vue, MiniStatusDot.vue}`
+- Create: `app/utils/mini-readings.ts`: escolhe os cinco valores pelos papéis (`CpuTemperature`, `CpuLoad`, `Rail12V`, `Rail5V`, `Rail3V3`) e a cor de cada um com `statusOf`
+- Create: `app/utils/seen-incidents.ts` + `app/composables/useUnseenIncident.ts`: guarda no `localStorage` o maior id de queda já visto (a página Incidentes e o detalhe marcam como visto); o painel fixo mostra o ícone quando há uma mais nova. Falha do `localStorage` = nada a mostrar, nunca erro.
+- O painel fixo usa o mesmo `useLive` do Ao vivo; i18n
+- **Mockup primeiro:** duas variações do painel fixo (em linha e em grade) mostradas ao dono no navegador antes de fechar o visual.
+- Test: `test/unit/mini-readings.spec.ts`, `test/unit/seen-incidents.spec.ts`, `test/nuxt/MiniPanel.spec.ts`
 
 - [ ] **Step 1: Testes que falham**
 
-```csharp
-[Fact] public void A_rail_out_of_range_twice_in_a_row_raises_one_alert()        // 11.3 V, 11.3 V → 1 RailOutOfRange com rail=12V, observed=11.3
-[Fact] public void A_single_out_of_range_reading_is_ignored()                    // 11.3 V, 12.19 V → nada
-[Fact] public void The_same_alert_waits_for_the_cooldown()                      // condição contínua por 9 min → 1 aviso; aos 10 min 1 s → segundo aviso
-[Fact] public void Cpu_at_100_degrees_alerts_but_95_does_not()
-[Fact] public void Recording_stopped_alerts_after_60_seconds_without_frames()   // sessão aberta, último quadro há 61 s
-[Fact] public void An_ended_session_is_not_a_stopped_recording()                // desligamento normal não avisa
-[Fact] public void A_new_incident_alerts_with_its_top_hypothesis()             // primeira observação registra id 16 sem avisar; id 17 → IncidentRecorded
-[Fact] public async Task Alert_stream_sends_alert_events_and_ends_on_shutdown() // Dashboard: grava quadros fora da faixa → evento "alert"; StopApplication encerra
-[Fact] public async Task Alert_stream_is_503_without_a_database()
+```ts
+it('picks cpu, load and the three rails in a fixed order')
+it('marks a rail outside the ATX range red and the cpu at 95 °C amber')     // statusOf: error / warning
+it('shows — for a sensor without a reading or missing on the board')
+it('turns the recording dot red when the recording is stale or stopped, or the dashboard is unreachable')
+it('flags an incident newer than the last one seen')                         // visto 16, existe 17 → ícone
+it('treats unavailable storage as nothing new')                              // localStorage lança → sem ícone, sem erro
 ```
 
-- [ ] **Step 2:** `dotnet test` FAIL. **Step 3:** implementar. **Step 4:** PASS; OpenAPI e `schema.d.ts` regenerados.
-- [ ] **Step 5:** commit `feat: raise alerts for crashes, rails, cpu heat and stopped recording`.
+- [ ] **Step 2:** FAIL. **Step 3:** mockups → aprovação do dono → implementar. **Step 4:** testes, lint, typecheck, generate PASS; conferir `/mini` no navegador.
+- [ ] **Step 5:** commit `feat: add the compact always-visible panel view`.
 
 ---
 
 ### Task 4: App da bandeja (`PcMonitor.Tray`)
 
 **Files:**
-- Create: `src/PcMonitor.Tray/` (`net10.0-windows`, WPF + `UseWindowsForms` para o `NotifyIcon`, `ApplicationIcon` = `caixa-preta.ico`, `AssemblyName` = `CaixaPreta`): `App.xaml(.cs)`, `MainWindow.xaml(.cs)` (WebView2), `Tray/TrayIcon.cs`, `Alerts/AlertListener.cs` (SSE `/api/alerts/stream`, reconexão com espera crescente), `Alerts/AlertText.cs` (texto de cada aviso, `Resources/Strings.resx` pt-BR + `Strings.en.resx`), `Startup/SingleInstance.cs` (mutex + pipe nomeado para pedir à instância aberta que mostre a janela), `Startup/RunAtLogin.cs` (chave `HKCU\…\Run`), `Assets/offline.html` (página de espera embutida), `AGENTS.md`, `CLAUDE.md`
-- Modify: `PcMonitor.slnx`, `Directory.Packages.props` (`Microsoft.Web.WebView2`), testes de arquitetura (o app só pode depender de Application e Domain)
-- Test: `tests/PcMonitor.Tray.Tests/` (`AlertTextTests`, `AlertListenerTests` com servidor SSE falso, `SingleInstanceTests`, `RunAtLoginTests` numa chave de teste)
+- Create: `src/PcMonitor.Tray/` (`net10.0-windows`, WPF + `UseWindowsForms` para o `NotifyIcon`, `ApplicationIcon` = `caixa-preta.ico`, `AssemblyName` = `CaixaPreta`):
+  - `App.xaml(.cs)`; `Windows/MainWindow.xaml(.cs)` (WebView2 no painel)
+  - `Windows/MiniWindow.xaml(.cs)` (WebView2 em `/mini`, `Topmost`, `WindowStyle=None`, `ShowInTaskbar=False`, fundo transparente, arrastável)
+  - `Windows/WindowPlacement.cs` (posição salva e trazida de volta para dentro da área de trabalho visível)
+  - `Tray/TrayIcon.cs`; `Startup/SingleInstance.cs` (mutex + pipe nomeado para pedir à instância aberta que mostre a janela); `Startup/RunAtLogin.cs` (chave `HKCU\…\Run`)
+  - `Settings/TraySettings.cs` (JSON em `%LocalAppData%\CaixaPreta`: painel fixo ligado e posição)
+  - `Resources/Strings.resx` (pt-BR) + `Strings.en.resx` (menu da bandeja); `Assets/offline.html` (página de espera embutida); `AGENTS.md`, `CLAUDE.md`
+- Modify: `PcMonitor.slnx`, `Directory.Packages.props` (`Microsoft.Web.WebView2`), testes de arquitetura (o app não depende de nenhum projeto do PC Monitor: só fala HTTP com o painel)
+- Test: `tests/PcMonitor.Tray.Tests/` (`WindowPlacementTests`, `TraySettingsTests`, `SingleInstanceTests`, `RunAtLoginTests` numa chave de teste)
 
 **Comportamento:**
-- Ao iniciar: ícone na bandeja ("Caixa-Preta"), sem janela (inicia com o Windows minimizado). Duplo clique ou "Abrir" mostra a janela; fechar a janela esconde na bandeja; "Sair" encerra o app (os serviços continuam gravando).
-- Menu da bandeja: Abrir · Iniciar com o Windows (marcável) · Sair.
-- Janela: WebView2 em `http://127.0.0.1:5280/`, dados do WebView2 em `%LocalAppData%\CaixaPreta\WebView2`, sem menus de desenvolvedor, links externos abertos no navegador padrão. Painel fora do ar → página local de espera, nova tentativa a cada 5 s.
-- Notificações: balão do `NotifyIcon` (no Windows 11 aparece como notificação do sistema); clicar abre a janela já na tela certa (queda → `/incidents/{id}`; tensão e CPU → `/`; coletor parado → `/`).
-- A porta vem do `appsettings` do painel instalado (`Dashboard:Port`), padrão 5280.
+- Ao iniciar (com o Windows): ícone na bandeja ("Caixa-Preta") e o painel fixo, se ligado; a janela principal só abre quando o dono pede.
+- Clique no painel fixo ou "Abrir" → janela principal. Fechar a janela principal esconde; "Sair" encerra o app (os serviços continuam gravando).
+- As duas janelas compartilham o mesmo ambiente do WebView2 (`%LocalAppData%\CaixaPreta\WebView2`), então o painel fixo sabe quais quedas já foram vistas na janela principal.
+- Links externos abrem no navegador padrão; sem menu de contexto nem ferramentas de desenvolvedor.
+- Porta do painel: `Dashboard:Port` do `appsettings` instalado, padrão 5280.
 
 - [ ] **Step 1: Testes que falham**
 
 ```csharp
-[Fact] public void Rail_alert_text_names_the_rail_and_the_reading()             // pt-BR: "+12 V fora da faixa: 11,28 V"
-[Fact] public void Incident_alert_text_has_the_likely_cause_and_opens_its_page() // destino /incidents/17
-[Fact] public async Task Listener_reconnects_after_the_dashboard_restarts()      // servidor cai e volta → recebe o próximo alerta
+[Fact] public void A_saved_position_outside_every_screen_moves_back_to_the_primary_work_area()
+[Fact] public void A_saved_position_inside_a_screen_is_kept()
+[Fact] public void Settings_default_to_the_mini_panel_shown_and_survive_a_restart()
 [Fact] public void A_second_instance_asks_the_first_to_show_its_window()
 [Fact] public void Run_at_login_adds_and_removes_the_entry()
 ```
 
-- [ ] **Step 2:** FAIL. **Step 3:** implementar. **Step 4:** `dotnet test --solution PcMonitor.slnx` PASS; rodar o app localmente apontando para o painel instalado e conferir janela, bandeja e uma notificação de teste (comando oculto `CaixaPreta.exe --test-notification`).
-- [ ] **Step 5:** commit `feat: add the Caixa-Preta tray app with the dashboard window and notifications`.
+- [ ] **Step 2:** FAIL. **Step 3:** implementar. **Step 4:** `dotnet test --solution PcMonitor.slnx` PASS; rodar o app apontando para o painel instalado: painel fixo por cima de outras janelas, arrastar, reiniciar o app e ver a posição mantida, janela principal, menu da bandeja.
+- [ ] **Step 5:** commit `feat: add the Caixa-Preta tray app with the main window and the always-on-top panel`.
 
 ---
 
@@ -186,9 +188,9 @@ it('omits the chart and says so when there is no telemetry')
 
 ### Task 7: Docs, revisão e instalação pelo `.exe`
 
-- [ ] Docs: `docs/architecture/overview.md` (terceiro processo e fluxo de alertas), `flows.md` (alertas e notificação), `frontend.md` (exportação), `data-model.md` (sensores de disco), ADRs 0017 (identidade), 0018 (app da bandeja com WebView2 e alertas pelo painel), 0019 (exportação no frontend), 0020 (instalador Inno Setup), AGENTS.md de cada projeto novo.
+- [ ] Docs: `docs/architecture/overview.md` (terceiro processo: app da bandeja e painel fixo), `flows.md` (painel fixo), `frontend.md` (exportação), `data-model.md` (sensores de disco), ADRs 0017 (identidade), 0018 (app da bandeja com WebView2 e painel fixo no lugar de notificações), 0019 (exportação no frontend), 0020 (instalador Inno Setup), AGENTS.md de cada projeto novo.
 - [ ] Revisão final do branch por um revisor novo; corrigir o que for crítico ou importante com testes.
-- [ ] O dono roda `CaixaPreta-Setup-1.0.0.exe` **por cima da instalação atual**. Verificar: serviços rodando, banco e histórico intactos, app na bandeja ao entrar no Windows, janela abrindo o painel, notificação de teste (`--test-notification`; uma queda não dá para simular, só a próxima real); exportar os três formatos; desinstalar e reinstalar mantendo os dados.
+- [ ] O dono roda `CaixaPreta-Setup-1.0.0.exe` **por cima da instalação atual**. Verificar: serviços rodando, banco e histórico intactos, app na bandeja e painel fixo ao entrar no Windows, janela abrindo o painel, números do painel fixo batendo com o Ao vivo; exportar os três formatos; desinstalar e reinstalar mantendo os dados.
 - [ ] Registrar o resultado neste plano e fazer o commit `docs: record plan 06 installation results`.
 
 ## Fora deste plano
@@ -196,8 +198,9 @@ it('omits the chart and says so when there is no telemetry')
 - Assinatura de código do instalador (precisa de um certificado pago).
 - Regras de diagnóstico para discos (por exemplo, queda logo depois de erro de disco); por enquanto o disco é só monitorado e exibido.
 - Visão de meses no Histórico usando os resumos por hora.
+- Notificações do Windows (o dono preferiu o painel fixo; voltam se ele pedir).
 - Publicar o repositório no GitHub (o workflow de release fica pronto para quando o dono quiser).
 
 ## Critério de pronto
 
-Todas as tasks com testes verdes; CI local verde; `CaixaPreta-Setup-1.0.0.exe` instalado por cima da versão atual nesta máquina sem perder dados; app na bandeja com o ícone da Caixa-Preta, janela com o painel, notificações funcionando e exportação nos três formatos; revisão final feita por um revisor novo.
+Todas as tasks com testes verdes; CI local verde; `CaixaPreta-Setup-1.0.0.exe` instalado por cima da versão atual nesta máquina sem perder dados; app na bandeja com o ícone da Caixa-Preta, painel fixo sempre visível, janela com o painel e exportação nos três formatos; revisão final feita por um revisor novo.
