@@ -64,7 +64,7 @@ internal static class CollectorServiceCollectionExtensions
             sp.GetRequiredService<ILogger<MonitoringRecorder>>(),
             Options(sp).GapThreshold,
             static () => TimeSpan.FromMilliseconds(Environment.TickCount64)));
-        services.AddSingleton(sp => new RetentionPolicy(Options(sp).RawRetention, RetentionPolicy.DefaultIncidentWindow));
+        services.AddSingleton(sp => new RetentionPolicy(Options(sp).RawRetention, Options(sp).AggregateRetention, RetentionPolicy.DefaultIncidentWindow));
         services.AddSingleton<ApplyRetention>();
 
         services.AddSingleton<IProcessTerminator, FailFastTerminator>();

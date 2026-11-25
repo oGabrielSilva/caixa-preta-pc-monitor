@@ -12,12 +12,14 @@ erDiagram
     SEGMENT ||--o{ FRAME : contem
     SEGMENT ||--o{ AGGREGATE_1M : resume
     SENSOR ||--o{ AGGREGATE_1M : resume
+    SENSOR ||--o{ AGGREGATE_1H : resume
     SESSION { int id  int started_at_ms  int booted_at_ms  text source_status  text board_product  int ended_at_ms  text end_reason }
     SEGMENT { int id  int session_id  int started_at_ms  int last_frame_ms  int ended_at_ms  text end_reason }
     SENSOR { int id  text stable_key }
     SEGMENT_SENSOR { int segment_id  int ordinal  int sensor_id  text name  text kind  text unit  text role }
     FRAME { int id  int segment_id  int ts_ms  blob values }
     AGGREGATE_1M { int segment_id  int minute_ms  int sensor_id  real min  real avg  real max }
+    AGGREGATE_1H { int sensor_id  int hour_ms  real min  real avg  real max }
 ```
 
 ### Incidentes ✅ (migrações 003–004)
@@ -48,7 +50,7 @@ erDiagram
 | Sensores | `sensor` guarda só a identidade (`stable_key`, o identificador da LibreHardwareMonitor). Nome, tipo, unidade e papel ficam em `segment_sensor`, **por segmento**: corrigir um perfil de placa depois nunca reescreve o significado do histórico. Os valores gravados já estão multiplicados pelo perfil. |
 | Durabilidade | WAL + `synchronous=FULL` + WAL persistente (o painel lê mesmo sem permissão de escrita na pasta). |
 | Histórico | O painel lê um sensor por período: índice `ix_aggregate_sensor_minute (sensor_id, minute_ms)` (migração 006); os minutos ainda não agregados são calculados dos quadros, a partir do minuto seguinte ao último agregado do sensor. |
-| Retenção | Quadros por 14 dias, **exceto os 120 s antes do fim da telemetria de cada incidente, em qualquer segmento da sessão**; agregados de 1 min (mín/méd/máx, ignorando valores não finitos: `NaN` e infinitos) para sempre; job a cada 1 h, em transações curtas. |
+| Retenção | Quadros por 14 dias, **exceto os 120 s antes do fim da telemetria de cada incidente, em qualquer segmento da sessão**; agregados de 1 min (mín/méd/máx, ignorando valores não finitos: `NaN` e infinitos) por 90 dias; resumo por hora e sensor (`aggregate_1h`, migração 007) para sempre. Um minuto só é apagado depois que a hora dele está resumida. Job a cada 1 h, em transações curtas ([ADR 0016](../adr/0016-aggregate-retention.md)). |
 | Incidentes | Um por Kernel-Power 41, idempotente por `(event_record_id, logged_at_ms)`; `failure_time_source` diz de onde vem a estimativa. |
 | Local | `%ProgramData%\PcMonitor\pcmonitor.db`; ACL: SYSTEM e Administradores com controle total, `NT SERVICE\PcMonitor.Dashboard` só leitura (o painel abre com `Mode=ReadOnly` e nunca migra o schema). |
-| Volume esperado | ~15–20 MB/dia no banco; < 1 GB/dia de escrita física. |
+| Volume esperado (35 sensores) | Quadros ~20 MB/dia, estável em ~280 MB (14 dias); agregados de 1 min ~3,3 MB/dia, estável em ~300 MB (90 dias); resumo por hora ~20 MB/ano. Banco estável perto de 600 MB, crescendo ~20 MB/ano. WAL limitado a 64 MiB (`journal_size_limit`). Escrita física < 1 GB/dia. |

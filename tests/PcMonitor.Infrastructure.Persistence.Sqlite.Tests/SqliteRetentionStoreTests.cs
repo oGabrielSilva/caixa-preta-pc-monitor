@@ -119,4 +119,78 @@ public sealed class SqliteRetentionStoreTests : IDisposable
         using var connection = _temp.Database.OpenReader();
         connection.ExecuteScalar<long>("SELECT COUNT(*) FROM frame").ShouldBe(1);
     }
+
+    private List<(string Key, long Hour, double Min, double Avg, double Max)> Hours()
+    {
+        using var connection = _temp.Database.OpenReader();
+        return [.. connection.Query<(string, long, double, double, double)>("""
+            SELECT s.stable_key, h.hour_ms, h.min, h.avg, h.max
+            FROM aggregate_1h h JOIN sensor s ON s.id = h.sensor_id ORDER BY h.hour_ms, s.stable_key
+            """)];
+    }
+
+    /// <summary>One frame at the start of each minute for <paramref name="minutes"/> minutes: sensor a = minute index, b = 10.</summary>
+    private void FramesEveryMinute(int minutes)
+    {
+        for (var minute = 0; minute < minutes; minute++)
+        {
+            Frame(_minute.AddMinutes(minute), minute, 10f);
+        }
+
+        _retention.AggregateMinutesBefore(_minute.AddMinutes(minutes));
+    }
+
+    [Fact]
+    public void Hours_summarise_the_minute_aggregates_of_complete_hours()
+    {
+        FramesEveryMinute(125);
+
+        _retention.AggregateHoursBefore(_minute.AddHours(2)).ShouldBe(4);
+
+        Hours().ShouldBe(
+        [
+            ("/a", _minute.ToUnixTimeMilliseconds(), 0d, 29.5d, 59d),
+            ("/b", _minute.ToUnixTimeMilliseconds(), 10d, 10d, 10d),
+            ("/a", _minute.AddHours(1).ToUnixTimeMilliseconds(), 60d, 89.5d, 119d),
+            ("/b", _minute.AddHours(1).ToUnixTimeMilliseconds(), 10d, 10d, 10d),
+        ]);
+    }
+
+    [Fact]
+    public void Hours_already_summarised_are_not_redone()
+    {
+        FramesEveryMinute(125);
+        _retention.AggregateHoursBefore(_minute.AddHours(1));
+
+        _retention.AggregateHoursBefore(_minute.AddHours(2)).ShouldBe(2);
+        _retention.AggregateHoursBefore(_minute.AddHours(2)).ShouldBe(0);
+    }
+
+    [Fact]
+    public void Minute_aggregates_are_deleted_only_once_their_hour_is_summarised()
+    {
+        FramesEveryMinute(125);
+        _retention.AggregateHoursBefore(_minute.AddHours(1));
+
+        // Cutoff after both hours, but only the first one has its hourly summary.
+        _retention.DeleteMinuteAggregatesBefore(_minute.AddHours(2)).ShouldBe(120);
+
+        Aggregates().Select(a => a.Minute).Distinct().Count().ShouldBe(65);
+        Aggregates().Min(a => a.Minute).ShouldBe(_minute.AddHours(1).ToUnixTimeMilliseconds());
+    }
+
+    [Theory]
+    [InlineData(nameof(RetentionSql.AggregateHours))]
+    [InlineData(nameof(RetentionSql.DeleteMinuteAggregates))]
+    public void Hourly_retention_reads_minute_aggregates_through_an_index(string query)
+    {
+        var sql = (string)typeof(RetentionSql).GetField(query)!.GetValue(null)!;
+        using var connection = _temp.Database.OpenReader();
+
+        var plan = connection.Query<(long Id, long Parent, long NotUsed, string Detail)>(
+            $"EXPLAIN QUERY PLAN {sql}", new { SensorId = 1L, CutoffMs = 0L }).Select(r => r.Detail).ToList();
+
+        plan.Where(detail => detail.Contains("aggregate_1m", StringComparison.Ordinal))
+            .ShouldAllBe(detail => detail.StartsWith("SEARCH", StringComparison.Ordinal) && detail.Contains("?)", StringComparison.Ordinal));
+    }
 }

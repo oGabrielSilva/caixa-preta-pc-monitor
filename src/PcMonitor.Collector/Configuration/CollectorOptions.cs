@@ -30,6 +30,10 @@ internal sealed class CollectorOptions : IValidatableObject
     public TimeSpan RawRetention { get; set; } = TimeSpan.FromDays(14);
 
     /// <summary>How often aggregation and deletion run.</summary>
+    /// <summary>How long 1-minute aggregates are kept; hourly summaries are kept forever.</summary>
+    [Range(typeof(TimeSpan), "1.00:00:00", "3650.00:00:00")]
+    public TimeSpan AggregateRetention { get; set; } = TimeSpan.FromDays(90);
+
     [Range(typeof(TimeSpan), "00:01:00", "1.00:00:00")]
     public TimeSpan RetentionInterval { get; set; } = TimeSpan.FromHours(1);
 
@@ -48,6 +52,12 @@ internal sealed class CollectorOptions : IValidatableObject
         {
             yield return new ValidationResult(
                 $"{nameof(StartupTimeout)} must be at least {nameof(StallTimeout)}.", [nameof(StartupTimeout)]);
+        }
+
+        if (AggregateRetention < RawRetention)
+        {
+            yield return new ValidationResult(
+                $"{nameof(AggregateRetention)} must be at least {nameof(RawRetention)}.", [nameof(AggregateRetention)]);
         }
     }
 }

@@ -18,9 +18,14 @@ public sealed class CollectorOptionsTests
         options.StallTimeout.ShouldBe(TimeSpan.FromSeconds(10));
         options.StartupTimeout.ShouldBe(TimeSpan.FromSeconds(60));
         options.RawRetention.ShouldBe(TimeSpan.FromDays(14));
+        options.AggregateRetention.ShouldBe(TimeSpan.FromDays(90));
         options.RetentionInterval.ShouldBe(TimeSpan.FromHours(1));
         options.DatabasePath.ShouldEndWith(@"PcMonitor\pcmonitor.db");
     }
+
+    [Fact]
+    public void Options_reject_minute_aggregates_kept_shorter_than_raw_frames() =>
+        IsValid(new CollectorOptions { RawRetention = TimeSpan.FromDays(30), AggregateRetention = TimeSpan.FromDays(20) }).ShouldBeFalse();
 
     [Fact]
     public void Options_reject_a_stall_timeout_shorter_than_five_intervals() =>

@@ -18,6 +18,16 @@ public sealed class SqliteDatabaseTests
     }
 
     [Fact]
+    public void Writer_caps_the_wal_file_at_64_MiB()
+    {
+        using var temp = new TempDatabase();
+        using var connection = temp.Database.OpenWriter();
+
+        // The WAL is persistent, so without a limit it would keep the size of its largest burst (retention deletes) forever.
+        connection.ExecuteScalar<long>("PRAGMA journal_size_limit").ShouldBe(64L * 1024 * 1024);
+    }
+
+    [Fact]
     public void Writer_creates_the_database_folder()
     {
         using var temp = new TempDatabase();

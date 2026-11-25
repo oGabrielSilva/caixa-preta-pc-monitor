@@ -21,7 +21,14 @@ public sealed class SqliteDatabase(string path)
         PRAGMA synchronous = FULL;
         PRAGMA foreign_keys = ON;
         PRAGMA busy_timeout = {WriterLockWaitSeconds * 1000};
+        PRAGMA journal_size_limit = {WalSizeLimitBytes};
         """;
+
+    /// <summary>
+    /// The WAL is persistent (the dashboard reads without write access), so without a limit it would keep the size of its
+    /// largest burst forever; after a checkpoint SQLite truncates it to this size.
+    /// </summary>
+    private const long WalSizeLimitBytes = 64L * 1024 * 1024;
 
     /// <summary>Where the collector keeps the database: <c>%ProgramData%\PcMonitor\pcmonitor.db</c>.</summary>
     public static string DefaultPath { get; } = System.IO.Path.Combine(

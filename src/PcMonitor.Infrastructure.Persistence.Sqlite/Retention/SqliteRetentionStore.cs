@@ -41,6 +41,19 @@ public sealed class SqliteRetentionStore(SqliteDatabase database) : IRetentionSt
         return pending.Count;
     }
 
+    public int AggregateHoursBefore(DateTimeOffset cutoff) => PerSensor(RetentionSql.AggregateHours, cutoff);
+
+    public int DeleteMinuteAggregatesBefore(DateTimeOffset cutoff) => PerSensor(RetentionSql.DeleteMinuteAggregates, cutoff);
+
+    /// <summary>Runs a per-sensor statement for every sensor (one short transaction each, through the sensor index).</summary>
+    private int PerSensor(string sql, DateTimeOffset cutoff)
+    {
+        using var connection = database.OpenWriter();
+        var cutoffMs = cutoff.ToUnixTimeMilliseconds();
+        return connection.Query<long>(RetentionSql.SensorIds).ToList()
+            .Sum(sensorId => connection.Execute(sql, new { SensorId = sensorId, CutoffMs = cutoffMs }));
+    }
+
     public int DeleteFramesBefore(DateTimeOffset cutoff, TimeSpan incidentWindow)
     {
         using var connection = database.OpenWriter();
