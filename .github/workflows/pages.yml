@@ -1,0 +1,70 @@
+name: Pages
+
+# Builds the landing page (src/PcMonitor.Site) as static files and publishes it on GitHub Pages (ADR 0021).
+# release.yml starts this workflow after each release, so the download link and the release history stay current
+# (a release created with GITHUB_TOKEN does not trigger the release event for other workflows).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/PcMonitor.Site/**'
+      - 'src/PcMonitor.Brand/**'
+      - 'assets/brand/**'
+      - '.github/workflows/pages.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the landing page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: src/PcMonitor.Site/package.json
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+          cache-dependency-path: src/PcMonitor.Site/pnpm-lock.yaml
+
+      - uses: actions/configure-pages@v6
+
+      - name: Install dependencies
+        working-directory: src/PcMonitor.Site
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate the static site
+        working-directory: src/PcMonitor.Site
+        env:
+          # Reads the public releases of this repository without hitting the anonymous rate limit.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pnpm generate
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: src/PcMonitor.Site/.output/public
+
+  deploy:
+    name: Publish on GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

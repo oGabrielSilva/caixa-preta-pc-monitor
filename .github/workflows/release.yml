@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  # Starts pages.yml after publishing, so the landing page shows the new release (ADR 0021).
+  actions: write
 
 jobs:
   release:
@@ -47,3 +49,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create $env:GITHUB_REF_NAME artifacts/release/CaixaPreta-Setup-*.exe artifacts/release/CaixaPreta-Setup-*.exe.sha256 --title "Caixa-Preta $($env:GITHUB_REF_NAME)" --generate-notes
+
+      # A release made with GITHUB_TOKEN triggers no other workflow, so the landing page is rebuilt explicitly.
+      - name: Rebuild the landing page
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main

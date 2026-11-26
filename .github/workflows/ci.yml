@@ -38,7 +38,9 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: pnpm
-          cache-dependency-path: src/PcMonitor.Dashboard.Web/pnpm-lock.yaml
+          cache-dependency-path: |
+            src/PcMonitor.Dashboard.Web/pnpm-lock.yaml
+            src/PcMonitor.Site/pnpm-lock.yaml
 
       # --- Backend --------------------------------------------------------
       - name: Restore
@@ -72,6 +74,29 @@ jobs:
 
       - name: Generate the static SPA
         working-directory: src/PcMonitor.Dashboard.Web
+        run: pnpm generate
+
+      # --- Landing page (ADR 0021) ----------------------------------------
+      - name: Install landing page dependencies
+        working-directory: src/PcMonitor.Site
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint the landing page
+        working-directory: src/PcMonitor.Site
+        run: pnpm lint
+
+      - name: Typecheck the landing page
+        working-directory: src/PcMonitor.Site
+        run: pnpm typecheck
+
+      - name: Test the landing page
+        working-directory: src/PcMonitor.Site
+        run: pnpm test
+
+      - name: Generate the landing page
+        working-directory: src/PcMonitor.Site
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: pnpm generate
 
       # --- Cross-cutting checks -------------------------------------------
