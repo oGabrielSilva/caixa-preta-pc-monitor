@@ -33,6 +33,9 @@ function ico(sizes) {
 
 writeFileSync(`${brand}caixa-preta.ico`, ico([16, 20, 24, 32, 40, 48, 64, 256]))
 writeFileSync(`${brand}caixa-preta-256.png`, png(256))
-writeFileSync(path('../public/favicon.ico'), ico([16, 32, 48]))
-copyFileSync(`${brand}caixa-preta.svg`, path('../public/icon.svg'))
+// The dashboard and the landing page (PcMonitor.Site) ship the same favicon and SVG icon.
+for (const app of ['../public/', '../../PcMonitor.Site/public/']) {
+  writeFileSync(path(`${app}favicon.ico`), ico([16, 32, 48]))
+  copyFileSync(`${brand}caixa-preta.svg`, path(`${app}icon.svg`))
+}
 console.log('Icons generated from assets/brand/caixa-preta.svg')
