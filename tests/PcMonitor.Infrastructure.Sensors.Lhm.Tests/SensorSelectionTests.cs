@@ -19,19 +19,19 @@ public sealed class SensorSelectionTests
     }
 
     [Fact]
-    public void Selection_keeps_only_temperature_voltage_power_load_and_fan()
+    public void Selection_keeps_only_temperature_voltage_power_load_fan_and_level()
     {
         ISensor[] sensors =
         [
             Sensor("/x/temperature/0", SensorType.Temperature), Sensor("/x/voltage/0", SensorType.Voltage),
             Sensor("/x/power/0", SensorType.Power), Sensor("/x/load/0", SensorType.Load), Sensor("/x/fan/0", SensorType.Fan),
             Sensor("/x/clock/0", SensorType.Clock), Sensor("/x/control/0", SensorType.Control),
-            Sensor("/x/data/0", SensorType.Data), Sensor("/x/timing/0", SensorType.Timing),
+            Sensor("/x/data/0", SensorType.Data), Sensor("/x/timing/0", SensorType.Timing), Sensor("/x/level/0", SensorType.Level),
         ];
 
         SensorSelection.Select(sensors, profile: null, driverAvailable: true)
             .Select(s => s.Descriptor.Kind)
-            .ShouldBe([SensorKind.Fan, SensorKind.Load, SensorKind.Power, SensorKind.Temperature, SensorKind.Voltage],
+            .ShouldBe([SensorKind.Fan, SensorKind.Load, SensorKind.Power, SensorKind.Temperature, SensorKind.Voltage, SensorKind.Level],
                 ignoreOrder: true);
     }
 
@@ -79,5 +79,25 @@ public sealed class SensorSelectionTests
         ISensor[] sensors = [Sensor("/b/load/0", SensorType.Load), Sensor("/a/load/0", SensorType.Load)];
 
         SensorSelection.Select(sensors, null, true).Select(s => s.Descriptor.StableKey).ShouldBe(["/a/load/0", "/b/load/0"]);
+    }
+
+    [Fact]
+    public void Profile_keeps_the_useful_disk_and_memory_sensors_and_drops_the_rest()
+    {
+        ISensor[] sensors =
+        [
+            Sensor("/nvme/0/temperature/0", SensorType.Temperature), Sensor("/nvme/0/temperature/1", SensorType.Temperature),
+            Sensor("/nvme/0/temperature/10", SensorType.Temperature), Sensor("/nvme/0/temperature/11", SensorType.Temperature),
+            Sensor("/nvme/0/load/30", SensorType.Load), Sensor("/nvme/0/load/53", SensorType.Load),
+            Sensor("/nvme/0/level/20", SensorType.Level), Sensor("/nvme/0/level/102", SensorType.Level),
+            Sensor("/ram/load/0", SensorType.Load, "Memory"),
+        ];
+
+        var selected = SensorSelection.Select(sensors, _profile, driverAvailable: true);
+
+        selected.Select(s => s.Descriptor.StableKey).ShouldBe(
+            ["/nvme/0/level/20", "/nvme/0/load/30", "/nvme/0/temperature/0", "/nvme/0/temperature/10", "/nvme/0/temperature/11", "/ram/load/0"]);
+        selected.Single(s => s.Descriptor.StableKey == "/ram/load/0").Descriptor.Role.ShouldBe(SensorRole.MemoryLoad);
+        selected.Single(s => s.Descriptor.StableKey == "/nvme/0/level/20").Descriptor.Unit.ShouldBe("%");
     }
 }

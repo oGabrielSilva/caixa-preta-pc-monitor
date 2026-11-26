@@ -8,4 +8,7 @@ public enum SensorKind
     Power,
     Load,
     Fan,
+
+    /// <summary>A percentage level, such as the life left in a disk.</summary>
+    Level,
 }

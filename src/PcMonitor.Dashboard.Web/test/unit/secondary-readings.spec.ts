@@ -3,7 +3,7 @@ import type { SensorResponse } from '~/api/types'
 import { secondaryReadings } from '~/utils/secondary-readings'
 
 function sensor(key: string, name: string, kind: SensorResponse['kind'], role: SensorResponse['role'] = 'None'): SensorResponse {
-  return { key, name, kind, role, unit: '', range: null, limit: null, critical: null }
+  return { key, name, kind, role, unit: '', range: null, limit: null, critical: null, storage: null }
 }
 
 const sensors = [

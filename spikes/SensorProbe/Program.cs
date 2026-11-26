@@ -13,6 +13,7 @@ var computer = new Computer
     IsCpuEnabled = true,
     IsMotherboardEnabled = true,
     IsMemoryEnabled = true,
+    IsStorageEnabled = true,
 };
 
 var open = Stopwatch.StartNew();

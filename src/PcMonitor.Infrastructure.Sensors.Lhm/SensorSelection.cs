@@ -17,10 +17,11 @@ public static class SensorSelection
         [SensorType.Power] = (SensorKind.Power, "W"),
         [SensorType.Load] = (SensorKind.Load, "%"),
         [SensorType.Fan] = (SensorKind.Fan, "RPM"),
+        [SensorType.Level] = (SensorKind.Level, "%"),
     };
 
     /// <summary>
-    /// Keeps temperature, voltage, power, load and fan sensors; without the driver only load sensors (the rest
+    /// Keeps temperature, voltage, power, load, fan and level sensors; without the driver only load sensors (the rest
     /// would be fake zeros); drops keys the profile excludes; applies the profile's names, roles and multipliers.
     /// </summary>
     public static IReadOnlyList<SelectedSensor> Select(IEnumerable<ISensor> sensors, BoardProfile? profile, bool driverAvailable)

@@ -9,10 +9,11 @@ export function formatNumber(value: number | null | undefined, locale: string, d
 }
 
 /** Decimal places that make sense for a kind of reading. */
-export function digitsFor(kind: 'Temperature' | 'Voltage' | 'Power' | 'Load' | 'Fan'): number {
+export function digitsFor(kind: 'Temperature' | 'Voltage' | 'Power' | 'Load' | 'Fan' | 'Level'): number {
   switch (kind) {
     case 'Voltage': return 2
     case 'Fan':
+    case 'Level':
     case 'Load': return 0
     default: return 1
   }

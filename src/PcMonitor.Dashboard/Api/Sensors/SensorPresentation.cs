@@ -9,8 +9,13 @@ namespace PcMonitor.Dashboard.Api.Sensors;
 /// </summary>
 internal static class SensorPresentation
 {
-    public static SensorResponse Describe(string key, string name, SensorKind kind, string unit, SensorRole role) =>
-        new(key, name, kind, unit, role, RangeOf(role), LimitOf(role), CriticalOf(role));
+    public static SensorResponse Describe(string key, string name, SensorKind kind, string unit, SensorRole role)
+    {
+        var storage = StorageMeasure.Of(key);
+        var range = storage?.Kind == StorageMeasureKind.Life ? new RangeResponse(StorageMeasure.MinimumLifePercent, 100) : RangeOf(role);
+        return new(key, name, kind, unit, role, range, LimitOf(role), CriticalOf(role),
+            storage is null ? null : new StorageResponse(storage.Disk, storage.Kind));
+    }
 
     public static SensorResponse Describe(SensorDescriptor sensor) =>
         Describe(sensor.StableKey, sensor.Name, sensor.Kind, sensor.Unit, sensor.Role);

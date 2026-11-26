@@ -14,7 +14,7 @@ public sealed class LhmSensorSource : ISensorSource, IDisposable
 {
     private const string DriverServiceName = "PawnIO";
 
-    private readonly Computer _computer = new() { IsCpuEnabled = true, IsMotherboardEnabled = true, IsMemoryEnabled = true };
+    private readonly Computer _computer = new() { IsCpuEnabled = true, IsMotherboardEnabled = true, IsMemoryEnabled = true, IsStorageEnabled = true };
     private readonly UpdateVisitor _updater = new();
     private IReadOnlyList<SelectedSensor> _selected = [];
 

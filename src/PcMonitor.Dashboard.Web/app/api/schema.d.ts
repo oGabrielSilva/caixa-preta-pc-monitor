@@ -381,7 +381,7 @@ export interface components {
          * @description Physical quantity a sensor measures.
          * @enum {unknown}
          */
-        SensorKind: "Temperature" | "Voltage" | "Power" | "Load" | "Fan";
+        SensorKind: "Temperature" | "Voltage" | "Power" | "Load" | "Fan" | "Level";
         /** @description A recorded sensor and how to judge its readings. */
         SensorResponse: {
             /** @description Stable key of the sensor. */
@@ -405,13 +405,14 @@ export interface components {
              * @description Reading that is out of range (CPU shutdown zone).
              */
             critical: null | number;
+            storage: null | components["schemas"]["StorageResponse"];
         };
         /**
          * @description Meaning of a sensor for diagnosis, independent of how a board names it.
          *     At most one sensor per catalog holds each role other than SensorRole.None.
          * @enum {unknown}
          */
-        SensorRole: "None" | "CpuTemperature" | "CpuPackagePower" | "CpuLoad" | "Vcore" | "Rail12V" | "Rail5V" | "Rail3V3";
+        SensorRole: "None" | "CpuTemperature" | "CpuPackagePower" | "CpuLoad" | "Vcore" | "Rail12V" | "Rail5V" | "Rail3V3" | "MemoryLoad";
         /**
          * @description Whether hardware sensors can be trusted for a session.
          * @enum {unknown}
@@ -428,6 +429,14 @@ export interface components {
             sourceStatus: components["schemas"]["SensorSourceStatus"];
             /** @description Motherboard model, when known. */
             boardProduct: null | string;
+        };
+        /** @enum {unknown} */
+        StorageMeasureKind: "Temperature" | "WarningTemperature" | "CriticalTemperature" | "UsedSpace" | "Life";
+        /** @description A disk sensor: the disk (0-based) and what it measures. */
+        StorageResponse: {
+            /** Format: int32 */
+            disk: number;
+            measure: components["schemas"]["StorageMeasureKind"];
         };
         /**
          * @description Whether the database can be read by this build.

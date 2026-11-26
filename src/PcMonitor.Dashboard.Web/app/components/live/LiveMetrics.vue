@@ -11,6 +11,7 @@ const cards: { role: SensorRole, labelKey: string, icon: string, digits: number 
   { role: 'Rail12V', labelKey: 'live.cards.rail12', icon: 'i-material-symbols-bolt-outline-rounded', digits: 2 },
   { role: 'CpuPackagePower', labelKey: 'live.cards.power', icon: 'i-material-symbols-electric-meter-outline-rounded', digits: 1 },
   { role: 'CpuLoad', labelKey: 'live.cards.load', icon: 'i-material-symbols-speed-outline-rounded', digits: 0 },
+  { role: 'MemoryLoad', labelKey: 'live.cards.memory', icon: 'i-material-symbols-memory-alt-outline-rounded', digits: 0 },
 ]
 
 const metrics = computed(() => cards.flatMap((card) => {
@@ -27,7 +28,7 @@ const metrics = computed(() => cards.flatMap((card) => {
 </script>
 
 <template>
-  <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
     <SharedMetricCard
       v-for="metric in metrics"
       :key="metric.role"

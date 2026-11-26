@@ -11,6 +11,7 @@ namespace PcMonitor.Dashboard.Api.Sensors;
 /// <param name="Range">Safe range, for supply rails.</param>
 /// <param name="Limit">Reading at which to pay attention (CPU at its design limit).</param>
 /// <param name="Critical">Reading that is out of range (CPU shutdown zone).</param>
+/// <param name="Storage">For a disk sensor, which disk and what it measures.</param>
 public sealed record SensorResponse(
     string Key,
     string Name,
@@ -19,4 +20,8 @@ public sealed record SensorResponse(
     SensorRole Role,
     RangeResponse? Range,
     float? Limit,
-    float? Critical);
+    float? Critical,
+    StorageResponse? Storage);
+
+/// <summary>A disk sensor: the disk (0-based) and what it measures.</summary>
+public sealed record StorageResponse(int Disk, StorageMeasureKind Measure);

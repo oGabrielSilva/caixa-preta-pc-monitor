@@ -1068,7 +1068,8 @@
           "Voltage",
           "Power",
           "Load",
-          "Fan"
+          "Fan",
+          "Level"
         ],
         "description": "Physical quantity a sensor measures."
       },
@@ -1081,7 +1082,8 @@
           "role",
           "range",
           "limit",
-          "critical"
+          "critical",
+          "storage"
         ],
         "type": "object",
         "properties": {
@@ -1131,6 +1133,17 @@
             ],
             "description": "Reading that is out of range (CPU shutdown zone).",
             "format": "float"
+          },
+          "storage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "description": "For a disk sensor, which disk and what it measures.",
+                "$ref": "#/components/schemas/StorageResponse"
+              }
+            ]
           }
         },
         "description": "A recorded sensor and how to judge its readings."
@@ -1144,7 +1157,8 @@
           "Vcore",
           "Rail12V",
           "Rail5V",
-          "Rail3V3"
+          "Rail3V3",
+          "MemoryLoad"
         ],
         "description": "Meaning of a sensor for diagnosis, independent of how a board names it.\r\nAt most one sensor per catalog holds each role other than SensorRole.None."
       },
@@ -1182,6 +1196,32 @@
           }
         },
         "description": "The collector session being shown."
+      },
+      "StorageMeasureKind": {
+        "enum": [
+          "Temperature",
+          "WarningTemperature",
+          "CriticalTemperature",
+          "UsedSpace",
+          "Life"
+        ]
+      },
+      "StorageResponse": {
+        "required": [
+          "disk",
+          "measure"
+        ],
+        "type": "object",
+        "properties": {
+          "disk": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "measure": {
+            "$ref": "#/components/schemas/StorageMeasureKind"
+          }
+        },
+        "description": "A disk sensor: the disk (0-based) and what it measures."
       },
       "StorageState": {
         "enum": [

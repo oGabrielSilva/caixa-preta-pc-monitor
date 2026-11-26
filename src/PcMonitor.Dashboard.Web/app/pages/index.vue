@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const { buffer, state, problem, session, lastFrameAt } = useLive()
 const { incidents } = useIncidents()
+const disks = computed(() => diskReadings(buffer.value))
 </script>
 
 <template>
@@ -28,6 +29,7 @@ const { incidents } = useIncidents()
         />
         <LiveRails :buffer="buffer" />
       </div>
+      <LiveStorageCard :disks="disks" />
       <LiveRecentIncidents :incidents="incidents" />
     </template>
   </SharedPage>

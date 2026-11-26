@@ -42,7 +42,8 @@
       "cpuTemperature": "CPU",
       "rail12": "+12 V",
       "power": "Consumo da CPU",
-      "load": "Carga da CPU"
+      "load": "Carga da CPU",
+      "memory": "Memória em uso"
     },
     "hints": {
       "limit": "Limite de projeto da CPU: {limit} °C",
@@ -66,7 +67,15 @@
       "seeAll": "Ver todas ({count})",
       "none": "Nenhuma queda registrada."
     },
-    "staleFor": "Sem leituras há {duration}"
+    "staleFor": "Sem leituras há {duration}",
+    "storage": {
+      "title": "Discos",
+      "none": "Nenhum disco com sensores.",
+      "disk": "Disco {number}",
+      "temperature": "Temperatura",
+      "life": "Vida restante",
+      "used": "Espaço usado"
+    }
   },
   "incidents": {
     "stats": {
@@ -196,7 +205,8 @@
     "Vcore": "tensão do núcleo (Vcore)",
     "Rail12V": "+12 V",
     "Rail5V": "+5 V",
-    "Rail3V3": "+3,3 V"
+    "Rail3V3": "+3,3 V",
+    "MemoryLoad": "memória em uso"
   },
   "sleepStates": {
     "0": "nenhuma transição",

@@ -14,4 +14,5 @@ public enum SensorRole
     Rail12V,
     Rail5V,
     Rail3V3,
+    MemoryLoad,
 }
