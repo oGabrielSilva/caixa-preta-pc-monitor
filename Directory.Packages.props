@@ -17,6 +17,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.15" />
     <PackageVersion Include="System.Diagnostics.EventLog" Version="10.0.15" />
     <PackageVersion Include="System.ServiceProcess.ServiceController" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.Web.WebView2" Version="1.0.4370.26" />
   </ItemGroup>
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.15" />

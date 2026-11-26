@@ -7,6 +7,7 @@
     <Project Path="src/PcMonitor.Infrastructure.Persistence.Sqlite/PcMonitor.Infrastructure.Persistence.Sqlite.csproj" />
     <Project Path="src/PcMonitor.Infrastructure.Sensors.Lhm/PcMonitor.Infrastructure.Sensors.Lhm.csproj" />
     <Project Path="src/PcMonitor.Infrastructure.Windows/PcMonitor.Infrastructure.Windows.csproj" />
+    <Project Path="src/PcMonitor.Tray/PcMonitor.Tray.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/PcMonitor.Application.Tests/PcMonitor.Application.Tests.csproj" />
@@ -18,5 +19,6 @@
     <Project Path="tests/PcMonitor.Infrastructure.Sensors.Lhm.Tests/PcMonitor.Infrastructure.Sensors.Lhm.Tests.csproj" />
     <Project Path="tests/PcMonitor.Infrastructure.Windows.Tests/PcMonitor.Infrastructure.Windows.Tests.csproj" />
     <Project Path="tests/PcMonitor.Tests.Support/PcMonitor.Tests.Support.csproj" />
+    <Project Path="tests/PcMonitor.Tray.Tests/PcMonitor.Tray.Tests.csproj" />
   </Folder>
 </Solution>

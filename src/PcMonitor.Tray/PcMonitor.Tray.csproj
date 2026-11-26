@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- Only for the tray icon (NotifyIcon) and the screens' work areas. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>CaixaPreta</AssemblyName>
+    <RootNamespace>PcMonitor.Tray</RootNamespace>
+    <Product>Caixa-Preta</Product>
+    <ApplicationIcon>..\..\assets\brand\caixa-preta.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- Source-generated P/Invoke (LibraryImport) for the mini panel drag needs it. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- WPF and Windows Forms share type names (Application, Point, Screen...): no implicit Windows Forms usings. -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\assets\brand\caixa-preta.ico" Link="Assets\caixa-preta.ico" LogicalName="CaixaPreta.ico" />
+    <EmbeddedResource Include="Assets\offline.html" LogicalName="CaixaPreta.offline.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PcMonitor.Tray.Tests" />
+  </ItemGroup>
+</Project>

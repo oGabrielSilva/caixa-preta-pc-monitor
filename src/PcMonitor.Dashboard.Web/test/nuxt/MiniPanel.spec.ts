@@ -25,4 +25,16 @@ describe('MiniPanel', () => {
     expect(panel.find('[data-unseen]').exists()).toBe(true)
     expect(panel.get('[data-dot]').classes()).toContain('bg-error')
   })
+  it('asks the tray app to drag the window from the icon, without opening the dashboard', async () => {
+    const messages: unknown[] = []
+    Object.assign(globalThis, { chrome: { webview: { postMessage: (message: unknown) => messages.push(message) } } })
+    const panel = await mountPtBR(MiniPanel, { props: { readings: [...readings], dot: 'success', unseenIncidentId: null } })
+
+    await panel.get('[data-drag]').trigger('mousedown')
+    await panel.get('[data-drag]').trigger('click')
+
+    expect(messages).toEqual([{ type: 'drag' }])
+    expect(panel.emitted('open')).toBeUndefined()
+    Reflect.deleteProperty(globalThis, 'chrome')
+  })
 })

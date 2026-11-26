@@ -7,6 +7,11 @@ function host(): WebViewHost | undefined {
   return (globalThis as { chrome?: { webview?: WebViewHost } }).chrome?.webview
 }
 
+/** Asks the tray app to move the always-on-top panel with the mouse (no-op in a plain browser). */
+export function startHostDrag(): void {
+  host()?.postMessage({ type: 'drag' })
+}
+
 /**
  * Opens a page of the dashboard. Inside the tray app the always-on-top panel asks the host to show the main window on
  * that page; in a plain browser it just navigates.

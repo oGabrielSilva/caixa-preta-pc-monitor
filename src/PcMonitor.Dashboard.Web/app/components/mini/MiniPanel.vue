@@ -22,11 +22,15 @@ const valueClass = { success: 'text-highlighted', neutral: 'text-highlighted', w
     :aria-label="t('mini.open')"
     @click="emit('open', props.unseenIncidentId === null ? '/' : `/incidents/${props.unseenIncidentId}`)"
   >
-    <!-- The icon is the drag handle of the tray app's window (WebView2 non-client region). -->
+    <!-- The icon is the drag handle of the tray app's window: pressing it asks the host to move the window. -->
     <img
+      data-drag
       src="/icon.svg"
       alt=""
-      class="size-5 shrink-0 [-webkit-app-region:drag]"
+      class="size-5 shrink-0 cursor-move"
+      draggable="false"
+      @mousedown.left.prevent="startHostDrag"
+      @click.stop
     >
     <span
       data-dot
