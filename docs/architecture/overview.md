@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O PC Monitor roda numa única máquina Windows. Ele lê sensores de hardware, grava tudo num banco local e mostra os dados num painel aberto no navegador da própria máquina. Nada sai da máquina.
+A Caixa-Preta (nome interno PC Monitor, [ADR 0017](../adr/0017-product-identity.md)) roda numa única máquina Windows. Ela lê sensores de hardware, grava tudo num banco local e mostra os dados num painel servido na própria máquina, aberto pelo app da bandeja ou pelo navegador. Nada sai da máquina.
 
 ## Contêineres (processos)
 
@@ -31,15 +31,26 @@ flowchart LR
     CPU --> LHM
     LHM --> LOOP --> DB
     EVT --> DET --> DB
+    subgraph TRAY["CaixaPreta.exe · sessão do usuário · sem privilégio"]
+        MAIN[Janela principal<br/>WebView2]
+        MINI[Painel fixo /mini<br/>WebView2, sempre por cima]
+        ICON[Ícone na bandeja]
+    end
+
     DB -- somente leitura --> API --> UI
+    UI --> MAIN
+    UI --> MINI
 ```
 
 | Processo | Privilégio | Responsabilidade | Status |
 |---|---|---|---|
 | Collector | LocalSystem (acesso ao driver de sensores) | Ler sensores, gravar amostras, detectar e diagnosticar incidentes | ✅ (Planos 02–04) |
 | Dashboard | `NT SERVICE\PcMonitor.Dashboard` (sem privilégio, só leitura na pasta de dados) | Servir API e painel em `127.0.0.1:5280`, só leitura | ✅ (Plano 05) |
+| App da bandeja (`CaixaPreta.exe`) | Usuário da sessão | Ícone na bandeja, janela com o painel e painel fixo sempre visível ([ADR 0018](../adr/0018-tray-app-webview2-mini-panel.md)) | ✅ (Plano 06) |
 
-Os dois processos **não conversam entre si**: o banco é o contrato. Ver [ADR 0003](../adr/0003-collector-dashboard-split-least-privilege.md) e, para a API de leitura, o ao vivo por SSE e a privacidade dos eventos, [ADR 0014](../adr/0014-read-api-sse-and-event-privacy.md).
+O app da bandeja só fala HTTP com o dashboard e não referencia nenhum projeto PC Monitor. Os três vão num instalador único ([ADR 0020](../adr/0020-inno-setup-installer.md)): `%ProgramFiles%\PcMonitor\{Collector,Dashboard,Tray,Scripts}`.
+
+Coletor e dashboard **não conversam entre si**: o banco é o contrato. Ver [ADR 0003](../adr/0003-collector-dashboard-split-least-privilege.md) e, para a API de leitura, o ao vivo por SSE e a privacidade dos eventos, [ADR 0014](../adr/0014-read-api-sse-and-event-privacy.md).
 
 ## Camadas
 

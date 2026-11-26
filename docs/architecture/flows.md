@@ -124,3 +124,25 @@ flowchart LR
 ```
 
 Os eventos e a telemetria vêm do mesmo `IncidentEvidenceAssembler` que monta a entrada do diagnóstico: o painel mostra exatamente o que as regras avaliaram. Os dados dos eventos nunca saem do banco.
+
+## Painel fixo e app da bandeja ✅
+
+```mermaid
+sequenceDiagram
+    participant W as Windows (login)
+    participant T as CaixaPreta.exe
+    participant M as Painel fixo (/mini)
+    participant J as Janela principal
+    participant A as Dashboard API
+    W->>T: HKCU Run: CaixaPreta.exe --background
+    T->>T: instância única (mutex + pipe)
+    T->>M: abre /mini no canto (posição lembrada)
+    M->>A: GET /api/live + SSE (mesmo useLive do Ao vivo)
+    M-->>M: números em vermelho fora da faixa; ponto de gravação / queda não vista
+    M->>T: postMessage {type:"open", path}
+    T->>J: mostra a janela principal na página
+    Note over T: abrir de novo pelo menu Iniciar sinaliza a instância e mostra a janela
+```
+
+- O painel fixo usa as mesmas faixas e estados do Ao vivo (vindos da API); sem notificações.
+- "Queda não vista": a última queda que o usuário ainda não abriu (`localStorage`, conferido a cada 5 min).

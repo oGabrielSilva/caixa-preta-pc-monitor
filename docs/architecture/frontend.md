@@ -37,6 +37,7 @@ flowchart LR
 | `/` Ao vivo | estado da gravação, CPU, +12 V, consumo e carga com minigráficos, tendência de 10 min, réguas das tensões com a faixa ATX, Vcore, ventoinhas, memória, últimas quedas | `useLive` (retrato + SSE), `useIncidents` |
 | `/incidents` | resumo (total, 24 h, logo após ligar, em hibernação), quedas por dia, tabela | `useIncidents` |
 | `/incidents/:id` | causa mais provável e confiança, placar das hipóteses, linha do tempo, os 2 min antes da queda, o que pesou, limites da análise | `useIncident` |
+| `/mini` | painel fixo do app da bandeja: CPU, carga e tensões numa linha, ponto de gravação | `useLive`, `useUnseenIncident` |
 | `/history` | sensor × período (1 h, 24 h, 7 dias, 14 dias) na URL, mínimo/média/máximo, quedas do período | `useHistorySensors`, `useHistory`, `useHistorySelection` |
 
 ```mermaid
@@ -54,3 +55,19 @@ flowchart LR
 - **Cores:** `success`/`warning`/`error` só para status de leitura (`utils/sensor-status.ts`); séries de gráfico usam a paleta crua.
 - **Layout:** variante *inset* do `USidebar` (`layouts/default.vue`): navegação sobre o fundo, recolhível até os ícones; cada página é um cartão com a barra de título e o botão do menu (`shared/Page.vue`).
 - **Tema:** o escolhido pelo dono ([ADR 0015](../adr/0015-nuxt-ui-theme.md)): teal/neutral, cantos retos, Google Sans Flex, ícones Material Symbols; fontes e ícones empacotados no build.
+
+## Exportação ✅
+
+```mermaid
+flowchart LR
+    P[Botão Exportar<br/>shared/ExportMenu.vue] --> C[composables/useExport]
+    C --> T[utils/export/tables.ts<br/>ExportTable com os textos da tela]
+    T --> CSV[csv.ts<br/>BOM, CRLF, ; em pt-BR]
+    T --> X[exceljs<br/>carregado sob demanda]
+    T --> PDF[incident-report.ts → pdfmake<br/>carregado sob demanda]
+    CSV --> D[download.ts<br/>caixa-preta-tipo-data.ext]
+    X --> D
+    PDF --> D
+```
+
+Quedas: CSV, Excel e PDF; uma queda: PDF com a telemetria; histórico: CSV e Excel. Decisão em [ADR 0019](../adr/0019-export-in-frontend.md).

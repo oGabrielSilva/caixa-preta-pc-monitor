@@ -21,3 +21,6 @@ Cada ADR registra uma decisão com **Contexto · Decisão · Alternativas · Con
 | [0015](0015-nuxt-ui-theme.md) | Tema do Nuxt UI escolhido pelo dono | Aceito |
 | [0016](0016-aggregate-retention.md) | Retenção dos agregados: 90 dias por minuto, por hora para sempre | Aceito |
 | [0017](0017-product-identity.md) | Identidade do produto: Caixa-Preta | Aceito |
+| [0018](0018-tray-app-webview2-mini-panel.md) | App da bandeja com WebView2 e painel fixo no lugar de notificações | Aceito |
+| [0019](0019-export-in-frontend.md) | Exportação gerada no frontend | Aceito |
+| [0020](0020-inno-setup-installer.md) | Instalador único com Inno Setup | Aceito |

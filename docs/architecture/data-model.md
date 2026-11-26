@@ -22,6 +22,10 @@ erDiagram
     AGGREGATE_1H { int sensor_id  int hour_ms  real min  real avg  real max }
 ```
 
+### Sensores de memória e disco ✅ (sem migração)
+
+Memória e discos entram como sensores comuns: `segment_sensor.kind` ganhou `Level` (vida útil do disco, %) e `role` ganhou `MemoryLoad` (`/ram/load/0`). Dos sensores NVMe o perfil da placa só mantém, por disco N: temperatura (`/nvme/N/temperature/0`), limites de aviso e crítico do próprio disco (`/10`, `/11`), espaço usado (`/nvme/N/load/30`) e vida útil (`/nvme/N/level/20`). O `StorageMeasure` do Domain classifica essas chaves e a API devolve `storage { disk, measure }`; a temperatura de cada disco é colorida pelos limites dele.
+
 ### Incidentes ✅ (migrações 003–004)
 
 ```mermaid
