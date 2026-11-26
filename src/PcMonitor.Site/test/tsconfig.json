@@ -1,0 +1,11 @@
+{
+  // Type-checks the tests (and the nuxt.config they load) with the app and module types.
+  "extends": "../.nuxt/tsconfig.app.json",
+  "include": [
+    "../.nuxt/nuxt.d.ts",
+    "../.nuxt/nuxt.node.d.ts",
+    "../app/**/*",
+    "../shared/**/*",
+    "./**/*.ts"
+  ]
+}

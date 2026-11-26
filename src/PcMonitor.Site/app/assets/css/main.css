@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+/* The theme (ADR 0015) lives in the shared Brand layer. */
+@import "../../../../PcMonitor.Brand/app/assets/css/brand.css";
