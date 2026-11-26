@@ -25,6 +25,6 @@ export default defineNuxtModule({
     addTypeTemplate({
       filename: 'types/releases.d.ts',
       getContents: () => `declare module '#releases' {\n  export const releases: import('${nuxt.options.rootDir.replace(/\\/g, '/')}/shared/utils/releases').Release[]\n}\n`,
-    })
+    }, { nuxt: true, nitro: true })
   },
 })

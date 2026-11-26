@@ -29,7 +29,10 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: true,
-      routes: ['/', '/en'],
+      // en.html instead of en/index.html: GitHub Pages serves /en from en.html directly, so the canonical URLs
+      // (no trailing slash) never go through a redirect.
+      autoSubfolderIndex: false,
+      routes: ['/', '/en', '/sitemap.xml', '/robots.txt', '/llms.txt'],
     },
   },
 
@@ -44,7 +47,7 @@ export default defineNuxtConfig({
   i18n: {
     defaultLocale,
     strategy: 'prefix_except_default',
-    // Absolute links for canonical and hreflang, without the trailing slash (the route path adds it).
+    // Canonical and hreflang links are built by usePageSeo (headLinks): i18n would repeat the project path.
     baseUrl: SITE_URL.replace(/\/$/, ''),
     locales: [...siteLocales],
     detectBrowserLanguage: false,

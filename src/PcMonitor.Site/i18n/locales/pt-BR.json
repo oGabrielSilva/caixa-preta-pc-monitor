@@ -1,5 +1,60 @@
 {
+  "meta": {
+    "home": {
+      "title": "Caixa-Preta: descubra por que seu PC desligou sozinho",
+      "description": "Monitor de hardware gratuito e open source para Windows 11. Grava temperaturas, tensões da fonte e consumo uma vez por segundo, à prova de queda de energia, e explica a causa provável de cada desligamento inesperado."
+    },
+    "releases": {
+      "title": "Versões da Caixa-Preta: histórico e downloads",
+      "description": "Todas as versões da Caixa-Preta, com data, notas e o instalador para Windows 11 de cada uma."
+    }
+  },
   "hero": {
     "title": "Seu PC desligou sozinho? A Caixa-Preta explica por quê."
+  },
+  "faq": {
+    "title": "Perguntas frequentes",
+    "items": {
+      "whyShutdown": {
+        "q": "Por que meu PC desliga ou reinicia sozinho?",
+        "a": "As causas mais comuns são a fonte que deixa de entregar energia estável, superaquecimento do processador, falha na alimentação da placa-mãe (VRM) e travamento de driver ou do Windows (tela azul). O Windows só registra que houve um desligamento inesperado (evento Kernel-Power 41), não o motivo. A Caixa-Preta grava os sensores continuamente para mostrar o que aconteceu nos segundos antes da queda."
+      },
+      "what": {
+        "q": "O que a Caixa-Preta faz?",
+        "a": "Ela grava uma vez por segundo as temperaturas, as tensões +12 V, +5 V e +3,3 V, o consumo e a carga da CPU, a memória e os discos NVMe, num banco local à prova de queda de energia (SQLite em modo WAL). Quando o PC volta depois de um desligamento inesperado, ela detecta o incidente no Log de Eventos do Windows e gera um diagnóstico explicável da causa provável."
+      },
+      "cause": {
+        "q": "Ela diz a causa com certeza?",
+        "a": "Não. Ela ordena as hipóteses (fonte, superaquecimento, placa-mãe, software, CPU ou memória, botão de energia) pela soma das evidências e mostra tudo o que pesou a favor e contra, além das limitações do caso, como a precisão de uma leitura por segundo. É uma causa provável, para orientar o próximo teste, não um laudo."
+      },
+      "free": {
+        "q": "A Caixa-Preta é gratuita?",
+        "a": "Sim. É gratuita e de código aberto, sob a licença MIT. O código, os testes e as decisões de arquitetura estão no GitHub."
+      },
+      "privacy": {
+        "q": "Meus dados saem do computador?",
+        "a": "Não. Não há nuvem, conta nem telemetria. Os dados ficam em %ProgramData%\\PcMonitor e o painel só é servido em 127.0.0.1:5280, acessível apenas da própria máquina."
+      },
+      "smartscreen": {
+        "q": "Por que o Windows mostra um alerta ao instalar?",
+        "a": "O instalador não é assinado digitalmente, então o SmartScreen mostra \"O Windows protegeu o computador\". Para continuar, clique em \"Mais informações\" e em \"Executar assim mesmo\". Cada versão publica o hash SHA-256 do instalador para você conferir o arquivo, e é possível gerar o instalador a partir do código-fonte."
+      },
+      "sensors": {
+        "q": "Quais sensores ela lê?",
+        "a": "Ela usa a LibreHardwareMonitor para ler a temperatura, a carga e o consumo da CPU, as tensões da fonte medidas pelo chip de sensores da placa-mãe, as ventoinhas, o uso de memória e a temperatura dos discos NVMe. O que aparece depende da placa: quando falta um sensor, o diagnóstico avisa."
+      },
+      "requirements": {
+        "q": "Quais são os requisitos?",
+        "a": "Windows 11 de 64 bits e permissão de administrador para instalar. O instalador traz tudo o que precisa (não exige .NET) e instala o driver PawnIO pelo winget se ele faltar."
+      },
+      "uninstall": {
+        "q": "Como desinstalar, e o que acontece com os dados?",
+        "a": "Pelo Windows, em Configurações > Aplicativos > Aplicativos instalados > Caixa-Preta. A desinstalação pergunta se os dados gravados devem ser apagados. Atualizar para uma versão nova mantém os dados."
+      },
+      "contribute": {
+        "q": "Posso contribuir?",
+        "a": "Sim. Abra uma issue com o seu caso ou um pull request no GitHub. O projeto usa .NET 10 e Nuxt 4, segue arquitetura em camadas com testes de arquitetura e registra cada decisão em ADRs."
+      }
+    }
   }
 }

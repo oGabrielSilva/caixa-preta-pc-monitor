@@ -1,5 +1,60 @@
 {
+  "meta": {
+    "home": {
+      "title": "Caixa-Preta: find out why your PC shut down on its own",
+      "description": "Free, open-source hardware monitor for Windows 11. Records temperatures, power supply voltages and power draw once per second, safe against power loss, and explains the likely cause of every unexpected shutdown."
+    },
+    "releases": {
+      "title": "Caixa-Preta releases: history and downloads",
+      "description": "Every Caixa-Preta release, with its date, notes and Windows 11 installer."
+    }
+  },
   "hero": {
     "title": "Did your PC shut down on its own? Caixa-Preta tells you why."
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": {
+      "whyShutdown": {
+        "q": "Why does my PC shut down or restart on its own?",
+        "a": "The most common causes are a power supply that stops delivering stable power, a CPU that overheats, a failing motherboard power stage (VRM) and a driver or Windows crash (blue screen). Windows only records that an unexpected shutdown happened (event Kernel-Power 41), not why. Caixa-Preta records the sensors continuously to show what happened in the seconds before the crash."
+      },
+      "what": {
+        "q": "What does Caixa-Preta do?",
+        "a": "It records temperatures, the +12 V, +5 V and +3.3 V rails, CPU power and load, memory and NVMe disks once per second into a local database that survives power loss (SQLite in WAL mode). When the PC comes back after an unexpected shutdown, it finds the incident in the Windows Event Log and produces an explainable diagnosis of the likely cause."
+      },
+      "cause": {
+        "q": "Does it tell the cause for certain?",
+        "a": "No. It ranks the hypotheses (power supply, overheating, motherboard, software, CPU or memory, power button) by the sum of the evidence and shows everything that counted for and against, plus the limits of the case, such as the precision of one reading per second. It is a likely cause to guide your next test, not a verdict."
+      },
+      "free": {
+        "q": "Is Caixa-Preta free?",
+        "a": "Yes. It is free and open source under the MIT licence. The code, the tests and the architecture decisions are on GitHub."
+      },
+      "privacy": {
+        "q": "Does my data leave the computer?",
+        "a": "No. There is no cloud, no account and no telemetry. The data stays in %ProgramData%\\PcMonitor and the dashboard is served only on 127.0.0.1:5280, reachable from the machine itself."
+      },
+      "smartscreen": {
+        "q": "Why does Windows show a warning when I install it?",
+        "a": "The installer is not code-signed, so SmartScreen shows \"Windows protected your PC\". To go on, click \"More info\" and then \"Run anyway\". Every release publishes the SHA-256 hash of the installer so you can check the file, and you can build the installer from the source code."
+      },
+      "sensors": {
+        "q": "Which sensors does it read?",
+        "a": "It uses LibreHardwareMonitor to read CPU temperature, load and power, the power supply rails measured by the motherboard's sensor chip, fans, memory use and NVMe disk temperatures. What shows up depends on the motherboard: when a sensor is missing, the diagnosis says so."
+      },
+      "requirements": {
+        "q": "What are the requirements?",
+        "a": "64-bit Windows 11 and administrator rights to install. The installer carries everything it needs (no .NET required) and installs the PawnIO driver through winget if it is missing."
+      },
+      "uninstall": {
+        "q": "How do I uninstall it, and what happens to the data?",
+        "a": "From Windows: Settings > Apps > Installed apps > Caixa-Preta. The uninstaller asks whether the recorded data should be deleted. Updating to a new version keeps the data."
+      },
+      "contribute": {
+        "q": "Can I contribute?",
+        "a": "Yes. Open an issue with your case or a pull request on GitHub. The project uses .NET 10 and Nuxt 4, follows a layered architecture checked by architecture tests and records every decision in an ADR."
+      }
+    }
   }
 }
