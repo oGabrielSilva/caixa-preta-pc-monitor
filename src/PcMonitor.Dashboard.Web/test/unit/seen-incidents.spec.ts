@@ -21,6 +21,13 @@ describe('seen incidents', () => {
     expect(unseenIncident(storage, [incident({ id: 17 }), incident({ id: 16 })])?.id).toBe(17)
   })
 
+  it('flags the first crash ever when the panel first opened with none recorded', () => {
+    const storage = new MemoryStorage()
+
+    expect(unseenIncident(storage, [])).toBeNull()
+    expect(unseenIncident(storage, [incident({ id: 1 })])?.id).toBe(1)
+  })
+
   it('takes everything as seen the first time, so old crashes do not light up', () => {
     const storage = new MemoryStorage()
 

@@ -7,7 +7,7 @@ Monitor de hardware para Windows que registra temperaturas, tensões, consumo, c
 - Estudo de arquitetura: [docs/estudos/2026-11-24-estudo-arquitetura.md](docs/estudos/2026-11-24-estudo-arquitetura.md)
 - Licença: [MIT](LICENSE)
 
-### Instalar (Windows 10 1809+ / 11, x64)
+### Instalar (Windows 11, x64)
 
 Execute `CaixaPreta-Setup-<versão>.exe` e aceite o pedido de administrador. O instalador traz tudo (não precisa de .NET) e:
 

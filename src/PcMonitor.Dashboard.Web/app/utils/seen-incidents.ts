@@ -32,16 +32,17 @@ export function markSeen(storage: StorageLike, id: number): void {
 
 /**
  * The newest incident the owner has not seen yet, or `null`. The first time (nothing stored), everything already
- * recorded counts as seen, so old crashes do not light up. Storage that cannot be read means nothing to show.
+ * recorded counts as seen, so old crashes do not light up (with none recorded, the first one will). Storage that cannot be read means nothing to show.
  */
 export function unseenIncident(storage: StorageLike, incidents: readonly IncidentSummary[]): IncidentSummary | null {
   const newest = incidents.reduce<IncidentSummary | null>((top, i) => (top === null || i.id > top.id ? i : top), null)
-  if (newest === null) {
-    return null
-  }
   const seen = readSeen(storage)
   if (seen === null) {
-    markSeen(storage, newest.id)
+    // First run: what exists now is old news; with nothing recorded yet, the next crash is new.
+    markSeen(storage, newest?.id ?? 0)
+    return null
+  }
+  if (newest === null) {
     return null
   }
   return newest.id > seen ? newest : null

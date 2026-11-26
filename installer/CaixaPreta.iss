@@ -24,7 +24,8 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-MinVersion=10.0.17763
+; Windows 11 always has the WebView2 runtime the tray app needs; Windows 10 may not (LTSC, offline images).
+MinVersion=10.0.22000
 LicenseFile=..\LICENSE
 SetupIconFile=..\assets\brand\caixa-preta.ico
 UninstallDisplayIcon={app}\Tray\CaixaPreta.exe

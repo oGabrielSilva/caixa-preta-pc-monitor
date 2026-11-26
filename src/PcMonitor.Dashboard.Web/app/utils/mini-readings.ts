@@ -20,10 +20,13 @@ const shown: readonly { role: SensorRole, labelKey: string, digits: number }[] =
   { role: 'Rail3V3', labelKey: 'roles.Rail3V3', digits: 2 },
 ]
 
-/** The panel's readings, coloured by the same rule as the dashboard (ranges and limits from the API). */
-export function miniReadings(buffer: LiveBuffer | null): MiniReading[] {
+/**
+ * The panel's readings, coloured by the same rule as the dashboard (ranges and limits from the API). When `current` is
+ * false (recording stopped or the dashboard does not answer) the last values are hidden: they are no longer the PC's.
+ */
+export function miniReadings(buffer: LiveBuffer | null, current = true): MiniReading[] {
   return shown.map(({ role, labelKey, digits }) => {
-    const sensor = buffer ? sensorByRole(buffer, role) : undefined
+    const sensor = buffer && current ? sensorByRole(buffer, role) : undefined
     const value = buffer && sensor ? latestValue(buffer, sensor.key) : null
     return { role, labelKey, digits, value, status: sensor ? statusOf(value, sensor) : 'neutral' }
   })

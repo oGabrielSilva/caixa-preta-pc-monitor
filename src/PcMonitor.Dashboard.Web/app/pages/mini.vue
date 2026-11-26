@@ -3,8 +3,8 @@ definePageMeta({ layout: 'mini' })
 
 const { buffer, state, problem } = useLive()
 const unseen = useUnseenIncident()
-const readings = computed(() => miniReadings(buffer.value))
 const dot = computed(() => recordingDot(state.value, problem.value))
+const readings = computed(() => miniReadings(buffer.value, dot.value === 'success'))
 </script>
 
 <template>

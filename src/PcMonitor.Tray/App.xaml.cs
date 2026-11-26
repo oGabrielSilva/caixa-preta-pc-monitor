@@ -29,7 +29,7 @@ public partial class App
 
     private async void OnStartupAsync(object sender, StartupEventArgs e)
     {
-        _instance = SingleInstance.TryAcquire(InstanceName, () => Dispatcher.Invoke(() => ShowMain(null)));
+        _instance = SingleInstance.TryAcquire(InstanceName);
         if (_instance is null)
         {
             SingleInstance.SignalExisting(InstanceName);
@@ -66,6 +66,9 @@ public partial class App
         {
             ShowMain(null);
         }
+
+        // Only now can the main window be built: a second launch during startup waits on the pipe until here.
+        _instance.Listen(() => Dispatcher.Invoke(() => ShowMain(null)));
     }
 
     /// <summary>Shows the main window, optionally on a dashboard page (from the mini panel or a second instance).</summary>

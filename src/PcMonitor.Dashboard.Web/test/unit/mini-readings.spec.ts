@@ -31,6 +31,12 @@ describe('miniReadings', () => {
     expect(readings.find(r => r.role === 'Rail3V3')).toMatchObject({ value: null, status: 'neutral' })
   })
 
+  it('hides the last values once recording stopped, so old numbers are not read as current', () => {
+    const readings = miniReadings(buffer([96, 10, 11.28, 5]), false)
+
+    expect(readings.every(r => r.value === null && r.status === 'neutral')).toBe(true)
+  })
+
   it('has no values before the first snapshot', () => {
     expect(miniReadings(null).every(r => r.value === null)).toBe(true)
   })
