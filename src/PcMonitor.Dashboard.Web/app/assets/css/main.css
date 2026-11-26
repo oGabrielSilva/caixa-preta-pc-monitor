@@ -1,45 +1,7 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
-
-/* Theme chosen by the owner in the Nuxt UI theme builder (docs/adr/0015-nuxt-ui-theme.md). The fonts are downloaded
-   at build time by @nuxt/fonts and served by the dashboard itself: nothing is fetched from the internet at runtime. */
-@theme {
-  --font-sans: 'Google Sans Flex', sans-serif;
-  --font-serif: 'Google Sans Flex', serif;
-  --font-mono: 'Google Sans Code', monospace;
-  --font-weight-semibold: 700;
-  --font-weight-bold: 800;
-}
-
-/* until v5 ships --ui-font-heading */
-@layer base {
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-serif);
-  }
-}
-
-:root {
-  --ui-radius: 0rem;
-}
-
-:root, .light {
-  --ui-bg: var(--ui-color-neutral-50);
-  --ui-bg-muted: var(--ui-color-neutral-100);
-  --ui-text-inverted: var(--ui-color-neutral-50);
-  --ui-primary: var(--ui-color-primary-600);
-}
-
-.dark {
-  --ui-bg: var(--ui-color-neutral-950);
-  --ui-bg-muted: var(--ui-color-neutral-900);
-  --ui-text-highlighted: var(--ui-color-neutral-50);
-  --ui-bg-inverted: var(--ui-color-neutral-50);
-  --ui-border-inverted: var(--ui-color-neutral-50);
-  --ui-primary: var(--ui-color-primary-500);
-  --ui-bg-elevated: var(--ui-color-neutral-900);
-  --ui-bg-accented: var(--ui-color-neutral-800);
-  --ui-text-inverted: var(--ui-color-neutral-900);
-}
+/* The theme (ADR 0015) lives in the shared Brand layer. */
+@import "../../../../PcMonitor.Brand/app/assets/css/brand.css";
 
 /* The tray app's always-on-top panel (/mini) shows only the panel, over a transparent window. */
 .mini-window,

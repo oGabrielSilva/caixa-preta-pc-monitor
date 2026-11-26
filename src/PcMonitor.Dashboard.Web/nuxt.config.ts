@@ -4,6 +4,9 @@ import { defineNuxtConfig } from 'nuxt/config'
 import { appLocales, defaultLocale } from './i18n/app-locales'
 
 export default defineNuxtConfig({
+  // Theme, fonts and icon settings shared with the landing page (ADR 0021).
+  extends: ['../PcMonitor.Brand'],
+
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@nuxt/eslint', '@nuxt/test-utils/module'],
 
   // Static SPA served by PcMonitor.Dashboard (ASP.NET Core); no Node runtime on the user's machine.
@@ -18,10 +21,6 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
-
-  colorMode: {
-    preference: 'dark',
-  },
 
   compatibilityDate: '2026-11-24',
 
@@ -40,25 +39,9 @@ export default defineNuxtConfig({
     config: { stylistic: true },
   },
 
-  // Theme fonts (main.css) are downloaded at build time and served from /_fonts: the dashboard never calls a font CDN.
-  // Weights match the theme (semibold = 700, bold = 800).
-  fonts: {
-    defaults: { weights: [400, 500, 700, 800] },
-  },
-
   i18n: {
     defaultLocale,
     strategy: 'no_prefix',
     locales: [...appLocales],
-  },
-
-  // Icons are bundled at build time: the dashboard never calls a CDN (nothing leaves the machine)
-  // and keeps working offline.
-  icon: {
-    provider: 'none',
-    fallbackToApi: false,
-    clientBundle: {
-      scan: true,
-    },
   },
 })

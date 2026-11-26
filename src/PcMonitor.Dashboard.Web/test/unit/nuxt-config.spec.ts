@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import config from '~~/nuxt.config'
+import brandConfig from '../../../PcMonitor.Brand/nuxt.config'
 
 describe('nuxt.config', () => {
-  it('bundles icons at build time and never calls the Iconify API', () => {
-    expect(config).toMatchObject({ icon: { provider: 'none', fallbackToApi: false } })
+  it('bundles icons at build time and never calls the Iconify API (Brand layer)', () => {
+    expect(brandConfig).toMatchObject({ icon: { provider: 'none', fallbackToApi: false } })
   })
 })

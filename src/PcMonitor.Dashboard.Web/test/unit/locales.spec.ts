@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { dottedKeys, localeValues } from '../../../PcMonitor.Brand/shared/locale-keys'
 import { loadLocale, localeKeys } from '~~/test/support/locale-keys'
 
 describe('locales', () => {
@@ -10,9 +11,7 @@ describe('locales', () => {
   })
 
   it('name the product Caixa-Preta, never the internal name (ADR 0017)', () => {
-    const values = (messages: object): string[] => Object.values(messages).flatMap(value =>
-      typeof value === 'string' ? [value] : values(value as object))
-    expect([...values(loadLocale('pt-BR')), ...values(loadLocale('en'))].filter(text => text.includes('PC Monitor'))).toEqual([])
+    expect([...localeValues(loadLocale('pt-BR')), ...localeValues(loadLocale('en'))].filter(text => text.includes('PC Monitor'))).toEqual([])
   })
 
   it('pt-BR and en have the same keys', () => {
@@ -22,8 +21,6 @@ describe('locales', () => {
 
 describe('locale keys', () => {
   it('never contain a dot inside a key (vue-i18n reads dots as nesting)', () => {
-    const leaves = (messages: object): string[] => Object.entries(messages).flatMap(([key, value]) =>
-      typeof value === 'string' ? [key] : [key, ...leaves(value as object)])
-    expect(leaves(loadLocale('pt-BR')).filter(key => key.includes('.'))).toEqual([])
+    expect(dottedKeys(loadLocale('pt-BR'))).toEqual([])
   })
 })

@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import icons from '@iconify-json/material-symbols/icons.json'
 
-const appDir = fileURLToPath(new URL('../../app', import.meta.url))
+// The app and the Brand layer it extends (whose app.config.ts maps the Nuxt UI icons).
+const appDirs = ['../../app', '../../../PcMonitor.Brand/app'].map(dir => fileURLToPath(new URL(dir, import.meta.url)))
 
 function sources(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -13,7 +14,7 @@ function sources(dir: string): string[] {
   })
 }
 
-const used = sources(appDir).flatMap(file => [...readFileSync(file, 'utf8').matchAll(/(?<![\w-])i-[a-z0-9]+(?:[-:][a-z0-9]+)+/g)].map(m => m[0]))
+const used = appDirs.flatMap(sources).flatMap(file => [...readFileSync(file, 'utf8').matchAll(/(?<![\w-])i-[a-z0-9]+(?:[-:][a-z0-9]+)+/g)].map(m => m[0]))
 
 describe('icons', () => {
   it('come only from the bundled Material Symbols set (the theme chosen by the owner)', () => {

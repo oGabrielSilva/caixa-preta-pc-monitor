@@ -14,6 +14,7 @@ Read first: [architecture study](docs/estudos/2026-11-24-estudo-arquitetura.md) 
 | `src/PcMonitor.Collector` | Host: Windows service, composition only. |
 | `src/PcMonitor.Dashboard` | Host: ASP.NET Core API + static SPA, composition only. |
 | `src/PcMonitor.Dashboard.Web` | Frontend: Nuxt 4 + Nuxt UI. |
+| `src/PcMonitor.Brand` | Shared Nuxt layer: the theme of the dashboard and the landing page. |
 | `src/PcMonitor.Tray` | Tray app (WPF + WebView2): main window, mini panel, tray icon. Talks HTTP only. |
 | `installer/` | Inno Setup script for `CaixaPreta-Setup-<version>.exe`. |
 | `scripts/` | Install/uninstall scripts (Windows PowerShell 5.1), `Build-Release.ps1`, repo checks. |

@@ -11,8 +11,9 @@ Frontend of the dashboard: Nuxt 4 in SPA mode (`ssr: false`), Nuxt UI v4, TypeSc
 | `composables/` | State and API access (`use*`). The only place that talks to `api/`. |
 | `api/` | `client.ts` (the single HTTP client) and the **generated** `schema.d.ts`. Never edit `schema.d.ts` by hand. |
 | `utils/` | Pure functions and static data (e.g. `navigation.ts`). |
-| `app.config.ts` | Theme (ADR 0015): primary teal, neutral, Material Symbols icons. Semantic colours: `success` = in range, `warning` = attention, `error` = out of range. Use colours by meaning only. |
-| `assets/css/main.css` | Theme tokens: fonts (bundled at build by `@nuxt/fonts`), radius 0, light/dark backgrounds. |
+| `assets/css/main.css` | Imports Tailwind, Nuxt UI and the shared theme, plus the mini panel's transparent window. |
+
+The theme (ADR 0015: primary teal, neutral, Material Symbols, fonts, radius 0) lives in the shared layer `../PcMonitor.Brand`, which this app extends; it is shared with the landing page. Semantic colours: `success` = in range, `warning` = attention, `error` = out of range. Use colours by meaning only.
 
 User-facing text always comes from `i18n/locales/*.json`; both files must have the same keys and no key may contain a dot (tests enforce both).
 
