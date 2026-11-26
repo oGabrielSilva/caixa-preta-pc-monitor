@@ -50,6 +50,8 @@ flowchart LR
 
 O app da bandeja só fala HTTP com o dashboard e não referencia nenhum projeto PC Monitor. Os três vão num instalador único ([ADR 0020](../adr/0020-inno-setup-installer.md)): `%ProgramFiles%\PcMonitor\{Collector,Dashboard,Tray,Scripts}`.
 
+Fora da máquina do usuário há só a landing page (`src/PcMonitor.Site`): um site estático no GitHub Pages que não fala com nenhum dos processos acima ([frontend.md](frontend.md#landing-page-), [ADR 0021](../adr/0021-landing-page-and-shared-theme.md)).
+
 Coletor e dashboard **não conversam entre si**: o banco é o contrato. Ver [ADR 0003](../adr/0003-collector-dashboard-split-least-privilege.md) e, para a API de leitura, o ao vivo por SSE e a privacidade dos eventos, [ADR 0014](../adr/0014-read-api-sse-and-event-privacy.md).
 
 ## Camadas

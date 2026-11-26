@@ -54,7 +54,7 @@ flowchart LR
 - **Gráficos:** só via `shared/TimeSeriesChart.vue` ([ADR 0013](../adr/0013-charts-with-nuxt-ui-uchart.md)).
 - **Cores:** `success`/`warning`/`error` só para status de leitura (`utils/sensor-status.ts`); séries de gráfico usam a paleta crua.
 - **Layout:** variante *inset* do `USidebar` (`layouts/default.vue`): navegação sobre o fundo, recolhível até os ícones; cada página é um cartão com a barra de título e o botão do menu (`shared/Page.vue`).
-- **Tema:** o escolhido pelo dono ([ADR 0015](../adr/0015-nuxt-ui-theme.md)): teal/neutral, cantos retos, Google Sans Flex, ícones Material Symbols; fontes e ícones empacotados no build.
+- **Tema:** o escolhido pelo dono ([ADR 0015](../adr/0015-nuxt-ui-theme.md)): teal/neutral, cantos retos, Google Sans Flex, ícones Material Symbols; fontes e ícones empacotados no build. Fica na camada compartilhada `src/PcMonitor.Brand`, a mesma da landing page (abaixo).
 
 ## Exportação ✅
 
@@ -71,3 +71,27 @@ flowchart LR
 ```
 
 Quedas: CSV, Excel e PDF; uma queda: PDF com a telemetria; histórico: CSV e Excel. Decisão em [ADR 0019](../adr/0019-export-in-frontend.md).
+
+## Landing page ✅
+
+Página pública em `src/PcMonitor.Site` ([ADR 0021](../adr/0021-landing-page-and-shared-theme.md)): Nuxt 4 + Nuxt UI renderizado em HTML no build e publicado no GitHub Pages, em `https://ogabrielsilva.github.io/caixa-preta-pc-monitor/` (pt-BR em `/`, inglês em `/en/`). Convenções: [AGENTS.md do site](../../src/PcMonitor.Site/AGENTS.md).
+
+```mermaid
+flowchart LR
+    B[src/PcMonitor.Brand<br/>camada: app.config, brand.css,<br/>fontes e ícones] --> D[PcMonitor.Dashboard.Web<br/>SPA local]
+    B --> S[PcMonitor.Site<br/>landing page]
+    GH[(API de Releases<br/>do GitHub)] -->|uma vez no build| M[modules/github-releases.ts<br/>#releases]
+    M --> S
+    S -->|nuxt generate| H[HTML estático<br/>+ sitemap.xml, robots.txt, llms.txt]
+    H -->|pages.yml| P[GitHub Pages]
+    R[release.yml<br/>tag v*] -->|gh workflow run| P
+```
+
+| Rota | Mostra |
+|---|---|
+| `/` e `/en` | o problema e o download, a linha do tempo de uma queda (exemplo ilustrativo) com o diagnóstico, recursos, capturas, engenharia, história e FAQ |
+| `/versoes` e `/en/releases` | cada release com data, notas (texto escapado, só links http/https), instalador e hash SHA-256 |
+
+- **Releases:** lidas da API pública no build. Se a leitura falhar, o build não falha: a página mostra que a primeira versão está a caminho, e o download leva à página de releases.
+- **SEO/AEO/GEO:** canonical e `hreflang` absolutos montados por `shared/utils/seo.ts`; Open Graph por idioma; JSON-LD `SoftwareApplication`, `FAQPage` (as mesmas perguntas do FAQ visível), `WebSite` e `BreadcrumbList`.
+- **Imagens:** capturas do painel de verdade; a do incidente vem de um banco de demonstração e diz "dados de exemplo" ([como refazer](../../src/PcMonitor.Site/screenshots/README.md)).

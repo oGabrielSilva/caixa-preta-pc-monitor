@@ -24,3 +24,4 @@ Cada ADR registra uma decisão com **Contexto · Decisão · Alternativas · Con
 | [0018](0018-tray-app-webview2-mini-panel.md) | App da bandeja com WebView2 e painel fixo no lugar de notificações | Aceito |
 | [0019](0019-export-in-frontend.md) | Exportação gerada no frontend | Aceito |
 | [0020](0020-inno-setup-installer.md) | Instalador único com Inno Setup | Aceito |
+| [0021](0021-landing-page-and-shared-theme.md) | Landing page estática no GitHub Pages, com o tema compartilhado | Aceito |

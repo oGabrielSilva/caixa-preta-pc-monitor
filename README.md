@@ -4,6 +4,7 @@
 
 Monitor de hardware para Windows que registra temperaturas, tensões, consumo, carga, memória e discos de forma contínua e **à prova de queda de energia**, detecta cada desligamento inesperado e gera um relatório explicável sobre a causa provável (fonte, superaquecimento, placa-mãe ou software).
 
+- Site e download: [ogabrielsilva.github.io/caixa-preta-pc-monitor](https://ogabrielsilva.github.io/caixa-preta-pc-monitor/)
 - Estudo de arquitetura: [docs/estudos/2026-11-24-estudo-arquitetura.md](docs/estudos/2026-11-24-estudo-arquitetura.md)
 - Licença: [MIT](LICENSE)
 
@@ -33,5 +34,6 @@ Windows hardware monitor that continuously records temperatures, voltages, power
 
 Install: run `CaixaPreta-Setup-<version>.exe` (self-contained, needs administrator). Build it with `powershell -File scripts/Build-Release.ps1` (.NET 10, pnpm and Inno Setup 6).
 
+- Website and download: [ogabrielsilva.github.io/caixa-preta-pc-monitor/en](https://ogabrielsilva.github.io/caixa-preta-pc-monitor/en)
 - Architecture study (Portuguese): [docs/estudos/2026-11-24-estudo-arquitetura.md](docs/estudos/2026-11-24-estudo-arquitetura.md)
 - License: [MIT](LICENSE)

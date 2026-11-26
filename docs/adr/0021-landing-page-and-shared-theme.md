@@ -1,0 +1,19 @@
+# 0021 — Landing page estática no GitHub Pages, com o tema compartilhado
+
+**Contexto.** O dono quer uma página pública da Caixa-Preta que sirva, nesta ordem, de portfólio, de porta para a comunidade open source e de ajuda para quem tem o PC desligando sozinho. Ela precisa ser bem encontrada por buscadores e citada por IAs (SEO, AEO, GEO), mostrar o histórico de versões, ter o visual do painel (ADR 0015) e ficar no mesmo repositório, sem domínio próprio. O CI reprova qualquer código duplicado (jscpd 0%), então o tema não pode ser copiado. Spec: [docs/superpowers/specs/2026-11-26-landing-page-design.md](../superpowers/specs/2026-11-26-landing-page-design.md).
+
+**Decisão.**
+- **Camada de tema `src/PcMonitor.Brand`** (Nuxt layer): `app.config.ts` (cores e ícones), o CSS do tema e a configuração de fontes e ícones empacotados. O painel (`PcMonitor.Dashboard.Web`) e a página (`PcMonitor.Site`) a estendem por caminho relativo (`extends: ['../PcMonitor.Brand']`). A camada não tem `package.json` nem dependências: cada app traz os módulos. O CSS gerado do painel ficou idêntico byte a byte.
+- **App `src/PcMonitor.Site`**: Nuxt 4 + Nuxt UI, renderizado em HTML no build (`nuxt generate`, SSR só no build), pt-BR em `/` e inglês em `/en/`, publicado em `https://ogabrielsilva.github.io/caixa-preta-pc-monitor/`.
+- **Releases lidas no build**: um módulo local chama a API pública de Releases do GitHub uma vez e expõe a lista como `#releases`. Se a chamada falhar (repositório privado, sem rede, limite de requisições), o build não falha: a página mostra "a primeira versão está a caminho" e o download leva à página de releases. O botão de download aponta direto para o `.exe` da última versão estável.
+- **Publicação**: `.github/workflows/pages.yml` gera e publica a cada push em `main` que mexa no site, na camada ou no ícone, e quando chamado. O `release.yml` o chama (`gh workflow run pages.yml`) depois de publicar a release, porque uma release criada com o `GITHUB_TOKEN` não dispara outros workflows.
+- **Metadados**: canonical e `hreflang` montados pelo próprio site (o `@nuxtjs/i18n` repetia o caminho do projeto), Open Graph com imagem por idioma, JSON-LD (`SoftwareApplication`, `FAQPage` com as mesmas perguntas do FAQ visível, `WebSite`, `BreadcrumbList`), `sitemap.xml` com as alternativas de idioma, `robots.txt` e `llms.txt`. As páginas saem como `en.html` e `versoes.html`, assim o GitHub Pages serve `/en` sem redirecionar.
+- **Imagens**: capturas do painel de verdade. A tela de incidente vem de um banco de demonstração gerado pelos stores e pelo motor de diagnóstico reais (`src/PcMonitor.Site/screenshots/DemoDatabase.cs`), com a legenda "dados de exemplo". Nada é carregado de terceiros em tempo de execução: sem analytics e sem CDN de fontes ou ícones.
+
+**Alternativas.**
+- Histórico num `CHANGELOG.md` com Nuxt Content: funcionaria com o repositório privado, mas criaria duas fontes de verdade com as notas geradas da release.
+- Pré-renderizar a página dentro do `Dashboard.Web`: o painel é um SPA local sem SSR servido pelo ASP.NET, e uma página pública com SEO não combina com ele.
+- Copiar o tema para o site: reprovado pelo jscpd, e os dois visuais se afastariam com o tempo.
+- Workspace pnpm único para os dois apps: mudaria o build do instalador sem ganho para a página.
+
+**Consequências.** A página depende de o repositório ser público: antes disso ela mostra o estado "em breve". O GitHub Pages de projeto não fica na raiz do domínio, então os buscadores ignoram o `robots.txt` dele; o `sitemap.xml` precisa ser enviado no Search Console. Mudar o tema muda o painel e a página juntos. As capturas precisam ser refeitas à mão quando o painel mudar (`src/PcMonitor.Site/screenshots/README.md`).

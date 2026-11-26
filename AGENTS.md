@@ -34,7 +34,7 @@ powershell -NoProfile -File scripts/Test-Scripts.ps1   # install scripts must ru
 powershell -File scripts/Build-Release.ps1             # installer (needs Inno Setup 6), not elevated
 ```
 
-Frontend commands: see `src/PcMonitor.Dashboard.Web/AGENTS.md`. CI (`.github/workflows/ci.yml`) runs the checks above (the installer is built by `release.yml` on a `v*` tag) plus the API contract check, `scripts/Test-AgentDocs.ps1` and jscpd (`.jscpd.json`, threshold 0%: any clone fails; `using` directives are ignored).
+Frontend commands: see `src/PcMonitor.Dashboard.Web/AGENTS.md` and, for the landing page (published on GitHub Pages by `pages.yml`), `src/PcMonitor.Site/AGENTS.md`. CI (`.github/workflows/ci.yml`) runs the checks above (the installer is built by `release.yml` on a `v*` tag) plus the API contract check, `scripts/Test-AgentDocs.ps1` and jscpd (`.jscpd.json`, threshold 0%: any clone fails; `using` directives are ignored).
 
 ## Rules
 
