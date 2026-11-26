@@ -20,10 +20,11 @@ const links = computed(() =>
     >
       <template #header="{ state }">
         <span class="flex items-center gap-2 overflow-hidden font-semibold">
-          <UIcon
-            name="i-material-symbols-memory-outline-rounded"
-            class="size-6 shrink-0 text-primary"
-          />
+          <img
+            src="/icon.svg"
+            alt=""
+            class="size-6 shrink-0"
+          >
           <span v-if="state === 'expanded'">{{ t('app.title') }}</span>
         </span>
       </template>

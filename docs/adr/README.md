@@ -20,3 +20,4 @@ Cada ADR registra uma decisão com **Contexto · Decisão · Alternativas · Con
 | [0014](0014-read-api-sse-and-event-privacy.md) | API de leitura, ao vivo por SSE e privacidade dos eventos | Aceito |
 | [0015](0015-nuxt-ui-theme.md) | Tema do Nuxt UI escolhido pelo dono | Aceito |
 | [0016](0016-aggregate-retention.md) | Retenção dos agregados: 90 dias por minuto, por hora para sempre | Aceito |
+| [0017](0017-product-identity.md) | Identidade do produto: Caixa-Preta | Aceito |

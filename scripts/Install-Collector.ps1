@@ -29,6 +29,7 @@ $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'PcMonitorService.psm1') -Force
 
 $serviceName = 'PcMonitor.Collector'
+$displayName = 'Caixa-Preta (Coletor)'
 $installPath = Get-PcMonitorInstallPath -Component Collector
 $executable = Join-Path $installPath 'PcMonitor.Collector.exe'
 
@@ -64,9 +65,10 @@ Register-PcMonitorEventSource -Name $serviceName
 
 Write-Step "Registering the $serviceName service"
 if (-not $existing) {
-    New-Service -Name $serviceName -BinaryPathName "`"$executable`"" -DisplayName 'PC Monitor Collector' `
+    New-Service -Name $serviceName -BinaryPathName "`"$executable`"" -DisplayName $displayName `
         -Description 'Records hardware sensors every second and detects unexpected shutdowns.' -StartupType Automatic | Out-Null
 }
+Invoke-Sc @('config', $serviceName, 'DisplayName=', $displayName)
 # Restart on failure: the stall watchdog relies on these actions to bring the collector back.
 Set-PcMonitorRecovery -Name $serviceName
 

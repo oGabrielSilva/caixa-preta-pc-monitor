@@ -19,7 +19,7 @@ Import-Module (Join-Path $PSScriptRoot 'PcMonitorService.psm1') -Force
 $serviceName = 'PcMonitor.Dashboard'
 $installPath = Get-PcMonitorInstallPath -Component Dashboard
 $dataPath = Get-PcMonitorDataPath
-$shortcut = Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\PC Monitor.url'
+$shortcut = Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\Caixa-Preta.url'
 
 $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 if ($service -and $PSCmdlet.ShouldProcess($serviceName, 'Stop and delete the service')) {

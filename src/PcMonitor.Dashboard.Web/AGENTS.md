@@ -33,6 +33,7 @@ pnpm typecheck    # app (nuxt typecheck) + tests and nuxt.config (test/tsconfig.
 pnpm test
 pnpm generate     # static build into .output/public
 pnpm gen:api      # regenerate app/api/schema.d.ts from the OpenAPI document
+pnpm icons        # regenerate the icons from assets/brand/caixa-preta.svg (ADR 0017)
 ```
 
 Tests are pure Node by default; a test that needs the Nuxt runtime starts with `// @vitest-environment nuxt`.
