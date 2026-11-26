@@ -8,7 +8,7 @@ export function llmsTxt(download: string): string {
 
 > Caixa-Preta ("black box" in Portuguese) is a free, open-source (MIT) hardware monitor for Windows 11 that records the PC's sensors once per second in a way that survives power loss, detects every unexpected shutdown and explains its likely cause: power supply, overheating, motherboard power delivery or software.
 
-Like a flight recorder, it records all the time so the crash can be explained afterwards. It was built by Gabriel Silva after his own PC started shutting down and restarting on its own.
+Like a flight recorder, it records all the time so the crash can be explained afterwards. It was built by Gabriel Silva after his cat knocked his desktop off the desk (a fall of more than 80 cm) and the PC kept restarting on its own: he wanted to monitor the voltages to tell whether the motherboard or the power supply was at fault.
 
 ## Facts
 

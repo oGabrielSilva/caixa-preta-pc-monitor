@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { siteLocales } from '~~/i18n/site-locales'
 import { REPO_URL } from '~~/shared/utils/site'
 
 const { t, locale } = useI18n()
@@ -6,7 +7,14 @@ const localePath = useLocalePath()
 const switchLocalePath = useSwitchLocalePath()
 const publicPath = usePublicPath()
 
-const otherLocale = computed(() => (locale.value === 'en' ? 'pt-BR' : 'en'))
+// Each language is its own page (/ and /en/): choosing one opens the same page in that language.
+const languages = siteLocales.map(({ code, name }) => ({ label: name, value: code }))
+function changeLanguage(code: unknown) {
+  const target = siteLocales.find(l => l.code === code)
+  if (target && target.code !== locale.value) {
+    void navigateTo(switchLocalePath(target.code))
+  }
+}
 const home = computed(() => localePath('/'))
 const links = computed(() => [
   { label: t('nav.how'), to: `${home.value}#como-funciona` },
@@ -22,10 +30,10 @@ const links = computed(() => [
       href="#conteudo"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:bg-primary focus:px-3 focus:py-2 focus:text-inverted"
     >{{ t('nav.skip') }}</a>
-    <div class="mx-auto flex h-16 max-w-7xl items-center gap-6 px-4 sm:px-6">
+    <div class="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
       <NuxtLink
         :to="home"
-        class="flex items-center gap-2.5 font-bold text-highlighted"
+        class="flex shrink-0 items-center gap-2.5 font-bold text-highlighted"
         :aria-label="t('nav.home')"
       >
         <img
@@ -34,7 +42,7 @@ const links = computed(() => [
           width="28"
           height="28"
         >
-        <span class="text-lg">Caixa-Preta</span>
+        <span class="whitespace-nowrap text-lg">Caixa-Preta</span>
       </NuxtLink>
 
       <nav
@@ -53,17 +61,18 @@ const links = computed(() => [
       </nav>
 
       <div class="ml-auto flex items-center gap-1">
-        <UButton
-          :to="switchLocalePath(otherLocale)"
-          :hreflang="otherLocale"
-          :lang="otherLocale"
-          :aria-label="t('nav.otherLanguageLabel')"
+        <USelect
+          data-language-select
+          :model-value="locale"
+          :items="languages"
+          :aria-label="t('nav.language')"
+          icon="i-material-symbols-translate-rounded"
           variant="ghost"
           color="neutral"
-          icon="i-material-symbols-translate-rounded"
-        >
-          <span class="hidden sm:inline">{{ t('nav.otherLanguage') }}</span>
-        </UButton>
+          class="w-auto"
+          :ui="{ leadingIcon: 'hidden sm:inline-flex', base: 'max-sm:ps-2' }"
+          @update:model-value="changeLanguage"
+        />
         <UColorModeButton
           color="neutral"
           variant="ghost"

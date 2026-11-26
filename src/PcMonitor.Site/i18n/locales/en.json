@@ -10,7 +10,6 @@
     }
   },
   "hero": {
-    "title": "Did your PC shut down on its own? Caixa-Preta tells you why.",
     "lead": "Like an aircraft's flight recorder, it records your PC's sensors once per second and loses nothing when the power goes. When the PC comes back, it shows what happened in the last seconds and the most likely cause.",
     "download": "Download for Windows",
     "downloadMeta": "Version {version}, {size}, 64-bit Windows 11",
@@ -20,7 +19,9 @@
     "free": "Free and open source (MIT). Nothing leaves your computer.",
     "screenAlt": "Caixa-Preta dashboard showing CPU temperature, load and power and the power supply voltages live",
     "miniAlt": "Always-on-top mini panel with CPU, load and the +12 V, +5 V and +3.3 V rails",
-    "traceLabel": "A signal line that runs steady, spikes once and drops: the recording up to the shutdown"
+    "traceLabel": "A signal line that runs steady, spikes once and drops: the recording up to the shutdown",
+    "titleQuestion": "Did your PC shut down on its own?",
+    "titleAnswer": "Caixa-Preta tells you why."
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -75,9 +76,8 @@
     "engineering": "Engineering",
     "releases": "Releases",
     "github": "GitHub",
-    "otherLanguage": "Português",
-    "otherLanguageLabel": "Ler esta página em português",
-    "menu": "Menu"
+    "menu": "Menu",
+    "language": "Language"
   },
   "recorder": {
     "title": "The seconds Windows does not keep",
@@ -150,22 +150,22 @@
     "screens": {
       "overview": {
         "tab": "Live",
-        "caption": "Live: CPU, power and the power supply rails with the safe range of each.",
+        "caption": "CPU, power and the power supply rails, each with its safe range.",
         "alt": "Live screen of the dashboard with CPU, +12 V, power, load and memory cards, a chart of the last 10 minutes and the power supply voltages"
       },
       "history": {
         "tab": "History",
-        "caption": "History: minimum, average and maximum of any sensor over up to 14 days.",
+        "caption": "Minimum, average and maximum of any sensor over up to 14 days.",
         "alt": "History screen with the +12 V rail over the last 24 hours, between 12.10 and 12.19 V"
       },
       "incident": {
         "tab": "Incident",
-        "caption": "Incident: the hypothesis scoreboard, the timeline and the 2 minutes before the crash.",
+        "caption": "The hypothesis scoreboard, the timeline and the 2 minutes before the crash.",
         "alt": "Incident screen with the power supply as the most likely cause, medium confidence, and the +12 V rail falling before the shutdown"
       },
       "mini": {
         "tab": "Mini panel",
-        "caption": "Mini panel: stays on top of everything and warns in red.",
+        "caption": "Stays on top of everything and warns in red.",
         "alt": "Mini panel with CPU 61.8 °C, load 40 %, +12 V 12.10, +5 V 5.00 and +3.3 V 3.30, and a red warning for a new incident"
       }
     }
@@ -207,7 +207,8 @@
   },
   "story": {
     "title": "Why it exists",
-    "text": "Caixa-Preta was born because my PC started shutting down and restarting on its own, and I wanted to know why.",
+    "quote": "Caixa-Preta was born because of my cat.",
+    "text": "He is a big cat, and he climbed onto the PC case to jump on top of the wardrobe. When he jumped, the case did not stay on the desk: it fell more than 80 cm. From then on the PC kept restarting on its own, and I could not tell whether the motherboard or the power supply was at fault. I wanted to monitor the voltages to find out.",
     "author": "Gabriel Silva, author"
   },
   "cta": {

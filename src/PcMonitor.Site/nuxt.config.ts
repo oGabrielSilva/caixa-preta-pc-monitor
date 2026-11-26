@@ -28,6 +28,11 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Menu links (#como-funciona, #recursos…) glide to their section instead of jumping.
+  router: {
+    options: { scrollBehaviorType: 'smooth' },
+  },
+
   compatibilityDate: '2026-11-26',
 
   nitro: {

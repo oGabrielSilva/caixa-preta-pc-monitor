@@ -14,6 +14,10 @@ describe('site nuxt.config', () => {
     expect(config.i18n).toMatchObject({ strategy: 'prefix_except_default', defaultLocale: 'pt-BR' })
   })
 
+  it('scrolls smoothly to the section a menu link points at', () => {
+    expect(config.router?.options?.scrollBehaviorType).toBe('smooth')
+  })
+
   it('shares the theme with the dashboard', () => {
     expect(config.extends).toEqual(['../PcMonitor.Brand'])
   })

@@ -6,6 +6,10 @@ import { REPO_URL } from '~~/shared/utils/site'
 
 defineProps<{ releases: Release[] }>()
 const { t } = useI18n()
+
+// The product name never breaks at its hyphen ("Caixa-" / "Preta" on narrow screens).
+const BRAND = 'Caixa-Preta'
+const answerParts = computed(() => t('hero.titleAnswer').split(new RegExp(`(${BRAND})`)).filter(Boolean))
 const publicPath = usePublicPath()
 </script>
 
@@ -13,8 +17,20 @@ const publicPath = usePublicPath()
   <section class="relative overflow-hidden">
     <div class="mx-auto grid max-w-7xl items-center gap-12 px-4 pt-14 pb-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:pt-24">
       <div class="flex flex-col gap-7">
-        <h1 class="text-balance text-[2.6rem] leading-[1.02] font-extrabold tracking-[-0.03em] text-highlighted sm:text-6xl xl:text-7xl">
-          {{ t('hero.title') }}
+        <h1 class="text-[2.15rem] leading-[1.05] font-extrabold tracking-[-0.03em] text-highlighted sm:text-6xl xl:text-7xl">
+          <span class="block text-balance">{{ t('hero.titleQuestion') }}</span>
+          <span class="mt-2 block text-balance text-toned">
+            <template
+              v-for="(part, index) in answerParts"
+              :key="index"
+            >
+              <span
+                v-if="part === BRAND"
+                class="whitespace-nowrap"
+              >{{ part }}</span>
+              <template v-else>{{ part }}</template>
+            </template>
+          </span>
         </h1>
         <p class="max-w-[34rem] text-lg leading-relaxed text-toned">
           {{ t('hero.lead') }}

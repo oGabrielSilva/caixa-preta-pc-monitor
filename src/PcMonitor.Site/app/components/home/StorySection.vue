@@ -11,8 +11,13 @@ const { t } = useI18n()
         {{ t('story.title') }}
       </h2>
       <figure class="mt-6">
-        <blockquote class="text-balance text-3xl leading-snug font-bold tracking-tight text-highlighted sm:text-4xl">
-          <p>{{ t('story.text') }}</p>
+        <blockquote>
+          <p class="text-balance text-3xl leading-snug font-bold tracking-tight text-highlighted sm:text-5xl">
+            {{ t('story.quote') }}
+          </p>
+          <p class="mt-6 max-w-[62ch] text-lg leading-relaxed text-toned">
+            {{ t('story.text') }}
+          </p>
         </blockquote>
         <figcaption class="mt-6 text-toned">
           <a

@@ -10,7 +10,6 @@
     }
   },
   "hero": {
-    "title": "Seu PC desligou sozinho? A Caixa-Preta explica por quê.",
     "lead": "Como o gravador de voo de um avião, ela registra os sensores do seu PC uma vez por segundo, sem perder nada quando a energia cai. Quando o PC volta, ela mostra o que aconteceu nos últimos segundos e qual é a causa mais provável.",
     "download": "Baixar para Windows",
     "downloadMeta": "Versão {version}, {size}, Windows 11 de 64 bits",
@@ -20,7 +19,9 @@
     "free": "Gratuito e de código aberto (MIT). Nada sai do seu computador.",
     "screenAlt": "Painel da Caixa-Preta com a temperatura, a carga e o consumo da CPU e as tensões da fonte ao vivo",
     "miniAlt": "Mini painel sempre visível com CPU, carga e as tensões +12 V, +5 V e +3,3 V",
-    "traceLabel": "Linha de sinal que corre estável, tem um pico e cai: a gravação até o desligamento"
+    "traceLabel": "Linha de sinal que corre estável, tem um pico e cai: a gravação até o desligamento",
+    "titleQuestion": "Seu PC desligou sozinho?",
+    "titleAnswer": "A Caixa-Preta explica por quê."
   },
   "faq": {
     "title": "Perguntas frequentes",
@@ -75,9 +76,8 @@
     "engineering": "Engenharia",
     "releases": "Versões",
     "github": "GitHub",
-    "otherLanguage": "English",
-    "otherLanguageLabel": "Read this page in English",
-    "menu": "Menu"
+    "menu": "Menu",
+    "language": "Idioma"
   },
   "recorder": {
     "title": "Os segundos que o Windows não guarda",
@@ -150,22 +150,22 @@
     "screens": {
       "overview": {
         "tab": "Ao vivo",
-        "caption": "Ao vivo: CPU, consumo e as tensões da fonte com a faixa segura de cada uma.",
+        "caption": "CPU, consumo e as tensões da fonte, cada uma com a sua faixa segura.",
         "alt": "Tela Ao vivo do painel com cartões de CPU, +12 V, consumo, carga e memória, um gráfico dos últimos 10 minutos e as tensões da fonte"
       },
       "history": {
         "tab": "Histórico",
-        "caption": "Histórico: mínimo, média e máximo de qualquer sensor em até 14 dias.",
+        "caption": "Mínimo, média e máximo de qualquer sensor em até 14 dias.",
         "alt": "Tela Histórico com o +12 V nas últimas 24 horas, entre 12,10 e 12,19 V"
       },
       "incident": {
         "tab": "Incidente",
-        "caption": "Incidente: o placar das hipóteses, a linha do tempo e os 2 minutos antes da queda.",
+        "caption": "O placar das hipóteses, a linha do tempo e os 2 minutos antes da queda.",
         "alt": "Tela de um incidente com a fonte como causa mais provável, confiança média, e o +12 V caindo antes do desligamento"
       },
       "mini": {
         "tab": "Mini painel",
-        "caption": "Mini painel: fica por cima de tudo e avisa em vermelho.",
+        "caption": "Fica por cima de tudo e avisa em vermelho.",
         "alt": "Mini painel com CPU 61,8 °C, carga 40 %, +12 V 12,10, +5 V 5,00 e +3,3 V 3,30, e um aviso vermelho de incidente novo"
       }
     }
@@ -207,7 +207,8 @@
   },
   "story": {
     "title": "Por que existe",
-    "text": "A Caixa-Preta nasceu porque o meu PC passou a desligar e reiniciar sozinho, e eu queria saber por quê.",
+    "quote": "A Caixa-Preta nasceu por causa do meu gato.",
+    "text": "Ele é grande, e subiu no gabinete para pular para cima do guarda-roupa. Quando ele pulou, o gabinete não ficou na mesa: caiu de mais de 80 cm. Desde então o PC passou a reiniciar sozinho, e eu não sabia se o defeito era na placa-mãe ou na fonte. Eu queria monitorar as tensões para descobrir.",
     "author": "Gabriel Silva, autor"
   },
   "cta": {

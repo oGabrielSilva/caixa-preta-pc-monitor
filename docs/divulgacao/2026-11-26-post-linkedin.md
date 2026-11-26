@@ -1,6 +1,6 @@
 # Rascunho: post do LinkedIn para o lançamento da Caixa-Preta
 
-> Rascunho para o dono revisar. Nada foi publicado. Os trechos entre `[...]` são para você completar com a sua história ou apagar. O link só funciona depois que o repositório estiver público e o GitHub Pages estiver ligado.
+> Rascunho para o dono revisar. Nada foi publicado. O trecho entre `[...]` é para você completar ou apagar. O link só funciona depois que o repositório estiver público e o GitHub Pages estiver ligado.
 
 **Imagem sugerida:** `src/PcMonitor.Site/public/og/og-pt-BR.png` (1200 × 630). Outra opção é a captura `public/screens/overview-1600.webp`, que mostra o painel de verdade. Se for usar a captura do incidente, diga que são dados de exemplo.
 
@@ -8,9 +8,11 @@
 
 ## Versão principal (pt-BR, cerca de 1.500 caracteres, limite do LinkedIn: 3.000)
 
-Meu PC caiu e passou a desligar e reiniciar sozinho. [Conte aqui como era: quando começou, se tinha tela azul, o que você já tinha tentado.]
+Meu gato derrubou meu PC.
 
-O Windows só registra que houve um "desligamento inesperado". O motivo, não. Então eu construí a Caixa-Preta: como o gravador de voo de um avião, ela grava os sensores do PC o tempo todo para explicar a queda depois.
+Ele é grande, e subiu no gabinete para pular para cima do guarda-roupa. Quando ele pulou, o gabinete não ficou na mesa: caiu de mais de 80 cm. Desde então o PC passou a reiniciar sozinho, e eu não sabia se o defeito era na placa-mãe ou na fonte.
+
+O Windows só registra que houve um "desligamento inesperado". O motivo, não. Eu queria ver as tensões no momento da queda, então construí a Caixa-Preta: como o gravador de voo de um avião, ela grava os sensores do PC o tempo todo para explicar a queda depois.
 
 O que ela faz:
 • Grava uma vez por segundo as temperaturas, as tensões +12 V, +5 V e +3,3 V da fonte, o consumo e a carga da CPU, a memória e os discos.
@@ -36,7 +38,7 @@ Algumas decisões de que gostei:
 
 ## Versão curta em inglês (opcional)
 
-My PC started shutting down on its own, and Windows only logs that it happened, not why. So I built Caixa-Preta ("black box"): a free, open-source (MIT) hardware monitor for Windows 11 that records temperatures, power supply rails and CPU power once per second, survives the power cut, and explains the likely cause of each unexpected shutdown, showing the evidence for and against. Everything stays on your machine.
+My cat knocked my PC off the desk. He climbed onto the case to jump on top of the wardrobe, and the case fell more than 80 cm. From then on it kept restarting on its own, and I could not tell whether the motherboard or the power supply was at fault. Windows only logs that a shutdown happened, not why. So I built Caixa-Preta ("black box"): a free, open-source (MIT) hardware monitor for Windows 11 that records temperatures, power supply rails and CPU power once per second, survives the power cut, and explains the likely cause of each unexpected shutdown, showing the evidence for and against. Everything stays on your machine.
 
 Built with .NET 10 and Nuxt 4, with three least-privilege processes, a layered architecture checked by tests and every decision written down as an ADR.
 

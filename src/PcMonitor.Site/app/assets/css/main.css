@@ -2,3 +2,11 @@
 @import "@nuxt/ui";
 /* The theme (ADR 0015) lives in the shared Brand layer. */
 @import "../../../../PcMonitor.Brand/app/assets/css/brand.css";
+
+/* Anchor links glide to their section (the router does the same for menu links), unless the visitor asked for less
+   motion. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
