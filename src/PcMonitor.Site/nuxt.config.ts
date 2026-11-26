@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   // Every page is rendered to HTML at build time: search engines and AI crawlers read the content without JavaScript.
   ssr: true,
 
-  // Folders group components by area (home/, releases/, shared/); names stay as written (FlightRecorder, not
+  // Folders group components by area (home/, changelog/, shared/); names stay as written (FlightRecorder, not
   // HomeFlightRecorder).
   components: [{ path: '~/components', pathPrefix: false }],
 

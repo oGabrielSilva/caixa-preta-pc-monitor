@@ -220,5 +220,19 @@
     "releases": "Todas as versões",
     "madeBy": "Feito por Gabriel Silva"
   },
-  "theme": "Alternar tema claro e escuro"
+  "theme": "Alternar tema claro e escuro",
+  "releases": {
+    "title": "Versões",
+    "lead": "Todas as versões da Caixa-Preta, da mais nova para a mais antiga. Cada uma traz o instalador para Windows 11 e o hash SHA-256 para você conferir o arquivo.",
+    "prerelease": "Pré-release",
+    "latest": "Mais recente",
+    "download": "Baixar o instalador ({size})",
+    "checksum": "Hash SHA-256",
+    "github": "Ver no GitHub",
+    "noInstaller": "Esta versão não tem instalador anexado.",
+    "emptyTitle": "A primeira versão está a caminho",
+    "emptyText": "Assim que ela for publicada, o instalador e as notas aparecem aqui. Enquanto isso, acompanhe pelo GitHub.",
+    "emptyButton": "Acompanhar no GitHub",
+    "home": "Início"
+  }
 }

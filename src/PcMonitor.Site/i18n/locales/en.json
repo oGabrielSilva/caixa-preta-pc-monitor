@@ -220,5 +220,19 @@
     "releases": "All releases",
     "madeBy": "Made by Gabriel Silva"
   },
-  "theme": "Switch between light and dark theme"
+  "theme": "Switch between light and dark theme",
+  "releases": {
+    "title": "Releases",
+    "lead": "Every Caixa-Preta release, newest first. Each one comes with the Windows 11 installer and the SHA-256 hash so you can check the file.",
+    "prerelease": "Prerelease",
+    "latest": "Latest",
+    "download": "Download the installer ({size})",
+    "checksum": "SHA-256 hash",
+    "github": "View on GitHub",
+    "noInstaller": "This release has no installer attached.",
+    "emptyTitle": "The first release is on its way",
+    "emptyText": "As soon as it is published, the installer and the notes show up here. Meanwhile, follow along on GitHub.",
+    "emptyButton": "Follow on GitHub",
+    "home": "Home"
+  }
 }
