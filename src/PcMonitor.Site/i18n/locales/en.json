@@ -10,7 +10,17 @@
     }
   },
   "hero": {
-    "title": "Did your PC shut down on its own? Caixa-Preta tells you why."
+    "title": "Did your PC shut down on its own? Caixa-Preta tells you why.",
+    "lead": "Like an aircraft's flight recorder, it records your PC's sensors once per second and loses nothing when the power goes. When the PC comes back, it shows what happened in the last seconds and the most likely cause.",
+    "download": "Download for Windows",
+    "downloadMeta": "Version {version}, {size}, 64-bit Windows 11",
+    "soon": "See releases on GitHub",
+    "soonMeta": "The first release is on its way",
+    "source": "View the code",
+    "free": "Free and open source (MIT). Nothing leaves your computer.",
+    "screenAlt": "Caixa-Preta dashboard showing CPU temperature, load and power and the power supply voltages live",
+    "miniAlt": "Always-on-top mini panel with CPU, load and the +12 V, +5 V and +3.3 V rails",
+    "traceLabel": "A signal line that runs steady, spikes once and drops: the recording up to the shutdown"
   },
   "faq": {
     "title": "Frequently asked questions",
@@ -56,5 +66,159 @@
         "a": "Yes. Open an issue with your case or a pull request on GitHub. The project uses .NET 10 and Nuxt 4, follows a layered architecture checked by architecture tests and records every decision in an ADR."
       }
     }
-  }
+  },
+  "nav": {
+    "skip": "Skip to content",
+    "home": "Caixa-Preta, home",
+    "how": "How it works",
+    "features": "Features",
+    "engineering": "Engineering",
+    "releases": "Releases",
+    "github": "GitHub",
+    "otherLanguage": "Português",
+    "otherLanguageLabel": "Ler esta página em português",
+    "menu": "Menu"
+  },
+  "recorder": {
+    "title": "The seconds Windows does not keep",
+    "lead": "After an unexpected shutdown, Windows only records that it happened. Caixa-Preta keeps what came before.",
+    "sample": "Illustrative example",
+    "chartLabel": "The +12 V rail in the 40 seconds before the crash: steady at 12.10 V, then sagging below 11.40 V, the bottom of the ATX range",
+    "band": "ATX range: 11.40 to 12.60 V",
+    "off": "PC off",
+    "steps": {
+      "recording": {
+        "title": "Recording",
+        "text": "One reading per second of temperature, load, power and voltages, saved to a database that survives a power cut."
+      },
+      "crash": {
+        "title": "The crash",
+        "text": "Under a game load, the +12 V rail sags for 40 seconds and leaves the ATX range. The screen goes dark."
+      },
+      "restart": {
+        "title": "Back on",
+        "text": "Two minutes later the PC is back. Caixa-Preta finds the shutdown in the Windows Event Log."
+      },
+      "diagnosis": {
+        "title": "Diagnosis",
+        "text": "The rules weigh what was recorded against each possible cause and show why."
+      }
+    },
+    "verdict": {
+      "label": "Most likely cause",
+      "cause": "Power supply",
+      "confidence": "Medium confidence",
+      "for": "The +12 V rail was below 11.40 V in more than one reading",
+      "for2": "The CPU was under heavy load, drawing more power",
+      "against": "The CPU was at 71 °C, far from its limit: not overheating",
+      "against2": "No blue screen was recorded: not Windows",
+      "limit": "The sensor sits on the motherboard: it cannot tell the power supply from the board or the connector."
+    }
+  },
+  "features": {
+    "title": "What it does",
+    "lead": "Everything runs on your machine, in three processes with the least privilege each needs.",
+    "recording": {
+      "title": "Recording that survives power loss",
+      "text": "Temperatures, load, power, the +12 V, +5 V and +3.3 V rails, fans, memory and NVMe disks, once per second, in SQLite with WAL. The last seconds before the power goes are on disk."
+    },
+    "detection": {
+      "title": "Every unexpected shutdown",
+      "text": "It reads the Windows Event Log (Kernel-Power 41 and related events) and ties each crash to its stretch of the recording."
+    },
+    "diagnosis": {
+      "title": "Explainable diagnosis",
+      "text": "Power supply, motherboard, overheating, software, CPU or memory, power button: each hypothesis scores by the evidence, and you see everything that counted."
+    },
+    "mini": {
+      "title": "Always-on-top mini panel",
+      "text": "A small strip above your other windows. The numbers turn red when something leaves its normal range."
+    },
+    "export": {
+      "title": "Export it for your technician",
+      "text": "History and incidents as CSV, Excel or PDF."
+    },
+    "privacy": {
+      "title": "Nothing leaves the machine",
+      "text": "No cloud, account or telemetry. The dashboard only answers on 127.0.0.1."
+    }
+  },
+  "gallery": {
+    "title": "What it looks like",
+    "lead": "Captures of the real dashboard.",
+    "sample": "sample data",
+    "screens": {
+      "overview": {
+        "tab": "Live",
+        "caption": "Live: CPU, power and the power supply rails with the safe range of each.",
+        "alt": "Live screen of the dashboard with CPU, +12 V, power, load and memory cards, a chart of the last 10 minutes and the power supply voltages"
+      },
+      "history": {
+        "tab": "History",
+        "caption": "History: minimum, average and maximum of any sensor over up to 14 days.",
+        "alt": "History screen with the +12 V rail over the last 24 hours, between 12.10 and 12.19 V"
+      },
+      "incident": {
+        "tab": "Incident",
+        "caption": "Incident: the hypothesis scoreboard, the timeline and the 2 minutes before the crash.",
+        "alt": "Incident screen with the power supply as the most likely cause, medium confidence, and the +12 V rail falling before the shutdown"
+      },
+      "mini": {
+        "tab": "Mini panel",
+        "caption": "Mini panel: stays on top of everything and warns in red.",
+        "alt": "Mini panel with CPU 61.8 °C, load 40 %, +12 V 12.10, +5 V 5.00 and +3.3 V 3.30, and a red warning for a new incident"
+      }
+    }
+  },
+  "engineering": {
+    "title": "Built to last and to be read",
+    "lead": "A small project with the habits of a large one: layers checked by tests, decisions written down and no duplicated code.",
+    "processes": {
+      "collector": {
+        "name": "Collector",
+        "role": "Reads the sensors and records. Detects and diagnoses crashes.",
+        "privilege": "Windows service (LocalSystem)"
+      },
+      "database": {
+        "name": "SQLite WAL",
+        "role": "The database is the contract between the two services."
+      },
+      "dashboard": {
+        "name": "Dashboard",
+        "role": "Read-only API and the interface on 127.0.0.1:5280.",
+        "privilege": "Unprivileged service"
+      },
+      "tray": {
+        "name": "Tray app",
+        "role": "Dashboard window and mini panel in WebView2.",
+        "privilege": "User session"
+      }
+    },
+    "diagramLabel": "Architecture: the collector writes to SQLite; the dashboard reads from SQLite and serves the interface; the tray app shows the dashboard",
+    "facts": {
+      "stack": ".NET 10 and Nuxt 4 with Nuxt UI",
+      "layers": "Domain, application and adapters in layers, checked by architecture tests",
+      "tests": "Tests written before the code (xUnit v3, Vitest)",
+      "adrs": "Every decision recorded as an ADR",
+      "installer": "One installer, no .NET needed"
+    },
+    "code": "Read the code",
+    "adrs": "Read the decisions (ADRs)"
+  },
+  "story": {
+    "title": "Why it exists",
+    "text": "Caixa-Preta was born because my PC started shutting down and restarting on its own, and I wanted to know why.",
+    "author": "Gabriel Silva, author"
+  },
+  "cta": {
+    "title": "Next time, you will know what happened",
+    "text": "Install it now: it starts recording right away and stays out of your way."
+  },
+  "footer": {
+    "license": "MIT licence",
+    "issues": "Report a problem",
+    "releases": "All releases",
+    "madeBy": "Made by Gabriel Silva"
+  },
+  "theme": "Switch between light and dark theme"
 }

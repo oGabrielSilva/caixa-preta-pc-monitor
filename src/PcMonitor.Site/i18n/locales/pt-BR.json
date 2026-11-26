@@ -10,7 +10,17 @@
     }
   },
   "hero": {
-    "title": "Seu PC desligou sozinho? A Caixa-Preta explica por quê."
+    "title": "Seu PC desligou sozinho? A Caixa-Preta explica por quê.",
+    "lead": "Como o gravador de voo de um avião, ela registra os sensores do seu PC uma vez por segundo, sem perder nada quando a energia cai. Quando o PC volta, ela mostra o que aconteceu nos últimos segundos e qual é a causa mais provável.",
+    "download": "Baixar para Windows",
+    "downloadMeta": "Versão {version}, {size}, Windows 11 de 64 bits",
+    "soon": "Ver versões no GitHub",
+    "soonMeta": "A primeira versão está a caminho",
+    "source": "Ver o código",
+    "free": "Gratuito e de código aberto (MIT). Nada sai do seu computador.",
+    "screenAlt": "Painel da Caixa-Preta com a temperatura, a carga e o consumo da CPU e as tensões da fonte ao vivo",
+    "miniAlt": "Mini painel sempre visível com CPU, carga e as tensões +12 V, +5 V e +3,3 V",
+    "traceLabel": "Linha de sinal que corre estável, tem um pico e cai: a gravação até o desligamento"
   },
   "faq": {
     "title": "Perguntas frequentes",
@@ -56,5 +66,159 @@
         "a": "Sim. Abra uma issue com o seu caso ou um pull request no GitHub. O projeto usa .NET 10 e Nuxt 4, segue arquitetura em camadas com testes de arquitetura e registra cada decisão em ADRs."
       }
     }
-  }
+  },
+  "nav": {
+    "skip": "Pular para o conteúdo",
+    "home": "Caixa-Preta, início",
+    "how": "Como funciona",
+    "features": "Recursos",
+    "engineering": "Engenharia",
+    "releases": "Versões",
+    "github": "GitHub",
+    "otherLanguage": "English",
+    "otherLanguageLabel": "Read this page in English",
+    "menu": "Menu"
+  },
+  "recorder": {
+    "title": "Os segundos que o Windows não guarda",
+    "lead": "Depois de um desligamento inesperado, o Windows só registra que ele aconteceu. A Caixa-Preta guarda o que veio antes.",
+    "sample": "Exemplo ilustrativo",
+    "chartLabel": "Tensão de +12 V nos 40 segundos antes da queda: estável em 12,10 V e caindo até ficar abaixo de 11,40 V, o mínimo da faixa ATX",
+    "band": "Faixa ATX: 11,40 a 12,60 V",
+    "off": "PC desligado",
+    "steps": {
+      "recording": {
+        "title": "Gravando",
+        "text": "Uma leitura por segundo de temperatura, carga, consumo e tensões, gravada num banco que sobrevive à queda de energia."
+      },
+      "crash": {
+        "title": "A queda",
+        "text": "Sob a carga de um jogo, o +12 V cede por 40 segundos e sai da faixa ATX. A tela apaga."
+      },
+      "restart": {
+        "title": "Religou",
+        "text": "Dois minutos depois o PC volta. A Caixa-Preta encontra o desligamento no Log de Eventos do Windows."
+      },
+      "diagnosis": {
+        "title": "Diagnóstico",
+        "text": "As regras comparam o que foi gravado com cada causa possível e mostram por quê."
+      }
+    },
+    "verdict": {
+      "label": "Causa mais provável",
+      "cause": "Fonte",
+      "confidence": "Confiança média",
+      "for": "O +12 V ficou abaixo de 11,40 V em mais de uma leitura",
+      "for2": "A CPU estava com carga alta, pedindo mais energia",
+      "against": "A CPU estava a 71 °C, longe do limite: não foi superaquecimento",
+      "against2": "Nenhuma tela azul registrada: não foi o Windows",
+      "limit": "O sensor fica na placa-mãe: não separa a fonte da placa ou do conector."
+    }
+  },
+  "features": {
+    "title": "O que ela faz",
+    "lead": "Tudo roda na sua máquina, em três processos com o mínimo de permissão.",
+    "recording": {
+      "title": "Gravação à prova de queda",
+      "text": "Temperaturas, carga, consumo, as tensões +12 V, +5 V e +3,3 V, ventoinhas, memória e discos NVMe, uma vez por segundo, num SQLite em modo WAL. Os últimos segundos antes de a energia cair ficam no disco."
+    },
+    "detection": {
+      "title": "Cada desligamento inesperado",
+      "text": "Ela lê o Log de Eventos do Windows (Kernel-Power 41 e afins) e liga cada queda ao trecho da gravação."
+    },
+    "diagnosis": {
+      "title": "Diagnóstico explicável",
+      "text": "Fonte, placa-mãe, superaquecimento, software, CPU ou memória, botão de energia: cada hipótese ganha pontos pelas evidências, e você vê tudo o que pesou."
+    },
+    "mini": {
+      "title": "Mini painel sempre visível",
+      "text": "Uma faixa pequena por cima das outras janelas. Os números ficam vermelhos quando algo sai do normal."
+    },
+    "export": {
+      "title": "Exporte e mostre ao técnico",
+      "text": "Histórico e incidentes em CSV, Excel ou PDF."
+    },
+    "privacy": {
+      "title": "Nada sai da máquina",
+      "text": "Sem nuvem, conta ou telemetria. O painel só responde em 127.0.0.1."
+    }
+  },
+  "gallery": {
+    "title": "Como é por dentro",
+    "lead": "Capturas do painel de verdade.",
+    "sample": "dados de exemplo",
+    "screens": {
+      "overview": {
+        "tab": "Ao vivo",
+        "caption": "Ao vivo: CPU, consumo e as tensões da fonte com a faixa segura de cada uma.",
+        "alt": "Tela Ao vivo do painel com cartões de CPU, +12 V, consumo, carga e memória, um gráfico dos últimos 10 minutos e as tensões da fonte"
+      },
+      "history": {
+        "tab": "Histórico",
+        "caption": "Histórico: mínimo, média e máximo de qualquer sensor em até 14 dias.",
+        "alt": "Tela Histórico com o +12 V nas últimas 24 horas, entre 12,10 e 12,19 V"
+      },
+      "incident": {
+        "tab": "Incidente",
+        "caption": "Incidente: o placar das hipóteses, a linha do tempo e os 2 minutos antes da queda.",
+        "alt": "Tela de um incidente com a fonte como causa mais provável, confiança média, e o +12 V caindo antes do desligamento"
+      },
+      "mini": {
+        "tab": "Mini painel",
+        "caption": "Mini painel: fica por cima de tudo e avisa em vermelho.",
+        "alt": "Mini painel com CPU 61,8 °C, carga 40 %, +12 V 12,10, +5 V 5,00 e +3,3 V 3,30, e um aviso vermelho de incidente novo"
+      }
+    }
+  },
+  "engineering": {
+    "title": "Feito para durar e para ser lido",
+    "lead": "Um projeto pequeno com as práticas de um grande: camadas checadas por testes, decisões registradas e nenhum código duplicado.",
+    "processes": {
+      "collector": {
+        "name": "Coletor",
+        "role": "Lê os sensores e grava. Detecta e diagnostica as quedas.",
+        "privilege": "Serviço do Windows (LocalSystem)"
+      },
+      "database": {
+        "name": "SQLite WAL",
+        "role": "O banco é o contrato entre os dois serviços."
+      },
+      "dashboard": {
+        "name": "Painel",
+        "role": "API somente leitura e a interface em 127.0.0.1:5280.",
+        "privilege": "Serviço sem privilégio"
+      },
+      "tray": {
+        "name": "App da bandeja",
+        "role": "Janela do painel e mini painel em WebView2.",
+        "privilege": "Sessão do usuário"
+      }
+    },
+    "diagramLabel": "Arquitetura: o coletor grava no SQLite; o painel lê do SQLite e serve a interface; o app da bandeja mostra o painel",
+    "facts": {
+      "stack": ".NET 10 e Nuxt 4 com Nuxt UI",
+      "layers": "Domínio, aplicação e adaptadores em camadas, com testes de arquitetura",
+      "tests": "Testes escritos antes do código (xUnit v3, Vitest)",
+      "adrs": "Cada decisão registrada numa ADR",
+      "installer": "Instalador único, sem precisar de .NET"
+    },
+    "code": "Ler o código",
+    "adrs": "Ler as decisões (ADRs)"
+  },
+  "story": {
+    "title": "Por que existe",
+    "text": "A Caixa-Preta nasceu porque o meu PC passou a desligar e reiniciar sozinho, e eu queria saber por quê.",
+    "author": "Gabriel Silva, autor"
+  },
+  "cta": {
+    "title": "Da próxima vez, você vai saber o que aconteceu",
+    "text": "Instale agora: ela começa a gravar na hora e não atrapalha o uso do PC."
+  },
+  "footer": {
+    "license": "Licença MIT",
+    "issues": "Relatar um problema",
+    "releases": "Todas as versões",
+    "madeBy": "Feito por Gabriel Silva"
+  },
+  "theme": "Alternar tema claro e escuro"
 }

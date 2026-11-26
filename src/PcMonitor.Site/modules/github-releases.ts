@@ -7,8 +7,12 @@ export default defineNuxtModule({
   meta: { name: 'github-releases' },
   async setup(_options, nuxt) {
     const logger = useLogger('github-releases')
-    const releases = await fetchReleases(fetch, process.env.GITHUB_TOKEN)
-    if (releases.length === 0) {
+    // Tests never call GitHub: they pass their own release lists to the components.
+    const releases = nuxt.options.test ? [] : await fetchReleases(fetch, process.env.GITHUB_TOKEN)
+    if (nuxt.options.test) {
+      logger.info('Test run: no release is read.')
+    }
+    else if (releases.length === 0) {
       logger.warn('No published release found (private repository, no network or none yet): the site shows "coming soon".')
     }
     else {
