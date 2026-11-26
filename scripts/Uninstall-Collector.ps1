@@ -1,12 +1,11 @@
-#Requires -Version 7
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Removes the PC Monitor collector service and binaries. Recorded data is kept unless -RemoveData is given.
+    Removes the Caixa-Preta collector service and binaries. Recorded data is kept unless -RemoveData is given.
 
 .EXAMPLE
-    pwsh scripts/Uninstall-Collector.ps1
-    pwsh scripts/Uninstall-Collector.ps1 -RemoveData
+    powershell -File scripts/Uninstall-Collector.ps1
+    powershell -File scripts/Uninstall-Collector.ps1 -RemoveData
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param(

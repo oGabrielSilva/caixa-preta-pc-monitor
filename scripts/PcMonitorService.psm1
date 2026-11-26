@@ -1,4 +1,4 @@
-# Shared helpers for the PC Monitor install and uninstall scripts.
+# Shared helpers for the Caixa-Preta install and uninstall scripts.
 
 Set-StrictMode -Version Latest
 
@@ -12,9 +12,40 @@ function Write-Step([string] $Message) { Write-Host "==> $Message" -ForegroundCo
 function Get-PcMonitorDataPath { Join-Path $env:ProgramData 'PcMonitor' }
 
 <# .SYNOPSIS Where a component's binaries are installed: %ProgramFiles%\PcMonitor\<Component>. #>
-function Get-PcMonitorInstallPath([Parameter(Mandatory)] [ValidateSet('Collector', 'Dashboard')] [string] $Component) {
+function Get-PcMonitorInstallPath([Parameter(Mandatory)] [ValidateSet('Collector', 'Dashboard', 'Tray')] [string] $Component) {
     Join-Path $env:ProgramFiles "PcMonitor\$Component"
 }
+
+<#
+.SYNOPSIS
+    Puts a component's binaries in its install folder and checks they are complete.
+.DESCRIPTION
+    Copies them from SourcePath (a dotnet publish folder), or, with -InPlace, uses what is already in InstallPath
+    (the installer has copied them). Throws when a required file is missing; PublishHint says how to produce it.
+#>
+function Install-PcMonitorBinaries {
+    param(
+        [Parameter(Mandatory)] [string] $SourcePath,
+        [Parameter(Mandatory)] [string] $InstallPath,
+        [Parameter(Mandatory)] [string[]] $RequiredFiles,
+        [Parameter(Mandatory)] [string] $PublishHint,
+        [switch] $InPlace
+    )
+    $folder = if ($InPlace) { $InstallPath } else { $SourcePath }
+    foreach ($file in $RequiredFiles) {
+        if (-not (Test-Path (Join-Path $folder $file))) { throw "'$file' not found in '$folder'. $PublishHint" }
+    }
+    if ($InPlace) {
+        Write-Step "Using the binaries already in $InstallPath"
+        return
+    }
+    Write-Step "Copying binaries to $InstallPath"
+    New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
+    Copy-Item -Path (Join-Path $SourcePath '*') -Destination $InstallPath -Recurse -Force
+}
+
+<# .SYNOPSIS The Start menu folder shared by every user. #>
+function Get-PcMonitorStartMenuPath { Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs' }
 
 <#
 .SYNOPSIS
@@ -47,6 +78,14 @@ function Stop-PcMonitorService([Parameter(Mandatory)] [string] $Name) {
     if ($processId) { Wait-Process -Id $processId -Timeout 30 -ErrorAction SilentlyContinue }
 }
 
+<# .SYNOPSIS Closes the tray app (CaixaPreta.exe) in every session and waits until it has exited. #>
+function Stop-PcMonitorTray {
+    $processes = @(Get-Process -Name 'CaixaPreta' -ErrorAction SilentlyContinue)
+    if ($processes.Count -eq 0) { return }
+    $processes | Stop-Process -Force
+    $processes | Wait-Process -Timeout 30 -ErrorAction SilentlyContinue
+}
+
 <# .SYNOPSIS Runs sc.exe and throws when it fails. #>
 function Invoke-Sc([string[]] $Arguments) {
     sc.exe @Arguments | Out-Null
@@ -75,5 +114,5 @@ function Set-PcMonitorRecovery([Parameter(Mandatory)] [string] $Name) {
     Invoke-Sc @('failureflag', $Name, '1')
 }
 
-Export-ModuleMember -Function Write-Step, Get-PcMonitorDataPath, Get-PcMonitorInstallPath, Initialize-PcMonitorDataFolder,
-    Stop-PcMonitorService, Invoke-Sc, Get-PcMonitorServiceSid, Register-PcMonitorEventSource, Set-PcMonitorRecovery
+Export-ModuleMember -Function Write-Step, Get-PcMonitorDataPath, Get-PcMonitorInstallPath, Install-PcMonitorBinaries, Get-PcMonitorStartMenuPath, Initialize-PcMonitorDataFolder,
+    Stop-PcMonitorService, Stop-PcMonitorTray, Invoke-Sc, Get-PcMonitorServiceSid, Register-PcMonitorEventSource, Set-PcMonitorRecovery

@@ -15,6 +15,12 @@ internal sealed class TraySettings
     /// <summary>Top-left corner of the panel; <c>null</c> until the user moves it.</summary>
     public Point? MiniPanelPosition { get; set; }
 
+    /// <summary>
+    /// Whether "start with Windows" was already turned on for this user. The app turns it on at its first run, once,
+    /// so the user's later choice in the tray menu is never overridden.
+    /// </summary>
+    public bool RunAtLoginOffered { get; set; }
+
     /// <summary>The saved settings, or the defaults when the file is missing or damaged.</summary>
     public static TraySettings Load(string path)
     {

@@ -37,4 +37,24 @@ public sealed class TraySettingsTests : IDisposable
 
         TraySettings.Load(File).ShowMiniPanel.ShouldBeTrue();
     }
+
+    [Fact]
+    public void Start_with_Windows_is_offered_once()
+    {
+        var first = TraySettings.Load(File);
+        first.RunAtLoginOffered.ShouldBeFalse();
+
+        first.RunAtLoginOffered = true;
+        first.Save(File);
+
+        TraySettings.Load(File).RunAtLoginOffered.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void Settings_saved_before_the_offer_existed_have_not_offered_it()
+    {
+        System.IO.File.WriteAllText(File, """{"ShowMiniPanel":false}""");
+
+        TraySettings.Load(File).RunAtLoginOffered.ShouldBeFalse();
+    }
 }

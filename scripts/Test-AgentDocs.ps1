@@ -9,11 +9,14 @@
 #>
 [CmdletBinding()]
 param(
-    [string] $Root = (Split-Path -Parent $PSScriptRoot)
+    [string] $Root
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+# $PSScriptRoot is empty in parameter defaults on Windows PowerShell 5.1, so defaults that need it are set here.
+if (-not $Root) { $Root = Split-Path -Parent $PSScriptRoot }
 
 $ignoredSegments = @('node_modules', 'bin', 'obj', '.nuxt', '.output', '.git', '.superpowers', 'artifacts')
 $violations = [System.Collections.Generic.List[string]]::new()

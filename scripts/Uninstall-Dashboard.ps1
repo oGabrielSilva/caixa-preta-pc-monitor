@@ -1,12 +1,11 @@
-#Requires -Version 7
 #Requires -RunAsAdministrator
 <#
 .SYNOPSIS
-    Removes the PC Monitor dashboard: service, binaries, Start menu shortcut and its read access to the data folder.
+    Removes the Caixa-Preta dashboard: service, binaries, Start menu shortcut and its read access to the data folder.
     Recorded data is never touched.
 
 .EXAMPLE
-    pwsh scripts/Uninstall-Dashboard.ps1
+    powershell -File scripts/Uninstall-Dashboard.ps1
 #>
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 param()
@@ -19,7 +18,7 @@ Import-Module (Join-Path $PSScriptRoot 'PcMonitorService.psm1') -Force
 $serviceName = 'PcMonitor.Dashboard'
 $installPath = Get-PcMonitorInstallPath -Component Dashboard
 $dataPath = Get-PcMonitorDataPath
-$shortcut = Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\Caixa-Preta.url'
+$shortcut = Join-Path (Get-PcMonitorStartMenuPath) 'Caixa-Preta.url'
 
 $service = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
 if ($service -and $PSCmdlet.ShouldProcess($serviceName, 'Stop and delete the service')) {

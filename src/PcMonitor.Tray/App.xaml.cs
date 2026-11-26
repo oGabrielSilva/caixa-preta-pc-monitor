@@ -43,6 +43,13 @@ public partial class App
         _environment = await CoreWebView2Environment.CreateAsync(null, userData).ConfigureAwait(true);
 
         var runAtLogin = new RunAtLogin(RunAtLogin.CurrentUserRunKey, Environment.ProcessPath!);
+        if (!_settings.RunAtLoginOffered)
+        {
+            runAtLogin.IsEnabled = true;
+            _settings.RunAtLoginOffered = true;
+            _settings.Save(TraySettings.DefaultPath);
+        }
+
         _tray = new TrayIcon(TrayText.ForCurrentCulture(), runAtLogin, _settings.ShowMiniPanel)
         {
             OpenRequested = () => ShowMain(null),

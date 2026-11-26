@@ -83,5 +83,9 @@ jobs:
       - name: Verify agent docs
         run: ./scripts/Test-AgentDocs.ps1
 
+      - name: Verify install scripts run on Windows PowerShell 5.1
+        shell: powershell
+        run: ./scripts/Test-Scripts.ps1
+
       - name: Detect duplicated code
         run: pnpm dlx jscpd@5.4.3
