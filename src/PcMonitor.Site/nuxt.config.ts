@@ -32,10 +32,9 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
+      // Pages are written as <page>/index.html; their canonical URLs end in a slash (absoluteUrl), which GitHub
+      // Pages serves without a redirect.
       crawlLinks: true,
-      // en.html instead of en/index.html: GitHub Pages serves /en from en.html directly, so the canonical URLs
-      // (no trailing slash) never go through a redirect.
-      autoSubfolderIndex: false,
       routes: ['/', '/en', '/sitemap.xml', '/robots.txt', '/llms.txt'],
     },
   },

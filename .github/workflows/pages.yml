@@ -1,8 +1,9 @@
 name: Pages
 
 # Builds the landing page (src/PcMonitor.Site) as static files and publishes it on GitHub Pages (ADR 0021).
-# release.yml starts this workflow after each release, so the download link and the release history stay current
-# (a release created with GITHUB_TOKEN does not trigger the release event for other workflows).
+# release.yml starts this workflow on main after each release, so the download link and the release history stay
+# current. There is no `release` trigger: a release made with GITHUB_TOKEN fires none, and one published by hand would
+# run on the tag, which the github-pages environment rejects. After a hand-made release, run this workflow manually.
 on:
   push:
     branches: [main]
@@ -11,8 +12,6 @@ on:
       - 'src/PcMonitor.Brand/**'
       - 'assets/brand/**'
       - '.github/workflows/pages.yml'
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:

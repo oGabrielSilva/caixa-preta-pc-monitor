@@ -34,6 +34,6 @@ Windows hardware monitor that continuously records temperatures, voltages, power
 
 Install: run `CaixaPreta-Setup-<version>.exe` (self-contained, needs administrator). Build it with `powershell -File scripts/Build-Release.ps1` (.NET 10, pnpm and Inno Setup 6).
 
-- Website and download: [ogabrielsilva.github.io/caixa-preta-pc-monitor/en](https://ogabrielsilva.github.io/caixa-preta-pc-monitor/en)
+- Website and download: [ogabrielsilva.github.io/caixa-preta-pc-monitor/en/](https://ogabrielsilva.github.io/caixa-preta-pc-monitor/en/)
 - Architecture study (Portuguese): [docs/estudos/2026-11-24-estudo-arquitetura.md](docs/estudos/2026-11-24-estudo-arquitetura.md)
 - License: [MIT](LICENSE)

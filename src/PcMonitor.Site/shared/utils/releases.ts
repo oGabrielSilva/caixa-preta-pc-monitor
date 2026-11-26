@@ -81,23 +81,31 @@ export function downloadHref(releases: Release[]): string {
   return latestStable(releases)?.installer?.url ?? RELEASES_PAGE
 }
 
+/** Longest wait for each GitHub request: a hanging network must not stall the build. */
+const TIMEOUT_MS = 10_000
+
 /**
- * Reads the releases from the GitHub REST API. Never throws: a private or missing repository, no network or the rate
- * limit all give an empty list, so the site still builds and shows "first release coming soon".
+ * Reads the releases from the GitHub REST API. Never throws: a private or missing repository, no network, a timeout
+ * or the rate limit all give an empty list, so the site still builds and shows "first release coming soon".
+ * A private repository gives an empty list even when the token can read it: visitors could not download anything.
  */
 export async function fetchReleases(fetcher: typeof fetch = fetch, token?: string): Promise<Release[]> {
   const headers: Record<string, string> = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
   if (token) {
     headers.Authorization = `Bearer ${token}`
   }
+  const get = async (path: string): Promise<unknown> => {
+    const response = await fetcher(`https://api.github.com/repos/${REPO}${path}`, { headers, signal: AbortSignal.timeout(TIMEOUT_MS) })
+    return response.ok ? response.json() : undefined
+  }
 
   try {
-    const response = await fetcher(`https://api.github.com/repos/${REPO}/releases?per_page=100`, { headers })
-    if (!response.ok) {
+    const repository = await get('') as { private?: unknown } | undefined
+    if (repository?.private !== false) {
       return []
     }
 
-    const body: unknown = await response.json()
+    const body = await get('/releases?per_page=100')
     return Array.isArray(body) ? mapReleases(body) : []
   }
   catch {

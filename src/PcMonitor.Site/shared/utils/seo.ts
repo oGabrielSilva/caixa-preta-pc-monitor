@@ -2,10 +2,15 @@
 import type { Release } from './releases'
 import { AUTHOR, BASE_PATH, REPO_URL, SITE_URL } from './site'
 
-/** Absolute URL of a site path. Accepts paths with or without the project path; the result has it exactly once. */
+/**
+ * Absolute URL of a site path. Accepts paths with or without the project path; the result has it exactly once.
+ * Pages end in a slash (`/en/`, `/versoes/`): they are generated as `<page>/index.html`, which GitHub Pages serves at
+ * that URL without a redirect. Files (`og/og-en.png`) keep their name.
+ */
 export function absoluteUrl(path: string): string {
   const relative = path.replace(/^\/+/, '').replace(new RegExp(`^${BASE_PATH.slice(1)}`), '')
-  return `${SITE_URL}${relative}`
+  const isPage = relative !== '' && !relative.endsWith('/') && !/\.[a-z0-9]+$/i.test(relative)
+  return `${SITE_URL}${relative}${isPage ? '/' : ''}`
 }
 
 export type HeadLink = { rel: 'canonical', href: string } | { rel: 'alternate', hreflang: string, href: string }

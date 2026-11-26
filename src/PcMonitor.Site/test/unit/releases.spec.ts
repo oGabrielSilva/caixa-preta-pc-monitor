@@ -53,13 +53,31 @@ describe('downloadHref', () => {
   })
 })
 
+/** GitHub as seen by the build: the repository answer (`/repos/{repo}`) and the releases answer. */
+const github = (repository: object, releases: unknown = raw): typeof fetch =>
+  (async (url: string) => new Response(JSON.stringify(url.includes('/releases') ? releases : repository))) as typeof fetch
+
 describe('fetchReleases', () => {
-  it('maps the GitHub answer', async () => {
-    expect(await fetchReleases(respond(200, raw))).toHaveLength(4)
+  it('maps the GitHub answer of a public repository', async () => {
+    expect(await fetchReleases(github({ private: false }))).toHaveLength(4)
   })
 
-  it('gives an empty list when the repository is private or missing (404)', async () => {
+  it('gives an empty list when the repository is missing or unreachable anonymously (404)', async () => {
     expect(await fetchReleases(respond(404, { message: 'Not Found' }))).toEqual([])
+  })
+
+  it('gives an empty list for a private repository, even when the token can read its releases', async () => {
+    expect(await fetchReleases(github({ private: true }), 'token')).toEqual([])
+  })
+
+  it('gives up after a time limit instead of hanging the build', async () => {
+    let signal: AbortSignal | null | undefined
+    const spy = (async (_url: string, init?: RequestInit) => {
+      signal = init?.signal
+      return new Response(JSON.stringify({ private: false }))
+    }) as typeof fetch
+    await fetchReleases(spy)
+    expect(signal).toBeInstanceOf(AbortSignal)
   })
 
   it('gives an empty list without network', async () => {
@@ -70,14 +88,17 @@ describe('fetchReleases', () => {
   })
 
   it('asks the GitHub REST API, with the token when there is one', async () => {
-    let seen: { url: string, headers: Headers } | undefined
+    const seen: { url: string, headers: Headers }[] = []
     const spy = (async (url: string, init?: RequestInit) => {
-      seen = { url, headers: new Headers(init?.headers) }
-      return new Response('[]')
+      seen.push({ url, headers: new Headers(init?.headers) })
+      return new Response(url.includes('/releases') ? '[]' : '{"private":false}')
     }) as typeof fetch
     await fetchReleases(spy, 'secret-token')
-    expect(seen?.url).toBe('https://api.github.com/repos/oGabrielSilva/caixa-preta-pc-monitor/releases?per_page=100')
-    expect(seen?.headers.get('Accept')).toBe('application/vnd.github+json')
-    expect(seen?.headers.get('Authorization')).toBe('Bearer secret-token')
+    expect(seen.map(s => s.url)).toEqual([
+      'https://api.github.com/repos/oGabrielSilva/caixa-preta-pc-monitor',
+      'https://api.github.com/repos/oGabrielSilva/caixa-preta-pc-monitor/releases?per_page=100',
+    ])
+    expect(seen.every(s => s.headers.get('Accept') === 'application/vnd.github+json')).toBe(true)
+    expect(seen.every(s => s.headers.get('Authorization') === 'Bearer secret-token')).toBe(true)
   })
 })

@@ -40,7 +40,7 @@ My PC started shutting down on its own, and Windows only logs that it happened, 
 
 Built with .NET 10 and Nuxt 4, with three least-privilege processes, a layered architecture checked by tests and every decision written down as an ADR.
 
-🔗 https://ogabrielsilva.github.io/caixa-preta-pc-monitor/en
+🔗 https://ogabrielsilva.github.io/caixa-preta-pc-monitor/en/
 
 #dotnet #opensource #windows
 

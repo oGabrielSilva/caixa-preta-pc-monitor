@@ -11,15 +11,16 @@ describe('absoluteUrl', () => {
   it.each([
     ['/', base],
     ['', base],
-    ['/en', `${base}en`],
-    ['/en/releases', `${base}en/releases`],
+    ['/en', `${base}en/`],
+    ['/en/releases', `${base}en/releases/`],
+    ['/en/', `${base}en/`],
     ['og/og-pt-BR.png', `${base}og/og-pt-BR.png`],
-  ])('%s → %s (the project path exactly once)', (path, url) => {
+  ])('%s → %s (the project path exactly once, pages end in a slash)', (path, url) => {
     expect(absoluteUrl(path)).toBe(url)
   })
 
   it('does not add the project path twice', () => {
-    expect(absoluteUrl('/caixa-preta-pc-monitor/versoes')).toBe(`${base}versoes`)
+    expect(absoluteUrl('/caixa-preta-pc-monitor/versoes')).toBe(`${base}versoes/`)
   })
 })
 
@@ -82,7 +83,7 @@ describe('websiteJsonLd and breadcrumbJsonLd', () => {
       '@type': 'BreadcrumbList',
       'itemListElement': [
         { '@type': 'ListItem', 'position': 1, 'name': 'Início', 'item': base },
-        { '@type': 'ListItem', 'position': 2, 'name': 'Versões', 'item': `${base}versoes` },
+        { '@type': 'ListItem', 'position': 2, 'name': 'Versões', 'item': `${base}versoes/` },
       ],
     })
   })
@@ -93,7 +94,7 @@ describe('sitemapXml', () => {
 
   it('lists each page with its language alternates and x-default', () => {
     expect(xml).toContain(`<loc>${base}</loc>`)
-    expect(xml).toContain(`<xhtml:link rel="alternate" hreflang="en" href="${base}en"/>`)
+    expect(xml).toContain(`<xhtml:link rel="alternate" hreflang="en" href="${base}en/"/>`)
     expect(xml).toContain(`<xhtml:link rel="alternate" hreflang="pt-BR" href="${base}"/>`)
     expect(xml).toContain(`<xhtml:link rel="alternate" hreflang="x-default" href="${base}"/>`)
     expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true)
@@ -103,10 +104,10 @@ describe('sitemapXml', () => {
 describe('headLinks', () => {
   it('gives the canonical and one alternate per language plus x-default, all absolute', () => {
     expect(headLinks('/caixa-preta-pc-monitor/en/releases', { 'pt-BR': '/caixa-preta-pc-monitor/versoes', 'en': '/caixa-preta-pc-monitor/en/releases' })).toEqual([
-      { rel: 'canonical', href: `${base}en/releases` },
-      { rel: 'alternate', hreflang: 'pt-BR', href: `${base}versoes` },
-      { rel: 'alternate', hreflang: 'en', href: `${base}en/releases` },
-      { rel: 'alternate', hreflang: 'x-default', href: `${base}versoes` },
+      { rel: 'canonical', href: `${base}en/releases/` },
+      { rel: 'alternate', hreflang: 'pt-BR', href: `${base}versoes/` },
+      { rel: 'alternate', hreflang: 'en', href: `${base}en/releases/` },
+      { rel: 'alternate', hreflang: 'x-default', href: `${base}versoes/` },
     ])
   })
 
