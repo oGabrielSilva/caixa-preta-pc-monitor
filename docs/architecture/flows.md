@@ -136,7 +136,9 @@ sequenceDiagram
     participant A as Dashboard API
     W->>T: HKCU Run: CaixaPreta.exe --background
     T->>T: instância única (mutex + pipe)
-    T->>M: abre /mini no canto (posição lembrada)
+    T->>M: abre /mini no canto (posição e escala lembradas)
+    M->>T: postMessage {type:"size"} (tamanho do conteúdo)
+    T->>T: janela = conteúdo × escala
     M->>A: GET /api/live + SSE (mesmo useLive do Ao vivo)
     M-->>M: números em vermelho fora da faixa; ponto de gravação / queda não vista
     M->>T: postMessage {type:"open", path}
@@ -144,5 +146,6 @@ sequenceDiagram
     Note over T: abrir de novo pelo menu Iniciar sinaliza a instância e mostra a janela
 ```
 
-- O painel fixo usa as mesmas faixas e estados do Ao vivo (vindos da API); sem notificações.
+- O painel fixo usa as mesmas faixas e estados do Ao vivo (vindos da API); sem notificações. Com a gravação parada, mostra "—" em vez dos últimos números.
+- Tamanho: puxador do canto (`resize`) ou Ctrl + roda do mouse (`scale`); a escala vale de 0,75 a 2,5 e fica salva.
 - "Queda não vista": a última queda que o usuário ainda não abriu (`localStorage`, conferido a cada 5 min).

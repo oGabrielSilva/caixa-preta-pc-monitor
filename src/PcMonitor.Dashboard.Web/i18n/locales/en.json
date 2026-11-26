@@ -268,7 +268,8 @@
     "cpu": "CPU",
     "load": "Load",
     "open": "Open the dashboard",
-    "unseen": "New crash"
+    "unseen": "New crash",
+    "resize": "Drag to resize (or Ctrl + mouse wheel)"
   },
   "export": {
     "button": "Export",

@@ -10,7 +10,7 @@ namespace PcMonitor.Tray.Windows;
 /// <summary>
 /// Sets up a WebView2 showing a dashboard page, for both windows: shared environment, no developer tools or context
 /// menu, external links in the default browser, a local "waiting" page with a retry every 5 s while the dashboard does
-/// not answer, and the messages pages post (<c>open</c>, <c>drag</c>).
+/// not answer, and the messages pages post (<c>open</c>, <c>drag</c>, <c>resize</c>, <c>scale</c>, <c>size</c>).
 /// </summary>
 internal sealed class WebViewHost
 {
@@ -46,6 +46,15 @@ internal sealed class WebViewHost
     /// <summary>The mini panel's drag handle was pressed.</summary>
     public Action? DragRequested { get; init; }
 
+    /// <summary>The mini panel's resize grip was pressed.</summary>
+    public Action? ResizeRequested { get; init; }
+
+    /// <summary>Ctrl + mouse wheel over the mini panel: +1 grows, -1 shrinks.</summary>
+    public Action<int>? ScaleStepRequested { get; init; }
+
+    /// <summary>The page measured its content (CSS pixels at zoom 1).</summary>
+    public Action<System.Windows.Size>? SizeReported { get; init; }
+
     public async Task InitializeAsync(CoreWebView2Environment environment)
     {
         await _view.EnsureCoreWebView2Async(environment).ConfigureAwait(true);
@@ -53,6 +62,8 @@ internal sealed class WebViewHost
         core.Settings.AreDevToolsEnabled = Debugger.IsAttached;
         core.Settings.AreDefaultContextMenusEnabled = false;
         core.Settings.IsStatusBarEnabled = false;
+        // Ctrl + wheel and Ctrl + +/- would zoom the page alone; the mini panel asks the host to scale the window instead.
+        core.Settings.IsZoomControlEnabled = false;
         core.NavigationCompleted += (_, e) =>
         {
             if (!e.IsSuccess && e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
@@ -96,6 +107,24 @@ internal sealed class WebViewHost
                 break;
             case "drag":
                 DragRequested?.Invoke();
+                break;
+            case "resize":
+                ResizeRequested?.Invoke();
+                break;
+            case "scale":
+                if (message.TryGetProperty("step", out var step) && step.TryGetInt32(out var steps) && steps != 0)
+                {
+                    ScaleStepRequested?.Invoke(Math.Sign(steps));
+                }
+
+                break;
+            case "size":
+                if (message.TryGetProperty("width", out var width) && width.TryGetDouble(out var w)
+                    && message.TryGetProperty("height", out var height) && height.TryGetDouble(out var h) && w > 0 && h > 0)
+                {
+                    SizeReported?.Invoke(new System.Windows.Size(w, h));
+                }
+
                 break;
         }
     }

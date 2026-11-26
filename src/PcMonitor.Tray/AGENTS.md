@@ -8,6 +8,8 @@ WebView2 windows (ADR 0018): the main window and the always-on-top panel (`/mini
 - Layout: `Windows/` (main and mini windows, `WebViewHost` shared by both, placement), `Tray/` (icon, menu, texts),
   `Startup/` (single instance, run at login, dashboard address), `Settings/` (user settings in `%LocalAppData%\CaixaPreta`).
 - Messages from the pages (`chrome.webview.postMessage`): `{ type: "open", path }` shows the main window on that page;
-  `{ type: "drag" }` starts moving the mini panel.
+  `{ type: "drag" }` starts moving the mini panel; `{ type: "resize" }` starts resizing it from the corner;
+  `{ type: "scale", step }` grows or shrinks it (Ctrl + wheel); `{ type: "size", width, height }` reports its content size.
+- Mini panel size = content size x scale (`MiniPanelSize`), also the WebView2 zoom; the WebView2's own zoom is off.
 - WPF and Windows Forms share type names: use aliases, never the implicit Windows Forms usings.
 - Tests: `dotnet test --project tests/PcMonitor.Tray.Tests` (logic only; windows and WebView2 are checked by running the app).

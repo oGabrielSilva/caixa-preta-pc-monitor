@@ -268,7 +268,8 @@
     "cpu": "CPU",
     "load": "Carga",
     "open": "Abrir o painel",
-    "unseen": "Queda nova"
+    "unseen": "Queda nova",
+    "resize": "Arraste para mudar o tamanho (ou Ctrl + roda do mouse)"
   },
   "export": {
     "button": "Exportar",

@@ -15,6 +15,9 @@ internal sealed class TraySettings
     /// <summary>Top-left corner of the panel; <c>null</c> until the user moves it.</summary>
     public Point? MiniPanelPosition { get; set; }
 
+    /// <summary>Size of the panel relative to its natural size (also the page zoom), chosen by resizing it.</summary>
+    public double MiniPanelScale { get; set; } = 1.0;
+
     /// <summary>
     /// Whether "start with Windows" was already turned on for this user. The app turns it on at its first run, once,
     /// so the user's later choice in the tray menu is never overridden.

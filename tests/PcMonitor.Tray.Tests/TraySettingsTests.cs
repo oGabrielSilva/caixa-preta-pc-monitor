@@ -57,4 +57,14 @@ public sealed class TraySettingsTests : IDisposable
 
         TraySettings.Load(File).RunAtLoginOffered.ShouldBeFalse();
     }
+
+    [Fact]
+    public void The_panel_scale_defaults_to_one_and_survives_a_restart()
+    {
+        TraySettings.Load(File).MiniPanelScale.ShouldBe(1.0);
+
+        new TraySettings { MiniPanelScale = 1.5 }.Save(File);
+
+        TraySettings.Load(File).MiniPanelScale.ShouldBe(1.5);
+    }
 }
