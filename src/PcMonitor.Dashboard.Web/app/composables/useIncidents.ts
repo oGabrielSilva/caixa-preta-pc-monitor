@@ -8,8 +8,9 @@ export function loadIncidents(client: ApiClient = api): Promise<ApiResult<Incide
 
 /** Every incident, newest first. */
 export function useIncidents() {
-  const { data, status } = useAsyncData('incidents', () => loadIncidents(), { default: () => ({ data: null, problem: null }) })
+  const { data, status, refresh } = useAsyncData('incidents', () => loadIncidents(), { default: () => ({ data: null, problem: null }) })
   return {
+    refresh,
     incidents: computed(() => data.value.data ?? []),
     problem: computed(() => data.value.problem),
     pending: computed(() => status.value === 'pending'),

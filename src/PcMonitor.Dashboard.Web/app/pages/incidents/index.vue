@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const { incidents, problem } = useIncidents()
 const stats = computed(() => summarize(incidents.value, new Date()))
+useMarkIncidentsSeen(incidents)
 </script>
 
 <template>

@@ -253,5 +253,11 @@
   },
   "layout": {
     "toggleSidebar": "Mostrar ou recolher o menu"
+  },
+  "mini": {
+    "cpu": "CPU",
+    "load": "Carga",
+    "open": "Abrir o painel",
+    "unseen": "Queda nova"
   }
 }

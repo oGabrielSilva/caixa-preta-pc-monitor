@@ -2,6 +2,7 @@
 const { t, locale } = useI18n()
 const route = useRoute()
 const { incident, problem } = useIncident(() => Number(route.params.id))
+useMarkIncidentsSeen(() => (incident.value ? [incident.value.summary] : []))
 const title = computed(() => incident.value
   ? t('incident.title', { date: formatFullDateTime(incident.value.summary.estimatedFailureAt ?? incident.value.summary.loggedAt, locale.value) })
   : t('nav.incidents'))

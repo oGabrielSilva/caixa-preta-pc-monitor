@@ -40,3 +40,10 @@
   --ui-bg-accented: var(--ui-color-neutral-800);
   --ui-text-inverted: var(--ui-color-neutral-900);
 }
+
+/* The tray app's always-on-top panel (/mini) shows only the panel, over a transparent window. */
+.mini-window,
+.mini-window body {
+  background: transparent;
+  overflow: hidden;
+}

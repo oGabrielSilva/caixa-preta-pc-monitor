@@ -253,5 +253,11 @@
   },
   "layout": {
     "toggleSidebar": "Show or collapse the menu"
+  },
+  "mini": {
+    "cpu": "CPU",
+    "load": "Load",
+    "open": "Open the dashboard",
+    "unseen": "New crash"
   }
 }
