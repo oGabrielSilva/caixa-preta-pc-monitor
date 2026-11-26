@@ -3,10 +3,19 @@ const { t } = useI18n()
 const { incidents, problem } = useIncidents()
 const stats = computed(() => summarize(incidents.value, new Date()))
 useMarkIncidentsSeen(incidents)
+const { busy, exportIncidents } = useExport()
 </script>
 
 <template>
   <SharedPage :title="t('nav.incidents')">
+    <template #right>
+      <SharedExportMenu
+        v-if="incidents.length > 0"
+        :formats="['csv', 'xlsx', 'pdf']"
+        :busy="busy"
+        @select="format => exportIncidents(format, incidents)"
+      />
+    </template>
     <SharedStorageNotice
       v-if="problem"
       :problem="problem"

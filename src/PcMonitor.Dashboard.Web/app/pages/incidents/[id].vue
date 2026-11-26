@@ -3,6 +3,7 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const { incident, problem } = useIncident(() => Number(route.params.id))
 useMarkIncidentsSeen(() => (incident.value ? [incident.value.summary] : []))
+const { busy, exportIncident } = useExport()
 const title = computed(() => incident.value
   ? t('incident.title', { date: formatFullDateTime(incident.value.summary.estimatedFailureAt ?? incident.value.summary.loggedAt, locale.value) })
   : t('nav.incidents'))
@@ -18,6 +19,14 @@ const title = computed(() => incident.value
         color="neutral"
         size="sm"
         :aria-label="t('incident.back')"
+      />
+    </template>
+    <template #right>
+      <SharedExportMenu
+        v-if="incident"
+        :formats="['pdf']"
+        :busy="busy"
+        @select="() => incident && exportIncident(incident)"
       />
     </template>
 

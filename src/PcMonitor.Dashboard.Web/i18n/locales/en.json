@@ -269,5 +269,34 @@
     "load": "Load",
     "open": "Open the dashboard",
     "unseen": "New crash"
+  },
+  "export": {
+    "button": "Export",
+    "formats": {
+      "csv": "CSV",
+      "xlsx": "Excel (.xlsx)",
+      "pdf": "PDF"
+    },
+    "sheets": {
+      "incidents": "Crashes",
+      "diagnosis": "Diagnosis",
+      "readings": "Readings"
+    },
+    "confidence": "Confidence",
+    "kind": "Kind",
+    "text": "Text",
+    "hypotheses": "Hypothesis",
+    "direction": "Weight",
+    "strength": "Strength",
+    "for": "for",
+    "against": "against",
+    "start": "Start",
+    "unit": "Unit",
+    "generatedAt": "Generated on {date}",
+    "kinds": {
+      "Evidence": "Evidence",
+      "Observation": "Observation",
+      "Limitation": "Limitation"
+    }
   }
 }

@@ -4,10 +4,19 @@ const { sensors, problem: sensorsProblem } = useHistorySensors()
 const { sensor, range } = useHistorySelection(sensors)
 const { history, problem } = useHistory(sensor, range)
 const { incidents } = useIncidents()
+const { busy, exportHistory } = useExport()
 </script>
 
 <template>
   <SharedPage :title="t('nav.history')">
+    <template #right>
+      <SharedExportMenu
+        v-if="history"
+        :formats="['csv', 'xlsx']"
+        :busy="busy"
+        @select="format => history && exportHistory(format, history, incidents)"
+      />
+    </template>
     <template #toolbar>
       <HistoryToolbar
         v-model:sensor="sensor"

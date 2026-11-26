@@ -21,8 +21,10 @@
     "@nuxt/ui": "4.13.1",
     "@nuxtjs/i18n": "10.6.0",
     "@tanstack/charts": "1.5.0",
+    "exceljs": "4.4.0",
     "nuxt": "4.6.4",
     "openapi-fetch": "0.17.0",
+    "pdfmake": "0.3.15",
     "tailwindcss": "4.3.5",
     "vue": "3.5.46",
     "vue-router": "5.5.1"
@@ -30,7 +32,8 @@
   "devDependencies": {
     "@nuxt/eslint": "1.17.0",
     "@nuxt/test-utils": "4.4.0",
-    "@resvg/resvg-js": "^2.6.2",
+    "@resvg/resvg-js": "2.6.2",
+    "@types/pdfmake": "0.3.4",
     "@vue/test-utils": "2.6.0",
     "eslint": "10.15.0",
     "happy-dom": "21.0.4",

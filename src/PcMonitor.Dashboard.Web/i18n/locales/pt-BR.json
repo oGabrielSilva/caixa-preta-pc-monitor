@@ -269,5 +269,34 @@
     "load": "Carga",
     "open": "Abrir o painel",
     "unseen": "Queda nova"
+  },
+  "export": {
+    "button": "Exportar",
+    "formats": {
+      "csv": "CSV",
+      "xlsx": "Excel (.xlsx)",
+      "pdf": "PDF"
+    },
+    "sheets": {
+      "incidents": "Quedas",
+      "diagnosis": "Diagnóstico",
+      "readings": "Leituras"
+    },
+    "confidence": "Confiança",
+    "kind": "Tipo",
+    "text": "Texto",
+    "hypotheses": "Hipótese",
+    "direction": "Peso",
+    "strength": "Força",
+    "for": "a favor",
+    "against": "contra",
+    "start": "Início",
+    "unit": "Unidade",
+    "generatedAt": "Gerado em {date}",
+    "kinds": {
+      "Evidence": "Evidência",
+      "Observation": "Observação",
+      "Limitation": "Limitação"
+    }
   }
 }
