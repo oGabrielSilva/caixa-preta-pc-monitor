@@ -19,7 +19,7 @@ describe('IncidentTimeline', () => {
     } } })
 
     const text = timeline.text()
-    const order = ['Último sinal de vida (Windows)', 'Última leitura do PC Monitor', 'Windows iniciou', 'Windows registrou o desligamento inesperado', 'O desligamento anterior foi inesperado']
+    const order = ['Último sinal de vida (Windows)', 'Última leitura da Caixa-Preta', 'Windows iniciou', 'Windows registrou o desligamento inesperado', 'O desligamento anterior foi inesperado']
     expect(order.map(title => text.indexOf(title))).toEqual([...order.map(title => text.indexOf(title))].sort((a, b) => a - b))
     expect(order.every(title => text.includes(title))).toBe(true)
   })

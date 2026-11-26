@@ -12,7 +12,7 @@
     "loading": "Carregando…"
   },
   "storage": {
-    "title": "Os dados do PC Monitor não estão disponíveis",
+    "title": "Os dados da Caixa-Preta não estão disponíveis",
     "missing": "O banco ainda não existe. Instale e inicie o coletor (scripts/Install-Collector.ps1).",
     "schema_too_old": "O coletor instalado é mais antigo que este painel. Reinstale o coletor.",
     "schema_too_new": "O banco é de um coletor mais novo que este painel. Reinstale o painel.",
@@ -99,8 +99,8 @@
       "signals": "Sinais"
     },
     "precision": {
-      "LastFrame": "± 1 s (PC Monitor)",
-      "LastFrameBeforeSleep": "antes de dormir (PC Monitor)",
+      "LastFrame": "± 1 s (Caixa-Preta)",
+      "LastFrameBeforeSleep": "antes de dormir (Caixa-Preta)",
       "LastAliveEventLog": "aproximado (Windows)",
       "Unknown": "desconhecido"
     },
@@ -132,7 +132,7 @@
     "timeline": {
       "title": "Linha do tempo",
       "lastAlive": "Último sinal de vida (Windows)",
-      "lastFrame": "Última leitura do PC Monitor",
+      "lastFrame": "Última leitura da Caixa-Preta",
       "failure": "Queda estimada",
       "logged": "Windows registrou o desligamento inesperado"
     },
@@ -142,7 +142,7 @@
       "notAtFailure": "Estes dados terminam antes da queda: o coletor estava parado ou o PC dormindo.",
       "rail": "+12 V (faixa ATX {min} – {max} V)",
       "cpu": "CPU e carga",
-      "none": "O PC Monitor não tem leituras desta queda."
+      "none": "A Caixa-Preta não tem leituras desta queda."
     },
     "weighed": {
       "title": "O que pesou",
@@ -251,7 +251,7 @@
     "power_button_long_press": "O botão de energia foi segurado: desligamento forçado.",
     "power_button_pressed": "O botão de energia foi pressionado.",
     "boot_early_failure": "Caiu pouco depois de ligar, antes do primeiro registro periódico do Windows (~40 min).",
-    "telemetry_missing": "O PC Monitor não estava gravando quando o PC caiu.",
+    "telemetry_missing": "A Caixa-Preta não estava gravando quando o PC caiu.",
     "telemetry_not_at_failure": "A gravação parou antes da queda (coletor parado ou PC dormindo): os últimos dados não são do momento da queda.",
     "telemetry_too_short": "A {role} foi gravada por pouco tempo antes da queda para concluir algo.",
     "estimate_lower_bound": "O horário da queda é aproximado: ela aconteceu nesse momento ou depois.",

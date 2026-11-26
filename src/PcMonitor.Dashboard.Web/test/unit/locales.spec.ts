@@ -9,6 +9,12 @@ describe('locales', () => {
     expect(ptBR.length).toBeGreaterThan(0)
   })
 
+  it('name the product Caixa-Preta, never the internal name (ADR 0017)', () => {
+    const values = (messages: object): string[] => Object.values(messages).flatMap(value =>
+      typeof value === 'string' ? [value] : values(value as object))
+    expect([...values(loadLocale('pt-BR')), ...values(loadLocale('en'))].filter(text => text.includes('PC Monitor'))).toEqual([])
+  })
+
   it('pt-BR and en have the same keys', () => {
     expect([...en].sort()).toEqual([...ptBR].sort())
   })

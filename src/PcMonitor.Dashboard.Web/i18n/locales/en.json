@@ -12,7 +12,7 @@
     "loading": "Loading…"
   },
   "storage": {
-    "title": "PC Monitor data is not available",
+    "title": "Caixa-Preta data is not available",
     "missing": "The database does not exist yet. Install and start the collector (scripts/Install-Collector.ps1).",
     "schema_too_old": "The installed collector is older than this dashboard. Reinstall the collector.",
     "schema_too_new": "The database comes from a newer collector than this dashboard. Reinstall the dashboard.",
@@ -99,8 +99,8 @@
       "signals": "Signals"
     },
     "precision": {
-      "LastFrame": "± 1 s (PC Monitor)",
-      "LastFrameBeforeSleep": "before sleep (PC Monitor)",
+      "LastFrame": "± 1 s (Caixa-Preta)",
+      "LastFrameBeforeSleep": "before sleep (Caixa-Preta)",
       "LastAliveEventLog": "approximate (Windows)",
       "Unknown": "unknown"
     },
@@ -132,7 +132,7 @@
     "timeline": {
       "title": "Timeline",
       "lastAlive": "Last sign of life (Windows)",
-      "lastFrame": "Last PC Monitor reading",
+      "lastFrame": "Last Caixa-Preta reading",
       "failure": "Estimated crash",
       "logged": "Windows logged the unexpected shutdown"
     },
@@ -142,7 +142,7 @@
       "notAtFailure": "This data ends before the crash: the collector was stopped or the PC was asleep.",
       "rail": "+12 V (ATX range {min} – {max} V)",
       "cpu": "CPU and load",
-      "none": "PC Monitor has no readings for this crash."
+      "none": "Caixa-Preta has no readings for this crash."
     },
     "weighed": {
       "title": "What weighed in",
@@ -251,7 +251,7 @@
     "power_button_long_press": "The power button was held down: forced power-off.",
     "power_button_pressed": "The power button was pressed.",
     "boot_early_failure": "It crashed soon after power-on, before Windows' first periodic record (~40 min).",
-    "telemetry_missing": "PC Monitor was not recording when the PC crashed.",
+    "telemetry_missing": "Caixa-Preta was not recording when the PC crashed.",
     "telemetry_not_at_failure": "Recording stopped before the crash (collector stopped or PC asleep): the last data is not from the moment of the crash.",
     "telemetry_too_short": "The {role} was recorded too briefly before the crash to conclude anything.",
     "estimate_lower_bound": "The crash time is approximate: it happened at that moment or later.",
