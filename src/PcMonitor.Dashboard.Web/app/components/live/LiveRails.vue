@@ -5,11 +5,7 @@ const props = defineProps<{ buffer: LiveBuffer }>()
 
 const { t, locale } = useI18n()
 
-const railOrder: readonly string[] = ['Rail12V', 'Rail5V', 'Rail3V3']
-
-const rails = computed(() => props.buffer.sensors
-  .filter(s => s.range !== null)
-  .sort((a, b) => railOrder.indexOf(a.role) - railOrder.indexOf(b.role))
+const rails = computed(() => supplyRails(props.buffer.sensors)
   .map(s => ({ key: s.key, name: t(`roles.${s.role}`), value: latestValue(props.buffer, s.key), range: s.range! })))
 
 const others = computed(() => secondaryReadings(props.buffer.sensors, key => latestValue(props.buffer, key)).map(reading => ({
