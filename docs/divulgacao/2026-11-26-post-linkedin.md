@@ -1,8 +1,10 @@
 # Rascunho: post do LinkedIn para o lançamento da Caixa-Preta
 
-> Rascunho para o dono revisar. Nada foi publicado. O trecho entre `[...]` é para você completar ou apagar. O link só funciona depois que o repositório estiver público e o GitHub Pages estiver ligado.
+> Rascunho para o dono revisar. Nada foi publicado. O trecho entre `[...]` é para você completar ou apagar.
 
-**Imagem sugerida:** `src/PcMonitor.Site/public/og/og-pt-BR.png` (1200 × 630). Outra opção é a captura `public/screens/overview-1600.webp`, que mostra o painel de verdade. Se for usar a captura do incidente, diga que são dados de exemplo.
+**Formato:** carrossel em PDF (post de documento). Arquivo: [`carrossel/carrossel-caixa-preta.pdf`](carrossel/carrossel-caixa-preta.pdf), com 8 slides de 1080 × 1350; as prévias ficam em `carrossel/png/`. A fonte é [`carrossel/slides.html`](carrossel/slides.html), e `pwsh docs/divulgacao/carrossel/build-carousel.ps1` gera o PDF de novo. No LinkedIn: **Começar publicação → Adicionar documento**, com o título "Caixa-Preta: por que meu PC desliga sozinho". O slide 4 usa dados de exemplo e diz isso.
+
+**Link:** vai no primeiro comentário, logo depois de publicar (o slide 8 avisa). O LinkedIn entrega menos os posts com link externo no texto. Comentário sugerido: `Site e download: https://ogabrielsilva.github.io/caixa-preta-pc-monitor/ · Código: https://github.com/oGabrielSilva/caixa-preta-pc-monitor`
 
 ---
 
@@ -30,7 +32,7 @@ Algumas decisões de que gostei:
 
 [O que a Caixa-Preta mostrou no seu caso, se você quiser contar.]
 
-🔗 https://ogabrielsilva.github.io/caixa-preta-pc-monitor/
+👇 Link no primeiro comentário.
 
 #dotnet #nuxt #opensource #windows #hardware
 
@@ -50,8 +52,9 @@ Built with .NET 10 and Nuxt 4, with three least-privilege processes, a layered a
 
 ## Antes de postar
 
-- [ ] Repositório `oGabrielSilva/caixa-preta-pc-monitor` público, com o código enviado.
-- [ ] GitHub Pages ligado (Settings → Pages → Source: **GitHub Actions**) e a página abrindo no link acima.
-- [ ] Tag `v1.0.0` publicada e o instalador anexado à release (o botão de download passa a apontar para ele).
+- [x] Repositório `oGabrielSilva/caixa-preta-pc-monitor` público, com o código enviado.
+- [x] GitHub Pages ligado (Source: **GitHub Actions**).
+- [x] Tag `v1.0.0` publicada e o instalador anexado à release.
+- [ ] Página abrindo no link e o botão de download apontando para o instalador.
 - [ ] Os trechos `[...]` preenchidos ou apagados.
 - [ ] Prévia do link conferida, por exemplo no [Post Inspector do LinkedIn](https://www.linkedin.com/post-inspector/), para a imagem do Open Graph aparecer.
