@@ -4,12 +4,10 @@
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="Caixa-Preta"
         Width="260" Height="40"
-        WindowStyle="None" ResizeMode="CanResize"
+        WindowStyle="None" ResizeMode="NoResize"
         ShowInTaskbar="False" Topmost="True"
         Background="#0a0a0a">
-  <!-- Resizable (the page's grip starts it) but with no visible frame or resize border of its own. -->
-  <WindowChrome.WindowChrome>
-    <WindowChrome CaptionHeight="0" ResizeBorderThickness="0" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False" />
-  </WindowChrome.WindowChrome>
+  <!-- No resize border and no maximize box: Snap would take the panel over when it is dragged to a screen corner.
+       The page's grip resizes it through ResizeDrag instead. -->
   <wv2:WebView2 x:Name="View" />
 </Window>

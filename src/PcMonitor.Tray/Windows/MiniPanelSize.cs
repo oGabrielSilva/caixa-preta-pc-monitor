@@ -21,13 +21,4 @@ internal static class MiniPanelSize
 
     /// <summary>The scale kept within its limits; 1 when it is not a number.</summary>
     public static double Clamp(double scale) => double.IsFinite(scale) ? Math.Clamp(scale, MinScale, MaxScale) : 1.0;
-
-    /// <summary>
-    /// The scale for a window the user is dragging to <paramref name="proposed"/>: the side that grew (or shrank) most
-    /// wins, so the panel keeps its proportions. 1 until the content has been measured.
-    /// </summary>
-    public static double ScaleFor(Size proposed, Size content) =>
-        content.Width > 0 && content.Height > 0
-            ? Clamp(Math.Max(proposed.Width / content.Width, proposed.Height / content.Height))
-            : 1.0;
 }

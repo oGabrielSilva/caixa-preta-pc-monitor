@@ -18,7 +18,7 @@ public sealed class HealthEndpointsTests
 
         var health = await HealthOf(factory);
 
-        health.ShouldBe(new HealthResponse("ok", "1.0.0", StorageState.Missing));
+        health.ShouldBe(new HealthResponse("ok", "1.0.1", StorageState.Missing));
     }
 
     [Fact]

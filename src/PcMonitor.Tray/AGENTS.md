@@ -11,5 +11,6 @@ WebView2 windows (ADR 0018): the main window and the always-on-top panel (`/mini
   `{ type: "drag" }` starts moving the mini panel; `{ type: "resize" }` starts resizing it from the corner;
   `{ type: "scale", step }` grows or shrinks it (Ctrl + wheel); `{ type: "size", width, height }` reports its content size.
 - Mini panel size = content size x scale (`MiniPanelSize`), also the WebView2 zoom; the WebView2's own zoom is off.
+- The mini panel has no resize border or maximize box (`ResizeMode="NoResize"`): with them, Snap takes it over at a screen corner. The grip is followed by `ResizeDrag`.
 - WPF and Windows Forms share type names: use aliases, never the implicit Windows Forms usings.
 - Tests: `dotnet test --project tests/PcMonitor.Tray.Tests` (logic only; windows and WebView2 are checked by running the app).

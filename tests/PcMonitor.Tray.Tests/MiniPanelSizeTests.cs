@@ -24,20 +24,6 @@ public sealed class MiniPanelSizeTests
     }
 
     [Fact]
-    public void Dragging_the_corner_follows_the_side_that_grew_most_and_keeps_the_proportions()
-    {
-        MiniPanelSize.ScaleFor(new Size(420, 45), _content).ShouldBe(1.5);
-        MiniPanelSize.ScaleFor(new Size(300, 60), _content).ShouldBe(1.5);
-        MiniPanelSize.ScaleFor(new Size(5000, 40), _content).ShouldBe(MiniPanelSize.MaxScale);
-    }
-
-    [Fact]
-    public void A_panel_without_a_measured_content_keeps_its_scale()
-    {
-        MiniPanelSize.ScaleFor(new Size(300, 60), new Size(0, 0)).ShouldBe(1.0);
-    }
-
-    [Fact]
     public void Each_wheel_step_changes_the_scale_by_an_eighth_within_the_limits()
     {
         MiniPanelSize.Step(1.0, 1).ShouldBe(1.125);
