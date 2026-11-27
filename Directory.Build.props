@@ -11,7 +11,7 @@
     <!-- Public XML docs are encouraged, not mandatory on every member. -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Deterministic>true</Deterministic>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>PC Monitor contributors</Authors>
     <Copyright>Copyright (c) 2026 PC Monitor contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -119,12 +119,17 @@ public partial class MiniWindow
         _settings.Save(TraySettings.DefaultPath);
     }
 
-    /// <summary>Lets Windows move the window as if its title bar were dragged (the mouse button is still down).</summary>
+    /// <summary>
+    /// Lets Windows move the window as if its title bar were dragged (the mouse button is still down). The call returns
+    /// when the panel is dropped; Windows lets it be dropped over the taskbar, which then covers it, so it is pushed back
+    /// inside the work area.
+    /// </summary>
     private void StartMove()
     {
         var handle = new WindowInteropHelper(this).Handle;
         NativeMethods.ReleaseCapture();
         NativeMethods.SendMessage(handle, WmNcLButtonDown, HtCaption, IntPtr.Zero);
+        Place(new Point(Left, Top));
     }
 
     /// <summary>Follows the cursor while the grip is held (the page asked on mouse down); the top-left corner stays put.</summary>

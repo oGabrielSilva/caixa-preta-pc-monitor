@@ -148,4 +148,5 @@ sequenceDiagram
 
 - O painel fixo usa as mesmas faixas e estados do Ao vivo (vindos da API); sem notificações. Com a gravação parada, mostra "—" em vez dos últimos números.
 - Tamanho: puxador do canto (`resize`) ou Ctrl + roda do mouse (`scale`); a escala vale de 0,75 a 2,5 e fica salva. O app segue o cursor enquanto o puxador está apertado, sem a borda nativa de redimensionar, para o Snap não pegar o painel nos cantos da tela.
+- Posição: ao soltar o painel (e ao abrir o app), ele é empurrado para dentro da área útil da tela que contém a maior parte dele, para nunca ficar embaixo da barra de tarefas; fora de todas as telas, volta ao canto inferior direito da principal (`WindowPlacement`).
 - "Queda não vista": a última queda que o usuário ainda não abriu (`localStorage`, conferido a cada 5 min).
