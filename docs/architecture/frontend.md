@@ -92,6 +92,6 @@ flowchart LR
 | `/` e `/en` | o problema e o download, a linha do tempo de uma queda (exemplo ilustrativo) com o diagnóstico, recursos, capturas, engenharia, história e FAQ |
 | `/versoes` e `/en/releases` | cada release com data, notas (texto escapado, só links http/https), instalador e hash SHA-256 |
 
-- **Releases:** lidas da API pública no build. Se a leitura falhar, o build não falha: a página mostra que a primeira versão está a caminho, e o download leva à página de releases.
+- **Releases:** lidas da API pública no build. Se a leitura falhar, o build não falha: a página mostra que a primeira versão está a caminho, e o download leva à página de releases. O botão de download da home sempre leva à página de versões do site, de onde o `.exe` é baixado.
 - **SEO/AEO/GEO:** canonical e `hreflang` absolutos montados por `shared/utils/seo.ts`; Open Graph por idioma; JSON-LD `SoftwareApplication`, `FAQPage` (as mesmas perguntas do FAQ visível), `WebSite` e `BreadcrumbList`.
 - **Imagens:** capturas do painel de verdade; a do incidente vem de um banco de demonstração e diz "dados de exemplo" ([como refazer](../../src/PcMonitor.Site/screenshots/README.md)).

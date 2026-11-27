@@ -7,7 +7,6 @@ import ScreenGallery from '~/components/home/ScreenGallery.vue'
 import Home from '~/pages/index.vue'
 import { FAQ_IDS } from '~/utils/faq'
 import { mapReleases } from '~~/shared/utils/releases'
-import { RELEASES_PAGE } from '~~/shared/utils/site'
 
 /** JSON-LD blocks the page put in <head>, after unhead flushed them. */
 async function jsonLdTypes(): Promise<string[]> {
@@ -52,16 +51,16 @@ describe('home page', () => {
 })
 
 describe('DownloadButton', () => {
-  it('downloads the latest stable installer, with its version and size', async () => {
+  it('leads to the releases page, naming the latest stable version and its size', async () => {
     const button = await mountSuspended(DownloadButton, { props: { releases: mapReleases(raw) } })
-    expect(button.find('a').attributes('href')).toBe('https://github.com/oGabrielSilva/caixa-preta-pc-monitor/releases/download/v1.1.0/CaixaPreta-Setup-1.1.0.exe')
+    expect(button.find('a').attributes('href')).toBe('/caixa-preta-pc-monitor/versoes')
     expect(button.text()).toContain('1.1.0')
     expect(button.text()).toContain('58 MB')
   })
 
-  it('sends to the releases page before the first release', async () => {
+  it('leads to the releases page before the first release too', async () => {
     const button = await mountSuspended(DownloadButton, { props: { releases: [] } })
-    expect(button.find('a').attributes('href')).toBe(RELEASES_PAGE)
+    expect(button.find('a').attributes('href')).toBe('/caixa-preta-pc-monitor/versoes')
   })
 })
 
