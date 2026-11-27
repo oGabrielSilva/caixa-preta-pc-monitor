@@ -206,10 +206,10 @@
     "adrs": "Read the decisions (ADRs)"
   },
   "story": {
-    "title": "Why it exists",
     "quote": "Caixa-Preta was born because of my cat.",
     "text": "He is a big cat, and he climbed onto the PC case to jump on top of the wardrobe. When he jumped, the case did not stay on the desk: it fell more than 80 cm. From then on the PC kept restarting on its own, and I could not tell whether the motherboard or the power supply was at fault. I wanted to monitor the voltages to find out.",
-    "author": "Gabriel Silva, author"
+    "author": "Gabriel Silva, author",
+    "illustration": "Animated illustration: the cat sits on the PC case on the desk and leaps onto the wardrobe; the push knocks the case off the 80 cm desk, and its power light keeps blinking as the PC restarts."
   },
   "cta": {
     "title": "Next time, you will know what happened",

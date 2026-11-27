@@ -206,10 +206,10 @@
     "adrs": "Ler as decisões (ADRs)"
   },
   "story": {
-    "title": "Por que existe",
     "quote": "A Caixa-Preta nasceu por causa do meu gato.",
     "text": "Ele é grande, e subiu no gabinete para pular para cima do guarda-roupa. Quando ele pulou, o gabinete não ficou na mesa: caiu de mais de 80 cm. Desde então o PC passou a reiniciar sozinho, e eu não sabia se o defeito era na placa-mãe ou na fonte. Eu queria monitorar as tensões para descobrir.",
-    "author": "Gabriel Silva, autor"
+    "author": "Gabriel Silva, autor",
+    "illustration": "Ilustração animada: o gato está sentado em cima do gabinete do PC, na mesa, e pula para cima do guarda-roupa; o impulso derruba o gabinete da mesa, de 80 cm, e a luz de energia dele fica piscando enquanto o PC reinicia."
   },
   "cta": {
     "title": "Da próxima vez, você vai saber o que aconteceu",

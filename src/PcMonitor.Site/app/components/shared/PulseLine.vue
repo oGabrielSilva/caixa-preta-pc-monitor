@@ -1,12 +1,11 @@
 <script setup lang="ts">
 // The recorder's trace: steady, one heartbeat (the brand icon's pulse), steady again, then the drop to the floor
-// where the PC went dark. It draws itself when it comes into view, then a pulse of light keeps running along it and
-// the crash point beats, like a recorder that is still running. Nothing moves with prefers-reduced-motion.
+// where the PC went dark. Built from pieces so the heartbeat and the drop keep their shape at any width (only the
+// flat stretches grow). It draws itself when it comes into view; then the heartbeat keeps beating and the crash point
+// keeps pulsing, like a recorder that is still running. Nothing moves with prefers-reduced-motion.
 const { t } = useI18n()
 
-const trace = 'M0,60 L380,60 L404,60 L420,30 L440,96 L462,12 L480,74 L492,60 L1120,60 C1180,60 1210,70 1240,96 L1268,112 L1600,112'
-
-const root = ref<SVGSVGElement>()
+const root = ref<HTMLElement>()
 const state = ref<'idle' | 'waiting' | 'drawing'>('idle')
 
 onMounted(() => {
@@ -25,71 +24,118 @@ onMounted(() => {
 </script>
 
 <template>
-  <svg
+  <div
     ref="root"
-    viewBox="0 0 1600 128"
-    preserveAspectRatio="none"
     role="img"
     :aria-label="t('hero.traceLabel')"
-    class="pulse-line h-20 w-full overflow-visible sm:h-28"
+    class="pulse-line flex h-24 w-full items-stretch"
     :class="state"
   >
-    <path
-      :d="trace"
-      pathLength="1"
-      fill="none"
-      class="trace stroke-primary"
-      stroke-width="3"
-      vector-effect="non-scaling-stroke"
-      stroke-linejoin="round"
-      stroke-linecap="round"
-    />
-    <path
-      :d="trace"
-      pathLength="1"
-      fill="none"
-      class="signal stroke-primary"
-      stroke-width="5"
-      vector-effect="non-scaling-stroke"
-      stroke-linejoin="round"
-      stroke-linecap="round"
-    />
-    <circle
-      cx="1268"
-      cy="112"
-      r="7"
-      class="ring fill-none stroke-error"
-      stroke-width="2"
-      vector-effect="non-scaling-stroke"
-    />
-    <circle
-      cx="1268"
-      cy="112"
-      r="7"
-      class="dot fill-error"
-    />
-  </svg>
+    <!-- Flat stretches: a horizontal line can stretch sideways without changing its thickness. -->
+    <svg
+      class="piece flat min-w-0 basis-0 grow-[3]"
+      viewBox="0 0 100 96"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M0,40 L100,40"
+        pathLength="1"
+      />
+    </svg>
+    <svg
+      class="piece beat w-28 shrink-0"
+      viewBox="0 0 112 96"
+      aria-hidden="true"
+    >
+      <path
+        d="M0,40 L24,40 L40,16 L58,76 L78,6 L94,56 L102,40 L112,40"
+        pathLength="1"
+      />
+    </svg>
+    <svg
+      class="piece flat min-w-0 basis-0 grow-[6]"
+      viewBox="0 0 100 96"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M0,40 L100,40"
+        pathLength="1"
+      />
+    </svg>
+    <svg
+      class="piece drop w-40 shrink-0"
+      viewBox="0 0 160 96"
+      aria-hidden="true"
+    >
+      <path
+        d="M0,40 L36,40 C76,40 96,50 116,72 L130,84 L160,84"
+        pathLength="1"
+      />
+      <circle
+        class="ring"
+        cx="130"
+        cy="84"
+        r="6"
+      />
+      <circle
+        class="dot"
+        cx="130"
+        cy="84"
+        r="6"
+      />
+    </svg>
+    <svg
+      class="piece floor min-w-0 basis-0 grow-[2]"
+      viewBox="0 0 100 96"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M0,84 L100,84"
+        pathLength="1"
+      />
+    </svg>
+  </div>
 </template>
 
 <style scoped>
-.trace {
+.piece {
+  height: 100%;
+  overflow: visible;
+}
+
+.piece path {
+  fill: none;
+  stroke: var(--ui-primary);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
 }
 
-.signal,
+.dot {
+  fill: var(--ui-error);
+}
+
 .ring {
+  fill: none;
+  stroke: var(--ui-error);
+  stroke-width: 2px;
   opacity: 0;
 }
 
 .dot,
-.ring {
+.ring,
+.beat path {
   transform-box: fill-box;
   transform-origin: center;
 }
 
 /* Hidden until it scrolls into view (only when JavaScript and motion are available). */
-.waiting .trace {
+.waiting .piece path {
   stroke-dashoffset: 1;
 }
 
@@ -97,26 +143,32 @@ onMounted(() => {
   opacity: 0;
 }
 
-.drawing .trace {
-  animation: trace 2.2s cubic-bezier(0.5, 0, 0.2, 1) both;
+/* The pieces draw one after the other, left to right, at about the same speed. */
+.drawing .piece path {
+  animation: draw 0.5s linear both;
 }
+.drawing .flat:nth-child(1) path { animation-duration: 0.45s; }
+.drawing .beat path { animation-delay: 0.45s; animation-duration: 0.35s; }
+.drawing .flat:nth-child(3) path { animation-delay: 0.8s; animation-duration: 0.7s; }
+.drawing .drop path { animation-delay: 1.5s; animation-duration: 0.45s; }
+.drawing .floor path { animation-delay: 1.95s; animation-duration: 0.3s; }
 
 .drawing .dot {
-  animation: land 0.4s ease-out 2.1s both;
+  animation: land 0.3s ease-out 1.9s both;
 }
 
-/* A short bright segment that runs along the trace and fades out where the PC went dark. */
-.drawing .signal {
-  stroke-dasharray: 0.05 1;
-  filter: drop-shadow(0 0 6px var(--ui-primary));
-  animation: signal 3.6s linear 2.4s infinite;
+/* After the first draw: the heartbeat flashes every few seconds and the crash point keeps pulsing. */
+.drawing .beat path {
+  animation:
+    draw 0.35s linear 0.45s both,
+    beat 3s ease-in-out 2.4s infinite;
 }
 
 .drawing .ring {
-  animation: ring 1.8s ease-out 2.5s infinite;
+  animation: ring 1.8s ease-out 2.3s infinite;
 }
 
-@keyframes trace {
+@keyframes draw {
   from {
     stroke-dashoffset: 1;
   }
@@ -129,17 +181,14 @@ onMounted(() => {
   }
 }
 
-@keyframes signal {
-  0% {
-    stroke-dashoffset: 0.05;
-    opacity: 1;
-  }
-  75% {
-    opacity: 1;
-  }
+@keyframes beat {
+  0%,
+  70%,
   100% {
-    stroke-dashoffset: -0.8;
-    opacity: 0;
+    filter: none;
+  }
+  80% {
+    filter: drop-shadow(0 0 6px var(--ui-primary));
   }
 }
 
@@ -150,7 +199,7 @@ onMounted(() => {
   }
   100% {
     opacity: 0;
-    transform: scale(3.2);
+    transform: scale(3);
   }
 }
 </style>

@@ -32,6 +32,13 @@ describe('home page', () => {
     expect(await jsonLdTypes()).toEqual(expect.arrayContaining(['WebSite', 'SoftwareApplication', 'FAQPage']))
   })
 
+  it('tells why the app exists next to an illustration described for screen readers', async () => {
+    const page = await mountSuspended(Home)
+    const story = page.find('#historia')
+    expect(story.find('h2').text()).toContain('gato')
+    expect(story.find('svg[role="img"]').attributes('aria-label')).toContain('gato')
+  })
+
   it('gives every image alt text and a size (no layout shift)', async () => {
     const page = await mountSuspended(Home)
     const images = page.findAll('img')
